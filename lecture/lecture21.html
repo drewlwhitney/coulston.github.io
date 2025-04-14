@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture20.html">&ltPrev</a></li>
+                        <li><a href="./lecture22.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>21</td></tr>
+<tr><td>Handout:</td>	
+<td>
+<a href="./handout/alias.pdf">alias.pdf</a><br>
+<a href="./handout/aliasVisible.pdf">aliasVisible.pdf</a></td>
+</tr>
+
+<tr><td>Excel:</td>	<td><a href="./excel/alias.xlsx">alias.xlsx</a></td></tr>
+<tr><td>Web resource:</td>	<td><a href="http://hackaday.com/2017/03/23/say-it-with-me-aliasing/">Aliasing tutorial on Hack A Day</a></td></tr>
+<tr><td>Objective:</td> <td>To provide a working understanding of signal
+	aliasing in a sampled system and the relationship between the
+	sampling rate and frequency aliasing.</td>
+</table>
+
+
+<h1>Analog to Digital Conversion</h1>
+
+<h2>Aliasing</h2>
+Whenever you sample an analog signal at discrete times, you are going 
+to run into aliasing problems and frequency folding.  Let's examine
+these concepts and develop some robust definitions. We will use the
+term "ADC sample" to mean the act of an ADC generating a converted value
+from its analog input.  In most applications, your ADC will sample its
+input (and generate a converted value) at a regular period that we will
+call the sampling rate. The following discussion concerns the sampling
+rate, but not with the ADC resolution and the reference voltages. 
+<br>
+
+Imagine that you have an ADC that samples its input once every 50 us.
+Every sample in the following figures is represented with a red dot.
+Now let's apply a 2,500 Hz, 2 V peak-to-peak sine wave to the input 
+of the ADC.  This waveform is shown in blue in the top graph.  Note
+the horizontal axis has units of microseconds.
+
+<br><img src="./img/2500Hz.jpg"><br><br>
+
+The top graph shows which points along the sine wave are sampled
+generating converted values on the ADC output.  Notice that the red
+dots are found at 50 us interval along the time axis, consistent
+with the fact that we are sampling the input once every 50 us. 
+Furthermore, the period of the waveform is 400 us, which is a 
+frequency of 1/400us = 2,500 Hz, consistent with the claimed
+frequency of the input.  Now, if you wrote an embedded 
+program to store these converted values in an 
+array.  If you plotted these array values in excel you would get 
+the lower graph. <u>Now imagine if you were presented with only
+the data in the lower graph and were asked to provide a best guess
+at the frequency of the sine wave that produced these points.</u>
+I hope that the answer is obvious, it looks like a 2,500 Hz waveform
+was responsible for generating the red points.  We will call this
+the <u>observed frequency</u> of the sampled data.  Now for the twist,
+there are an infinite number of different sine wave that could have
+generated the red points.  That is, there are an infinite number of
+sine waves that when sampled every 50 us, have an observed frequency
+of 2,500 Hz.  These sine waves are the <u>alias</u> of the
+2,500 Hz waveform.  Let's look at one such alias to better understand
+what is going on.<br><br>
+
+Again imagine that you have an ADC that samples its input once every 
+50 us. Every sample in the following figures is represented with a 
+red dot. Now let's apply a 22,500 Hz, 2 V peak-to-peak sine wave to 
+the input of the ADC. This waveform is shown in blue in the top graph.
+ Note the horizontal axis has units of microseconds. 
+
+
+<br><img src="./img/22500Hz.jpg"><br><br>
+
+The top graph shows which points along the sine wave are sampled 
+generating converted values on the ADC output. Notice that the red 
+dots are found at 50 us interval along the time axis, consistent with 
+the fact that we are sampling the input once every 50 us. Furthermore, 
+the period of the blue waveform is 44 us, which is a frequency of 
+1/44us = 22,500 Hz, consistent with the claimed frequency of the 
+input. It should be obvious that the red samples are not coming fast
+enough to keep-up with the blue waveform.  This creates problems when
+we try to provide a best guess at the frequency of the sine wave that 
+produced these red points.  With the exception of a phase shift,
+the red points in the lower graph are indistinguishable from the 
+samples collected from the 2,500 Hz waveform.  
+<br><br>
+
+Using the handout provided at the top of the page, complete the 
+following table.  You can view the page source for this file to
+see the completed table.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Input Frequency	<td>Observed Frequency
+<tr><td>0		<td>0
+<tr><td>2500		<td>2,500
+<tr><td>5000		<td>&nbsp
+<tr><td>7500		<td>&nbsp
+<tr><td>10,000		<td>&nbsp
+<tr><td>12,500		<td>&nbsp
+<tr><td>15,000		<td>&nbsp
+<tr><td>17,500		<td>&nbsp
+<tr><td>20,000		<td>&nbsp
+<tr><td>22,500		<td>2,500
+<tr><td>25,000		<td>&nbsp
+<tr><td>27,500		<td>&nbsp
+<tr><td>30,000		<td>&nbsp
+<tr><td>32,500		<td>&nbsp
+<tr><td>35,000		<td>&nbsp
+<tr><td>37,500		<td>&nbsp
+<tr><td>40,000		<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Input Frequency	<td>Observed Frequency
+<tr><td>0		<td>0
+<tr><td>2500		<td>2,500
+<tr><td>5000		<td>5,000
+<tr><td>7500		<td>7,500
+<tr><td>10,000		<td>10,000
+<tr><td>12,500		<td>7,500
+<tr><td>15,000		<td>5,000
+<tr><td>17,500		<td>2,500
+<tr><td>20,000		<td>0
+<tr><td>22,500		<td>2,500
+<tr><td>25,000		<td>5,000
+<tr><td>27,500		<td>7,500
+<tr><td>30,000		<td>10,000
+<tr><td>32,500		<td>7,500
+<tr><td>35,000		<td>5,000
+<tr><td>37,500		<td>2,500
+<tr><td>40,000		<td>0
+</table>
+-->
+
+Using this table of data, I've plotted the Observed Frequency vs. the 
+Input Frequency in the graph below.  Notice the distinctive upside-down 
+v-shape of the data points.  This pattern repeats itself, creating an 
+infinite sequence of upside-down v-shape wedges.  The black line
+connecting the points represents the actual graph of Observed Frequency
+vs Input Frequency.  You might remember that this data was collected 
+from an ADC sampling its input every 50 us.  When interpreted as a
+frequency, 50 us produces a sampling frequency of 20,000 Hz. This 
+value is so important, it is given its own special symbol
+f<sub>s</sub>.  It is no coincident that the peak of the graph below
+occurs at f<sub>s</sub>/2 and the valley at f<sub>s</sub>/2.
+
+<br><img src="./img/alias.jpg"><br><br>
+
+Imagine that you were interested in 2,500 Hz signals collected by this
+ADC.  We have already seen that a 22,500 Hz sine wave has an observed 
+frequency of 2,500 Hz and hence is an alias of 2,500 Hz.  Any other input
+frequency which has an observed frequency of 2,500 Hz is also an alias.
+In other words, all alias of 2,500 Hz lie along the horizontal line with
+an observed frequency of 2,500 Hz.  These higher frequency alias are said
+to <u>foldback</u> to the lowest frequency.<br><Br>
+
+This creates a troubling problem for ADCs.  For any frequency of 
+interest (like 2,500 Hz), there are an infinite number of (higher) 
+input frequencies that, when sampled, are indistinguishable 
+from this frequency of interest.  <br><br>
+
+When describing alias, I will use the term harmonic to talk about
+the individual v-shape regions on the Observed Frequency vs. 
+Input Frequency graph.  The left-most v-shaped region is the 
+first harmonic, and each subsequent v-shaped region a incrementally
+higher harmonic.  With respect to the figure above, the first harmonic
+has a frequency of 0Hz to 20kHz and the second harmonic has a frequency
+of 20kHz to 40kHz.
+
+<ul>
+<li><b>Question:</b>An ADC is sampling a signal at 20kHz.  List the
+first 8 alias of 2kHz?<br>
+<b>Answer:</b>
+<pre>
+1st harmonic:   2kHz                    20kHz-2kHz = 18kHz
+2nd harmonic:   20kHz+2kHz=22kHz        40kHz-2kHz = 38kHz
+3rd harmonic:   40kHz+2kHz=42kHz        60kHz-2kHz = 58kHz
+4th harmonic:   60kHz+2kHz=62kHz        80kHz-2kHz = 78kHz
+</pre>
+
+<li><b>Question:</b>An ADC is sampling a signal at 30kHz, what 
+frequencies will alias to 5kHz in the 100th harmonic?<br>
+<b>Answer:</b>
+<pre>
+100th harmonic: 99*30kHz+5kHz=2,965kHz    100*30kHz-5kHz = 3,005kHz
+</pre>
+
+<li><b>Question:</b>An ADC is sampling a signal at 50kHz, what 
+frequency, closest to 2,430kHz, alias to 15kHZ?<br>
+<b>Answer:</b>
+<pre>
+	Let's find the start of the harmonic that is closest to 2,430kHz.
+	2,430kHz / 50kHz = 48.6 
+	50kHz * 49 = 2,450kHz is the closest start of a harmonic to 2,430kHz
+
+	Subtracting 15kHZ from this frequency gives us an alias of 
+	2,450kHz - 15kHz = 2,435kHz which is just 5kHz away from the 
+	target frequency of 2,430kHz.
+</pre>
+
+</ul>
+
+Now the real problem with aliasing is that energy from signals 
+outside your range of interest can foldback into the frequencies
+of interest.  For example, the second graph below shows a signal 
+with two power peaks, one in the first harmonic and one in the 
+second.  However, since aliasing happens, the power in the second
+harmonic will foldback into the first harmonic creating unwanted
+noise.
+<br><img src="./img/LowPassFilter.GIF"><br><br>
+
+
+<h2>Attenuation</h2>
+In order to address this problem we will utilize a principle
+called attenuation.  Attenuation is the process of changing the
+amplitude of a waveform without changing its frequency.  Specifically,
+we will examine how to use a low-pass filter (LPF) to reduce the power 
+from the higher order harmonics so that when its foldback into the
+first harmonic, it will not have enough power to create a noticeable
+amount of noise.<br><br>
+
+Before we start on the design of LPF, you need to master the concept
+of Decibels (dB) which will describe the amount of signal attenuation
+provided by an electronic component.  Attenuation referrers to changing 
+the amplitude of a waveform from input (Called V<sub>in</sub>) to output 
+(called V<sub>out</sub>) as it travels through the electronics component.  
+
+<pre>
+	dB = 20 * log (V_out/V_in)
+</pre>
+
+Note that the equation for Decibels uses a base 10 logarithm.
+
+<li><b>Question:</b>
+If a electronic component took a 1v sine wave as input
+and output a 0.1v sine wave, how much attenuation would it have?<br>
+<b>Answer:</b>
+
+<pre>
+	dB = 20 * log (0.1/1.0) = -20 dB
+</pre>
+
+<li><b>Question:</b>
+Suppose an electronic component had a 1 v sine wave as input and produced
+a 10v sine wave as output.  How much attenuation would it impart on the 
+signal?<br>
+
+<b>Answer:</b>
+<pre>
+	dB = 20 * log (10/1.0) = 20 dB
+</pre>
+
+
+<li><b>Question:</b> If you input a 3 V sin wave into a circuit
+that attenuated it by -40dB, what would the amplitude of the 
+output waveform be?<br>
+<b>Answer:</b>
+<pre>
+
+	-40 dB = 20 log (V<sub>out</sub>/3 V)
+	V<sub>out</sub> = 
+</pre>
+
+
+<li><b>Question:</b> If you input a 3 V sin wave into a circuit
+how many dB of attenuation would you need to reduce the amplitude
+to 0.1 V?
+<b>Answer:</b>
+<pre>
+	Attenuation	= 20 log (0.1 V /3 V)
+			= 
+</pre>
+
+<li><b>Question:</b> A circuit attenuates an input signal by 
+-68 dB to produce a 0.5 V signal.  What is the amplitude of
+the input signal?
+<b>Answer:</b>
+<pre>
+	-68 dB = 20 log (0.5 V /V<sub>in</sub>)
+	V<sub>in</sub> = 
+</pre>
+
+</ul>
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ul>
+<li>An ADC is sampling a signal at 50kHz.  List the
+first 7 alias of 3.5kHz?
+<!--
+<pre>
+1st harmonic:          3.5kHz                  50kHz-3.5kHz =  46.5kHz
+2nd harmonic:    50kHz+3.5kHz= 53.5kHz        100kHz-3.5kHz =  96.5kHz
+3rd harmonic:   100kHz+3.5kHz=103.5kHz        150kHz-3.5kHz = 146.5kHz
+4th harmonic:   150kHz+3.5kHz=153.5kHz        200kHz-3.5kHz = 196.5kHz
+</pre>
+-->
+
+<li>An ADC is sampling a signal at 50kHz, what frequencies will alias 
+to 8kHz in the 42th harmonic?  
+<!--
+<pre>
+42th harmonic: 41*50kHz-8kHz    42*50kHz+8kHz
+</pre>
+-->
+
+<li>An ADC is sampling a signal at 100kHz, what 
+frequency, closest to 1,380kHz, alias to 15kHZ?<br>
+<!--
+<pre>
+	Let's find the start of the harmonic that is closest to 1,380kHz.
+	1,380kHz / 100kHz = 13.8
+	100kHz * 14 = 1,400kHz is the closest start of a harmonic to 1,380kHz
+
+	Subtracting 15kHZ from this frequency gives us an alias of 
+	1,400kHz - 15kHz = 1.385MHz which is just 5kHz away from the 
+	target frequency of 1,380kHz.
+
+	So the answer is 1.385MHz
+</pre>
+-->
+
+<li>If you input a 1v sin wave into a circuit
+that attenuated it by -68dB, what would the amplitude of the 
+output waveform be?<br>
+<!--
+<pre>
+	-68 dB = 20 log(V<sub>out</sub>/1 V)
+	V<sub>out</sub> = 398uV
+</pre>
+-->
+
+<li>If you reduced a signal by a factor of 1/256,
+how many dB would you need to attenuate it by?<br>
+<!--
+<pre>
+	20 log(1/256) = -48dB
+</pre>
+-->
+
+<li>Use the definition of attenuation to complete the following table.
+<table border=1>
+<tr><td>V<sub>out/</sub>V<sub>in</sub>	<td>dB
+<tr><td>1		<td>&nbsp
+<tr><td>1/10		<td>&nbsp
+<tr><td>1/100		<td>&nbsp
+<tr><td>1/1000		<td>&nbsp
+<tr><td>1/256		<td>&nbsp
+<tr><td>&nbsp   	<td>-3dB
+<tr><td>&nbsp		<td>-96.3dB
+</table>
+
+<!--
+<table border=1>
+<tr><td>V<sub>out/</sub>V<sub>in</sub>	<td>dB
+<tr><td>1		<td> 20 log(1/1)    = 0 dB
+<tr><td>1/10		<td> 20 log(1/10)   = -20 dB
+<tr><td>1/100		<td> 20 log(1/100)  = -40 dB
+<tr><td>1/1000		<td> 20 log(1/1000) = -60 dB
+<tr><td>1/256		<td> 20 log(1/256)  = -48 dB
+<tr><td>1/sqrt(2)	<td>-3dB
+<tr><td>1/2<sup>16</sup><td>-96.3dB
+</table>
+-->
+
+<li>You're sampling an analog signal at 48kHz. List all the frequencies 
+in the first 3 harmonics that alias to  2kHz signals. 
+
+<!--
+<pre>
+1st harmonic:	2kHz			48kHz-2kHz = 46kHz
+2st harmonic:	48kHz+2kHz=50kHz	96kHz-2kHz = 94kHz
+3st harmonic:	96kHz+2kHz=98kHz	144kHz-2kHz = 142kHz
+</pre>
+-->
+
+
+<li>A first-order LPF has a cutoff frequency of 2kHz. Describe the 
+attenuation of a 80kHz input signal in decibels and as a ratio of 
+output voltage to input voltage. 
+
+<!--
+Since a decade is a multiplicative factor of 10, we need to find how
+may powers of 10 you have to multiply by in order to increase 2 to 80.
+In other words…
+<pre>
+2*10^x = 80, solving for X yields
+x = log_10(80/2) = 1.6
+</pre>
+
+So we know that a 80kHz waveform is 1.6 decades above the 2kHz corner
+frequency.
+Since the LPF attenuates -20db/decade, the 80kHz waveform will be attenuated
+1.6*-20 = -32db  Decibels can be converted to the ratio of output/input
+using its definition...
+<pre>
+-32db = 20db log_10(V_out/V_in)
+V_out/Vin = 0.025 = 1/40
+</pre>
+-->
+
+
+</ul>
+
+</body>
+</html>

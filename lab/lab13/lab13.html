@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #13 - Ultrasonic range finder</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>                     </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab11/lab11.html">&lt;Prev</a></li>
+                        <li><a href="../lab14/lab14.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Lab 13 - Ultrasonic Parking Assistant
+</center>
+<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>13</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 13</h2>
+Some self guided <a href="./inlab13.html">activities.</a>
+
+<h2>Lab 13 assignment</h2>
+I have been having some difficulty parking my car in the tight
+parking spaces available in front of Brown building and I would like
+your help building a digital parking assistant.  The reason that I am
+having difficulty is that I cannot determine how much room I have 
+behind my car as I am backing into a space.  I am planning on mounting 
+an ultrasonic range finder on my rear bumper and running a cable from 
+the range finder to my dashboard where the development board will reside.  
+The RGB LED on the development board will provide me with the proximity to any
+obstruction behind me using color as follows:
+<ul>	<li>If the obstruction is within 20cm of the bumper the LED
+	 should turn red, indicating that I should stop,
+	<li>If the obstruction is more than 1.48 meters from the bumper
+	the LED should turn green indicating that I have plenty of room to
+	back up,
+	<li>If the obstruction is more than 20cm and less than 148cm from
+	the bumper, the color should be a mix of red and green proportional 
+	to the proximity to the obstruction.  This concept is illustrated 
+	in the following figure.
+</ul>
+
+<br><img src="./img/colorVsRange.bmp"><br><br>
+
+<h2>Software</h2>
+The software should use CCP4 interrupt to measure the echo pulse
+duration from the ultrasonic range finder.   The code for the 
+CCP4 interrupt should be placed in 
+<font face="courier">void myCCP4ISR(uint16_t capturedValue);</font>
+Note the argument to the ISR is provided by the 
+<font face="courier"> CCP4_CaptureISR</font> which is the MCC provided
+function which calls your myCCP4ISR function.  You need to tell the
+compiler to call myCCP4ISR whenever a capture event occurs using
+the following configuration at the top of main in it's usual place.
+<pre>
+    SYSTEM_Initialize();
+    TMR0_SetInterruptHandler(myTMR0ISR);
+    CCP4_SetCallBack(myCCP4ISR);
+    INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
+</pre>
+
+Your myCCP4ISR should put the duration of the echo pulse
+into a global uint16_t variable "echoPulse".  Every time that 
+myCCP4ISR writes a new value into echoPulse, the ISR should
+also set a global variable "newSample" to true.  main can poll
+the newSample variable to determine when a new echoPulse is available.
+<br><Br>
+
+Our ultrasonic range finders have a tendency to occasionally generate
+an invalid echo pulse.  I would like your software to filter out these
+invalid values as follows.  Your program should gather 8 consecutive
+echo pulse durations into an array of uint16_t.  After collecting
+8 echo pulse durations in an array, sort the array, in decreasing order,
+using an algorithm like bubble sort.  Do not use a complex set of 
+if/then's to sort.  Then go into this sorted array and choose the 
+the middle element of the array (array index 3) as the echo pulse duration 
+on which to base the parking assistant range value on.   Choosing the middle element
+of the sorted list allows your code to ignore the occasional invalid pulse 
+duration.  And since the echo pulse durations are being generated at 10Hz 
+there isn't much delay in taking 8 range measurements. 
+<br><br>
+
+For example, my code collected the following 8 echo pulse durations,
+where two of the values where invalid.  My algorithm returns the 
+3rd element of the sorted list  (remember indexes start at 0) as
+the echo pulse duration to use for the parking assistant.  In the case
+below this would be 33,224 timer counts.  This range is used until another 
+8 echo pulse durations have been collected, sorted and the 3rd element
+selected.
+
+<pre>
+Unsorted
+33230    33231    33226    33221    33224    10984    10885    33227
+
+Sorted
+10885    10984    33221    33224    33226    33227    33230    33231
+</pre>
+
+Your software should use the TMR0 roll-over interrupt to generate a 25us
+trigger pulse at exactly 10Hz.
+<br><Br>
+
+Your program should use two PWM channels, one for the red LED and one for the
+green, to  produce the parking assistant color patterns.
+<br><Br>
+
+At start-up your program should present a splash screen - this would
+be a great place for some ascii art. The splash screen should also contain
+connection instruction for the development board (where to install jumper
+wires). For example, my program generates the following splash screen.
+<pre>
+Development Board
+Lab 13 terminal
+RGB Connections:
+    RC2:    Red
+    RC1:    Green
+Ultrasonic Connections:
+    Vcc: left pin on JP1 header (closest to mini USB).
+    Trig:   RC7
+    Echo:   RB0
+    GND:    GND header pin on PIC breakout header.
+</pre>
+
+When you press "?" you should be greeted with the following menu.
+
+<pre>
+------------------------------
+echoPulse = 29638
+distance = 247 cm
+------------------------------
+?: Help menu
+o: k
+Z: Reset processor
+z: Clear the terminal
+s: Stream Echo pulse length
+S: Stream distance
+c: collect and sort distances
+C: convert distances to color
+------------------------------
+</pre>
+<br>
+
+<ul>
+<li><b>Status</b><br>
+Display the current 16-bit echo pulse duration as well as the converted
+range that this duration represents in centimeters.
+<br><br>
+
+<li><b>?</b><br>
+Prints out the ever useful help menu.
+<br><br>
+
+<li><b>z</b><br>
+Clear the terminal using a bunch of new lines.
+<br><br>
+
+<li><b>z</b><br>
+Reset the processor so that we can see that splash screen.
+<br><br>
+
+<li><b>s</b><br>
+Stream the echoPulse durations coming from myCCP4ISR until
+a key is pressed.
+<br><br>
+
+<li><b>S</b><br>
+Stream the echoPulse durations coming from myCCP4ISR converted
+into centimeters.  Do this until a key is pressed.
+<br><br>
+
+<li><b>c</b><br>
+Collect 8 echoPulse durations into an array.  Display the samples
+then sort the list and display the sorted list.  The output should look 
+like the sorted example above.  
+<br><br>
+
+<li><b>C</b><br>
+Run the parking assistant LED until a terminal key is pressed.
+<br><Br>
+</ul>
+
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.
+Submit your main.c file on Canvas using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+
+</html

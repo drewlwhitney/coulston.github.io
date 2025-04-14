@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture18.html">&ltPrev</a></li>
+                        <li><a href="./lecture20.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>19</td></tr>
+<tr><td>Objective:</td>	<td>To provide a working understanding of
+	an analog to digital converter including: converter
+	resolution, voltage references, and quantization error.</td></tr>
+</table>
+
+
+<h1>Analog to Digital Conversion</h1>
+The PIC has an analog to digital converter (ADC) subsystem which takes 
+an analog input between 0 and 3.3v and converts the analog voltage into number,
+called the <u>converted value</u> between 0 and 1023.  The conversion 
+from voltage to number is ratiometric, meaning that the output is 
+directly proportional to the input.  
+
+<h2>Ratiometric</h2>
+Ratiometric means that the ratio of the input voltage to 3.3v is the same
+as the ratio of the converted value to 1024.  The leftmost graph below 
+shows the input voltage vs. the converted value.  In reality the graph
+is not a smooth line, but the orange staircase going upwards every 
+&alpha; = 3.3v/1024.  The first half step allows the transition from
+converted value 0b000 to 0b001 to occur at the half-way point between 
+0v and &alpha;v.  The ideal transfer function shows how the input voltage
+is converted by an ADC with an infinite number of bits - every analog
+input voltage would have its own unique binary representation on the
+output.
+
+<br><img src="./img/adcRatio.jpg"><br><br>
+
+Let's apply the definition of ratiometric to a pair of problems.<br><br>
+
+<ul>
+<li><b>Question:</b>Say the PIC ADC input is at 1v input, what is the 
+converted value? <br>
+
+<b>Answer:</b>
+<pre>
+   3.3v   1 v
+   ---- = ---      x = 310.3
+   1024    x
+
+However, we cannot have a fractional answer so the ADC will round the
+converted value to the nearest integer resulting in a converted value of 310.
+</pre>
+
+<li><b>Question:</b>Your program reads a converted value of 842 in the PIC's
+ADC subsystem.  What analog voltage is present on the input?<br>
+
+<b>Answer:</b>
+<pre>
+   3.3v   x v
+   ---- = ---      x = 2.71 v
+   1024   842
+</pre>
+<br>
+</ul>
+
+<h2>Converter resolution</h2>
+When you work with other microcontrollers you will not doubt
+find that they have different number of bits.  The number of bits
+produced in the converted value is called the resolution of the
+ADC.  A <u>count</u> is a one unit change in the converted 
+value.   So a N-bit ADC has 2<sup>N</sup> counts in its full range.
+<br><br>
+
+Fundamentally, changing the resolution of the ADC changes the scale
+on the vertical axis of the ratiometric graph shown above.  So all
+we need to do to determine converted values is to change the
+"2<sup>10</sup>" in the graph with "2<sup>N</sup>", where N is the
+resolution of the ADC.<br>
+
+Let's start our exploration of this concept by examining 
+a straight forward question.
+
+<ul>
+<li><b>Question:</b>How many bits does the PIC use to represent the
+converted value?<br>
+<b>Answer:</b>Since the result is in the range of 0-1023, 10-bits
+is sufficient to represent the converted value.
+
+<li><b>Question:</b> You are using an ADC with 12-bit resolution and a 
+3.3v reference that has an analog input of 1v, what is the converted value?<br>
+
+<b>Answer:</b>
+<pre>
+   3.3v   1 v
+   ---- = ---      x = 1,241
+   2<sup>12</sup>    x
+</pre><br>
+
+
+<li><b>Question:</b> Your program reads a converted value of 842 on a 
+14-bit ADC that is using a 3.3v reference. What analog voltage is present 
+on the input?<br>
+
+<b>Answer:</b>
+<pre>
+   3.3 v    x v
+   ----- = ---      x = 0.17 v
+   2<sup>14</sup>      842
+</pre>
+
+
+
+<li><b>Question:</b>Say you are using an ADC with a 3-bit resolutions
+and a 3.3 V and 0 V input voltage range, what is the converted value for
+the following inputs?<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Input voltage	<td>converted value
+<tr><td>0.4125 V	<td>&nbsp
+<tr><td>0.4254 V	<td>&nbsp
+<tr><td>0.6188 V	<td>&nbsp
+<tr><td>0.7219 V	<td>&nbsp
+<tr><td>0.825  V	<td>&nbsp
+
+</table>
+
+<b>Answer:</b>
+<pre>
+   3.3 v   0.625 v
+   ----- = -------	x = (0.4125  * 8) / 3.3 = 1
+    2^3     x
+			x = (0.4254  * 8) / 3.3 = 1.25, round to 1
+			x = (0.6188  * 8) / 3.3 = 1.5,  round to 2
+			x = (0.7219  * 8) / 3.3 = 1.75, round to 2
+			x = (0.825   * 8) / 3.3 = 2
+</pre>
+
+<li><b>Question:</b>Say you are using an ADC with a 3-bit resolutions
+and a 3.3 V and 0 V voltage reference, what analog input is associated
+with each of the following converted values?<br>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Converted Value	<td>Analog Input
+<tr><td>0		<Td>&nbsp
+<tr><td>1		<Td>&nbsp
+<tr><td>2		<Td>&nbsp
+<tr><td>3		<Td>&nbsp
+<tr><td>4		<Td>&nbsp
+<tr><td>5		<Td>&nbsp
+<tr><td>6		<Td>&nbsp
+<tr><td>7		<Td>&nbsp
+</table>
+
+<b>Answer:</b>
+<pre>
+   3.3 v    x v
+   ----- = -------	x = 0 * 3.3V / 8 = 0
+    2^3      0
+			x = 1 * 3.3V / 8 = 0.413 V
+			x = 2 * 3.3V / 8 = 0.825 V
+			x = 3 * 3.3V / 8 = 1.238 V
+			x = 4 * 3.3V / 8 = 1.65  V
+			x = 5 * 3.3V / 8 = 2.063 V
+			x = 6 * 3.3V / 8 = 2.475 V
+			x = 7 * 3.3V / 8 = 2.888 V
+</pre>
+
+</ul>
+
+
+<h2>Voltage references</h2>
+We started this section by having the PIC converts voltages
+between 0v and 3.3v.  The minimum and maximum voltage for an ADC are
+called the reference potentials.  You can configure the PIC to use two pins 
+V<sub>ref</sub>- (RA2) and V<sub>ref</sub>+ (RA3) as the A/D reference 
+potentials and on our development board, these pins are connected to 10k&ohm;
+resistors to 3.3v through the two push buttons.   If you did not press
+the push buttons, you could ties these two pins to other voltages to
+change the reference potentials on the PIC.  You could do this 
+in order to decrease the quantization error.  Let's examine two examples 
+that will help us better understand this concept.
+
+<ul>
+<li><b>Question:</b>The PIC has 0v and 3.3v reference potentials,
+determine the converted value for 2.2V.<br>
+
+<b>Answer:</b> 
+
+<pre>
+   3.3 V   2.2 V
+   ----- = -----      x = 683
+   1024      x
+</pre>
+<br>
+
+
+<li><b>Question:</b>
+Set V<sub>ref</sub>- = 1v and V<sub>ref</sub>+ to 3v, determine the 
+converted value for 2.2V.<br>
+
+<b>Answer:</b> 
+
+<pre>
+   (3 V - 1 V)    (2.2 V - 1.0 V)
+   ------------ = ---------------      x = 614
+       1024              x
+</pre>
+
+<li><b>Question:</b>You are working with a 12-bit ADC with 1 V and 3 V 
+reference potentials, determine the converted value for 1.8V.<br>
+
+<b>Answer:</b> 
+
+<pre>
+   (3 V - 1 V)    (1.8 V - 1.0 V)
+   ------------ = ---------------      x = 1638
+       2^12              x
+</pre>
+</ul>
+
+
+<h2>Quantization error</h2>
+This process of converting an analog voltage to a digital value is commonly
+called <u>quantization</u>.  Related to the concept of quantization is
+<u>quantization error</u>.  Quantization error is measured in terms of
+input volts and is the amount of rounding error, typically &half; of the
+least significant bit, or &half; count.   You could also think about it
+as the worst case difference between an input voltage and the 
+converted value's corresponding analog input voltage.  A third way to
+think about quantization error is to ask, "how far off can the converted 
+value be in representing the actual analog input?"
+Let's look at a numerical value to understand this definition better. 
+<br><br>
+
+Say you are using an ADC with a 3-bit resolution with 3.3 V and 0 V reference
+voltages and apply an input of 0.4254 V.  Looking at some of the previous
+work performed in this lecture, we see that a 0.4254 V input has a
+converted value of 1.25 which is rounded to 1.  The difference between the
+true output of 1.25 and the actual output of 1.0, when represented in terms
+of the input voltage corresponds to 0.4254 V - 0.4125 V = 0.0129 V which is
+the quantization error for an input voltage of 0.4254.  Different input
+voltages will have different quantization errors.  An important value is
+the worst case quantization error; it is typically this value that is 
+quoted when you read a quantization error specification for an ADC.
+In order to determined this worst-case quantization error you need to find 
+the maximum rounding error in the converted value for an input voltage.
+To help with this, let's plot the data we created for the
+3-bit ADC from a previous section.<br><Br>
+
+Say you are using an ADC with a 3-bit resolutions
+and a 3.3 V and 0 V input voltage range, what analog input is associated
+with each of the following converted values?  We found the answer to be:
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Converted Value	<td>Analog Input
+<tr><td>0		<Td>0 V
+<tr><td>1		<Td>0.413 V
+<tr><td>2		<Td>0.825 V
+<tr><td>3		<Td>1.238 V
+<tr><td>4		<Td>1.65 V
+<tr><td>5		<Td>2.063 V
+<tr><td>6		<Td>2.475 V
+<tr><td>7		<Td>2.888 V
+</pre>
+
+</table>
+
+The following figure plots this data as red dots on a graph with the 
+analog input voltage on the horizontal axis and the converted value 
+on the vertical axis.  The black lines on the graph represent the 
+<u>converted values rounded to the nearest integer.</u> In order to 
+better understand the black line, the analog input and converted 
+values from a previous question are annotated on the graph.
+
+<br> <img src="./img/adcQuantError.bmp"><br><Br>
+
+Now this graph can help you to better understand quantization error.
+Quantization error is the maximum amount of rounding error in the 
+converted value represented in terms of the input.  Looking at this
+graph, the maximum rounding error occurs when the converted value
+jumps to a new value.  For example an analog input of 0.6188 V generates
+a fractional converted value of 1.5 that is rounded to 2.  The converted
+value misrepresents the true converted value by 0.5 "bits"  Since
+quantization error is represented in terms of the input voltage, let's
+convert ask how much input voltage corresponds to half a bit using our
+familiar ratiometric equation.
+
+<pre>
+
+   3.3v   x v
+   ---- = ----		x = 0.5 * 3.3V / 8 = 0.20625 V
+    2^3   0.5
+
+</pre>
+
+So the quantization error of an 3-bit ADC with reference voltages 0 V
+and 3.3V is 0.20625 V.<br><br>
+
+Any way you look at it, the input analog voltage can change by at most the
+equivalent of &half;LSB without a change in the converted value.  This
+&half;LSB equivalent on the input is the quantization error.
+
+<ul>
+
+<li><b>Question:</b>What is the quantization error of PIC?<Br>
+<b>Answer:</b> 
+
+Now let's return to our problem of finding the quantization error.
+Since we are looking for the voltage corresponding to a change of
+&half; of a bit, let's just find the voltage that corresponds to 0.5 bits.
+
+<pre>
+   3.3 v   x v
+   ----- = ---      x = 1.61 mV
+    1024   0.5
+</pre>
+
+Thus the quantization error is 1.61 mV, pretty small stuff.
+
+<li>What is the quantization error for an PIC with 1 V and 3 V reference 
+potentials?<br>
+
+<b>Answer:</b> 
+
+<pre>
+   (3 V - 1 V)   x V
+   ----------- = ----	x = 0.98 mV
+       1024      0.5
+</pre>
+
+
+<li><b>Question:</b>
+Determine the quantization error for a 0 V to 3.3 V reference potential
+analog to digital converter for different resolutions.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Resolution	<td>Quantization Error
+<tr><td>8-bit		<Td>&nbsp
+<tr><td>10-bit		<Td>&nbsp
+<tr><td>12-bit		<Td>&nbsp
+<tr><td>14-bit		<Td>&nbsp
+<tr><td>16-bit		<Td>&nbsp
+</table>
+
+<b>Answer:</b>
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Resolution	<td>Quantization Error
+<tr><td>8-bit		<Td>6.45 mV
+<tr><td>10-bit		<Td>1.61 mV
+<tr><td>12-bit		<Td>0.40 mV
+<tr><td>14-bit		<Td>0.10 mV
+<tr><td>16-bit		<Td>50 uV
+</table>
+-->
+
+<pre>
+   3.3 V   x V
+   ----- = ----	x = 6.45 mV
+    2^8    0.5
+</pre>
+
+
+</ul>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+
+<li>Complete the following table.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Analog voltage	<td>Converted Value	<td>Resolution	<td>VRH	<td>VRL
+<tr><td>&nbsp	<td>212		<td>8-bit	<td>5 V	<td>0 V
+<tr><td>&nbsp	<td>212		<td>8-bit	<td>3 V	<td>2 V
+<tr><td>&nbsp	<td>212		<td>12-bit	<td>5 V	<td>0 V
+<tr><td>&nbsp	<td>212		<td>12-bit	<td>3 V	<td>2 V
+
+<tr><td>2.6 V	<td>&nbsp	<td>8-bit	<td>5 V	<td>0 V
+<tr><td>2.6 V	<td>&nbsp	<td>8-bit	<td>3 V	<td>2 V
+<tr><td>2.6 V	<td>&nbsp	<td>12-bit	<td>5 V	<td>0 V
+<tr><td>2.6 V	<td>&nbsp	<td>12-bit	<td>3 V	<td>2 V
+
+<tr><td>0.244 V	<td>100		<td>&nbsp	<td>5 V	<td>0 V
+<tr><td>2.4 V	<td>205		<td>&nbsp	<td>3 V	<td>2 V
+
+<tr><td>2.79 V	<td>102		<td>8-bit	<td>&nbsp <td>0 V
+<tr><td>2.79 V	<td>101		<td>8-bit	<td>&nbsp <td>2 V
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Analog voltage	<td>Converted Value	<td>Resolution	<td>VRH	<td>VRL
+<tr><td>4.14 V	<td>212		<td>8-bit	<td>5 V	<td>0 V
+<tr><td>2.83 V	<td>212		<td>8-bit	<td>3 V	<td>2 V
+<tr><td>0.26 V	<td>212		<td>12-bit	<td>5 V	<td>0 V
+<tr><td>2.05 V	<td>212		<td>12-bit	<td>3 V	<td>2 V
+
+<tr><td>2.6 V	<td>133 	<td>8-bit	<td>5 V	<td>0 V
+<tr><td>2.6 V	<td>154		<td>8-bit	<td>3 V	<td>2 V
+<tr><td>2.6 V	<td>819 	<td>12-bit	<td>5 V	<td>0 V
+<tr><td>2.6 V	<td>2458	<td>12-bit	<td>3 V	<td>2 V
+
+<tr><td>0.244 V	<td>100		<td>11-bit 	<td>5 V	<td>0 V
+<tr><td>2.4 V	<td>205		<td>9-bit 	<td>3 V	<td>2 V
+
+<tr><td>2.79 V	<td>102		<td>8-bit	<td>7 V   <td>0 V
+<tr><td>2.79 V	<td>101		<td>8-bit	<td>4 V   <td>2 V
+</table>
+--->
+
+<li>Complete the following table.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Resolution	<td>VRH		<td>VRL	<td>Quantization Error
+<tr><td>12-bit		<td>5 V		<td>3 V		<td>&nbsp
+<tr><td>11-bit		<td>12 V	<td>&nbsp	<td>1.22 mV
+<tr><td>14-bit		<td>&nbsp	<td>2 V		<td>120 uV
+<tr><td>&nbsp		<td>5 V		<td>2 V		<td>1.46 mV
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Resolution	<td>VRH		<td>VRL	<td>Quantization Error
+<tr><td>12-bit		<td>5 V		<td>3 V		<td>244 uV
+<tr><td>11-bit		<td>12 V	<td>7 V		<td>1.22 mV
+<tr><td>14-bit		<td>6 V		<td>2 V		<td>122 uV
+<tr><td>10-bit		<td>5 V		<td>2 V		<td>1.47 mV
+-->
+
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture09.html">&ltPrev</a></li>
+                        <li><a href="./lecture11.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>10</td></tr>
+<tr><td>Objective:</td>	<td>Convert between real time and timer counts
+and prescalers.
+<tr><td>Handout:</td>	
+	<td><a href="./handout/timerMath.docx">timer math</a><br>
+	<a href="./handout/timerMathSolutions.docx">timer math solutions</a>
+</table>
+
+
+<h1>Timer prescaler</h1>
+The PIC has 7 total timers that all operate on the same principles as
+timer 0.  The "even" timers, TMR2, TMR4, TMR6 are 8-bits wide, meaning that
+they count-up from 0 to 255 and then roll-over.  All the timers have different
+prescalers which we will learn more about in this lecture.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Timer	<td>Width	<td>Prescaler		<td>Associate module
+<tr><td>TMR0	<td>8 or 16-bit	<td>1:1 to 1:256	<td>&nbsp;
+<tr><td>TMR1	<td>16-bit	<td>1:1, 1:4, 1:8, 1:16	<td>Capture Compare
+<tr><td>TMR2	<td>8-bit 	<td>1:1, 1:4, 1:16	<td>PWM
+<tr><td>TMR3	<td>16-bit	<td>1:1, 1:4, 1:8, 1:16	<td>Capture Compare
+<tr><td>TMR4	<td>8-bit	<td>1:1, 1:4, 1:16	<td>PWM
+<tr><td>TMR5	<td>16-bit	<td>1:1, 1:4, 1:8, 1:16	<td>Capture Compare
+<tr><td>TMR6	<td>8-bit	<td>1:1, 1:4, 1:16	<td>PWM
+</table>
+
+In the previous lecture we noted that counting from 0 to 2<sup>16</sup>
+the PIC's 16-bit counter took 4.096 ms.  With this timer configuration
+there is no other way to use the timer, by itself, to form longer delays.
+In order to generate longer delays we would either need to slow down the
+frequency of the main oscillator F<sub>osc</sub> or slow down the counting
+rate of the clock. The PIC, like many other microcontrollers, has a build-in
+mechanism to slow down the count rate of timer; prescalers.  
+
+<h2>Prescaler</h2>
+A prescaler is a piece of logic that sits between the bus clock
+and the timer clock.  
+
+<br><img src="./img/simpleTimer.jpg"><br>
+The timer subsystem, adapted from Figure 11-1 on page 155 of the
+<u>PIC18(L)F2X/4XK22 Data Sheet</u>.
+<br><Br>
+
+The prescaler accumulates a prescribed number of
+bus clocks before issuing a clock tick to the timer.  In order to use
+the prescaler, the prescaler assignment bit in the 
+<font face="courier" color=red>T0CON</font> must be cleared.  In other
+words, if you want to use a prescaler to slow down the counting rate if
+<font face="courier" color=red>TMR0</font>, then the following line of
+code or its equivlent must appear in your code.
+<font face="courier" color=red>T0CONbits.PSA=0;</font>
+<br><br>
+
+
+The value of the prescaler is contained inside the Timer 0 Control register 
+<font face="courier" color=red>T0CON</font> in your code. Three
+bits in this register, <font face="courier">T0PS2, T0PS1, T0PS0</font>,
+collectively referred to as <font face="courier">PR</font>, control
+which prescaler is selected. The following table taken from page 154
+of the <u>PIC18(L)F2X/4XK22 Data Sheet</u> describes the relationship
+between the prescaler bits and the prescaler applied to the bus clock 
+before it's sent to the counter.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>T0PS    <td>T0PS2	<td>T0PS1	<td>T0PS0     <td>Timer clock
+<td>Max period
+<tr><td>0b000   <td>0           <td>0           <td>0   <td>1:2
+<td>8.19ms
+<tr><td>0b001   <td>0           <td>0           <td>1   <td>1:4
+<td>16.4ms
+<tr><td>0b010   <td>0           <td>1           <td>0   <td>1:8
+<td>32.8ms
+<tr><td>0b011   <td>0           <td>1           <td>1   <td>1:16
+<td>65.5ms
+<tr><td>0b100   <td>1           <td>0           <td>0   <td>1:32
+<td>131ms
+<tr><td>0b101   <td>1           <td>0           <td>1   <td>1:64
+<td>262ms
+<tr><td>0b110   <td>1           <td>1           <td>0   <td>1:128
+<td>524ms
+<tr><td>0b111   <td>1           <td>1           <td>1   <td>1:256
+<td>1,049ms
+</table>
+
+<b>Aside</b>
+Let's take a moment to look at three different ways that we can 
+assign the prescaler value to say 1:16.
+<ul>	<li>	<font face="courier">T0CONbits.T0PS2 =0;</font><br>
+		<font face="courier">T0CONbits.T0PS1 =1;</font><br>
+		<font face="courier">T0CONbits.T0PS0 =1;</font>
+	<li><font face="courier">T0CONbits.T0PS = 0b011;</font>
+	<li><font face="courier">T0CON = 0b10000011;</font>
+</ul>
+
+The first form assigns each individual bit, requiring three lines of code.
+The second form shows how you can collect all three prescaler configuration 
+bits together and assign them at once.  This results in a single line of code,
+note that the expression "0b" in front of the three bit value indicates
+to the compiler that this is a binary number.
+The third form takes the second idea one step further and assigns all 8 bits 
+of the T0CON register at once.  Note that the expression "bits.FIELD" is 
+removed from "T0CON" since we are talking about the entire register.  This
+third form requires you to know the order and 
+The thirs
+it is possible to write mulitple bits of the 
+<font face="courier" color=red>T0CON</font> register at once by dropping
+the "bits.FIELD" from T0CON and using a line of code similar to
+<font face="courier" color=red>T0CON = 0b01010101;</font>.  This requires
+that you know the identity and values for the bit fields in the T0CON
+register.  You would need to look at page 154 of the 
+<u>PIC18(L)F2X/4XK22 Data Sheet</u> to get this information.
+<br><br>
+
+To put this discussion in concrete terms, if you make the assignment 
+<font face="courier">T0CONbits.T0PS = 0b011;</font> in your code, then
+the 16-bit timer counter will count up once every 16 F<sub>osc</sub>/4 cycles.
+In other words (see the work below) the counter will increment once every 
+microsecond.
+<br><br>
+
+
+
+<pre>
+     1 second      10^6 us    16 clk    1 us
+    ------------ * -------- * ------- = -----
+    16*10^6 clks   1 second   1 count   count
+</pre>
+
+I will sometimes use the expression 1:16 to describe when F<sub>osc</sub>
+is being divided by 16.  I find it easy to visualize this
+by thinking of the ' : ' as a ratio symbol that tells me how many
+F<sub>osc</sub>/4 clock cycles it takes to increment the timer.
+
+<h2>Time ranges</h2>
+To see how a prescaler affects the upper-bound of the timer, let's 
+revisit the following code-snippet from the last lecture.
+
+<pre>
+	T0CONbits.PSA = 0;	// Turn on prescaler
+	T0CONbits.T0PS = 0b011;	// configure 1:16 prescaler
+	T0CONbits.TMR0ON = 1;	// Turn on timer 0
+	INTCONbits.T0IF = 0;	// Clear roll-over flag
+	while(INTCONbits.T0IF == 0);	// Wait for roll-over flag to be set by counter
+</pre>
+
+Your question is to calculate how long (in milliseconds) the   
+<font face="courier">while(INTCONbits.T0IF == 0);</font>  statement takes to 
+execute, assuming that the counter starts at 0. In other words, I am 
+asking how long it takes for the counter to roll-over.   You will 
+need to use dimensional analysis to prove that your conversion is 
+correct.  Like in the previous solutions, I would advise you to
+start the problem with F<sub>osc</sub>/4, move through the
+prescaler, and then onto the counter.
+
+
+<pre>
+     1 second      1000 ms    16 clk    2^16 counts 
+    ------------ * -------- * ------- * ----------- 
+    16*10^6 clks   1 second   1 count   1 roll-over 
+
+which comes out to  65.5 ms
+                   ---------
+                   roll-over
+</pre>
+<br><Br>
+
+When you solve these problems, it's important to verify that all the 
+units, except those that you want, cancel.  We will call the time 
+required for the counter to go from 0 to 2<sup>16</sup> - 1 and then back to 
+0 the <u>maximum period</u> of the counter.  Practice using the dimensional
+analysis technique to determine the maximum period (in milliseconds) for 
+all the prescalers in the following table. The maximum periods for each
+prescaler are shown in a previous table and rounded to 3 
+significant figures.  You will need this table to solve practical problems
+of interest like the following:<br>
+
+<h3>Some problems</h3>
+
+<ul>
+<li><b>Question:</b>How much time goes by in 30,00 counts with a 1:8
+prescaler?  State your answer in ms and round to 3 significant figures.
+<br>
+<b>Answer:</b>
+
+<pre>
+      1 second     1000 ms    8 clk
+    ------------ * -------- * ------- * 30,000 counts = 15ms
+    16*10^6 clks   1 second   1 count
+</pre>
+<br>
+
+<li><b>Question:</b>Starting at 30,000, how long will it take TMR0 to
+roll-over with a 1:8 prescaler?
+State your answer in ms and round to 3 significant figures.
+<br>
+<b>Answer:</b>
+There are 2<sup>16</sup>-30,000=35,536 counts until TMR0 rolls-over.
+<pre>
+      1 second     1000 ms     8 clk    35,536 counts   17.8 ms
+    ------------ * -------- * ------- * ------------- = ---------
+    16*10^6 clks   1 second   1 count    roll over      roll over
+</pre>
+<br>
+
+<li><b>Question:</b>What starting value would result in TMR0 rolling over
+in 100ms?
+<br>
+<b>Answer:</b>
+First, we need to select a prescaler for TMR0.  Always select the smallest
+prescaler that has a Max Period greater or equal to the needed duration.
+In the case of a 100ms delay, we need a 1:32 prescaler.  Next,
+we will call the tarting value of the TMR0, x.  TRM0 has to count up
+from x to 2<sup>16</sup> in order to roll-over.  This is a total of
+2<sup>-x</sup>-x counts.  This term is used int he solution to the
+problem.
+
+<pre>
+    16*10^6 clks   1 second   1 count    roll over
+    ------------ * -------- * ------- * ---------- = 100 ms
+      1 second     1000 ms    32 clk       2<sup>16</sup>-x
+
+solving for x yields, x = 15,536
+</pre>
+<br>
+
+
+<li><b>Question:</b>An active low push button is connection to RA2, is
+pressed for an unknown amount of time - except that we know that it
+is not more than 200ms. Complete the program below to measure the number
+of TMR0 counts of the button press. 
+<br><img src="./img/buttonPressTimer.bmp"><br><br>
+
+<b>Answer:</b>
+In our previous examples we assumed that the timer starts at 0.  In this 
+example we will compute the difference between two timer count values.
+In addition, we will assume that the push button starts in the unpressed
+state.  Since this is an active low button, this means that you should
+assume that RA2 starts out at logic 1 as shown in the figure above.
+
+<pre>
+	uint16_t start, end, duration;
+
+	T0CONbits.T0PS = 0bxxx;		// It's your job to determine xxx 
+	T0CONbits.PSA = 0;
+	T0CONbits.TMR0ON = 1;		// Turn on timer 0
+
+	while(PORTAbits.RA2 == 1);	// Wait for the start of pulse on RA0
+	start = TMR0;
+	while(PORTAbits.RA2 == 0);	// Wait for the pulse to end on PTT0
+	end = TMR0;
+
+	duration = end - start;
+</pre>
+
+Let's start our discussion by determining the prescaler.
+Looking at your maximum period table, you should look for prescalers
+that can accommodate the range pulse duration in the maximum period.
+In our case this means that we should select prescaler starting from 1:16
+because the maximum period for a 1:16 prescaler is 65.5 ms which can
+accommodate a 50 ms pulse.  You could also select from 1:32 to 1:256
+prescalers to measure the pulse.  However we will employ the general
+rule that <u>when ever you have a choice of prescalers, use the smallest
+to get the best timing resolution.</u> Hence the program above should
+use a 1:16 prescaler, or  <font face="courier">T0CONbits.T0PS = 0b011;</font>
+<br><br>
+
+On initial inspection the code is straight forward; 
+<font face="courier">start = TMR0;</font> is executed when the 
+<font face="courier">while (PORTAbits.RA2 == 1);</font> while-loop exits.
+This means that the RA2 pin was at a logic 1 and now at logic 0, the
+falling edge of pulse on RA2.  The instruction,
+<font face="courier">end = TMR0;</font> is executed when the 
+<font face="courier">while (PORTAbits.RA2 == 0);</font> while-loop exits.
+This means that the RA2 pin was at a logic 0 and now at logic 1, the
+rising edge of pulse on RA2.<br><br>
+
+On first glance you might assume
+that the end count is always greater than the start count.  If this were
+true then it should be obvious that the statement
+<font face="courier">difference = end - start;</font> gives us the 
+duration of the pulse in timer counts.  Before 
+examining our assumption further, I need to make an important point:
+<u>times measured by the timer subsystem are not represented
+in the normal time-units we are familiar with like milliseconds.</u>
+You would need to write some code to convert the timer counts into 
+"normal" units.  Most of the time, we will have our program output 
+the raw timer counts and rely on the person examining the output 
+to convert from timer counts to familiar time units like milliseconds.
+<br><br>
+
+Now let's return to that assumption, "the end count is always greater 
+than the start count".  This is a flawed assumption because the timer could
+roll over between the start of the pulse and the end.  This would 
+result in the end count being smaller than the start count.  It
+would be normal to assume that this would cause the
+<font face="courier">difference = end - start;</font> statement
+to produce the wrong answer.  The truth is a little surprising; the
+difference between an end and start time is not affected by a timer
+roll-over.  We can prove this by borrowing from the definition of
+the 2's complement.
+<br><br>
+
+Imagine that the timer rolled-over during the pulse's duration so
+that end &lt start.  Since subtraction is equivalent to addition
+of the 2's complement we can re-write 
+<font face="courier">difference = end - start;</font> as
+<font face="courier">difference = end + (2<sup>16</sup> - start);</font>.
+We will analyze this expression and show that it accurately reflects
+the number of timer counts between the positive and negative edges
+of our pulse.
+<br><Br>
+
+The second term in this statement 
+<font face="courier">(2<sup>16</sup> - start)</font>
+is just the number of timer counts from the start of the pulse until 
+the timer rolls-over (the timer rolls over when it gets to 2<sup>16</sup>.
+The term <font face="courier">end</font> is just the number of timer 
+counts from 0. This sum describes <u>exactly</u> what happened when the 
+counter
+rolled-over.  Consequently, the difference between the end and start times
+accurately describes the number of timer counts regardless of an 
+intervening timer roll-over.
+<br><Br>
+
+
+<li>
+<b>Question:</b>How many 1:16 prescaled TMR0 counts go by during 50 ms?
+<br>
+<b>Answer:</b>
+<pre>
+     1 second      1000 ms    16 clk    
+    ------------ * -------- * ------- * x counts = 50 ms
+    16*10^6 clks   1 second   1 count  
+
+x = 50,000 counts
+</pre>
+
+<li>
+<b>Question:</b> How many times would TMR0 rollover in 100 seconds with
+a 1:128 prescaler? <br>
+<b>Answer:</b>
+<pre>
+    16*10^6 clks  1 count   1 rollover 
+    ------------ *------- * ---------- * 100 s = 190.7 rollovers
+      1 second    128 clk   2<sup>16</sup> counts
+
+So 190 roll overs.
+</pre>
+<br>
+
+<li>
+<b>Question:</b>
+Starting at 0, what value would be stored in TMR0 after 450ms running with
+a 1:4 prescaler? 
+<br>
+<b>Answer:</b> TMR0 will roll over because TMR0 only requires 16.4ms to 
+roll over. So my first step in this problem is to compute how many times 
+TMR0 rolls over.
+<pre>
+    16*10^6 clks   1 second   1 count   1 rollover
+    ------------ * -------- * ------- * ---------- * 450 ms = 27.466 rollovers
+      1 second     1000 ms     4 clk    2<sup>16</sup> counts
+</pre>
+From this we know that TMR0 will count up from 0 to 2<sup>16</sup>-1 
+27 times with 0.466 of a roll over left over. The second part of the 
+problem will convert this 0.466 roll overs into counts.
+<pre>
+    2<sup>16</sup> counts 
+    ---------- *  0.466 rollovers =  30,528 counts
+    1 rollvers    
+</pre>
+So, starting at 0, TMR0 will end up at 30,528.  Note that when I computed
+the number of roll overs, my fractional result contined many more digits
+<u>which I retained</u> when performing the second calculation.  This is
+why come of you get a marginally different answer when you multiply
+2<sup>16</sup>*0.466.
+
+</ul>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>With an 1:8 prescaler and an initial value of 0x1234, how long
+does it take the counter to reach 0xABCD?
+
+<!--
+To solve this problem we must first compute the number of counts
+required go from 0x1234 to 0xABCD. 
+0x1234 = 4,660 and 0xABCD = 43,981, so the total number of counts
+is 43,981 - 4,660 = 39,321
+
+<pre>
+      1 second     1000 ms     8 clk 
+    ------------ * -------- * ------- * 39,321 counts = 19.66 ms 
+    16*10^6 clks   1 second   1 count    
+</pre>
+-->
+
+
+
+<li>With an 1:8 prescaler and an initial value of 0xABCD, how long
+does it take the counter to reach 0x1234?
+
+<!--
+To solve this problem we must first compute <i>The number of counts
+required to roll the counter over.</i>  Since the counter starts at
+0xABCD or 43,981 and rolls over at 2<sup>16</sup> or 65,536, the counter
+only needs to count up by 65,536 - 43,981 = 21,555 counts. Then the
+counter needs to count up to 0x1234 = 4,660.  This makes a total count
+of 21,555 + 4,660 = 26,215.  Using dimensional analysis produced the
+following solution. 
+
+<pre>
+      1 second     1000 ms     8 clk 
+    ------------ * -------- * ------- * 26,125 counts = 13.06 ms 
+    16*10^6 clks   1 second   1 count 
+</pre>
+-->
+
+<li>You are running the following code-snippet.  Assuming that 
+<font face="courier">TMR0 = 0x1234</font>, how long does it take
+to exit from the while-loop?  State your answer in milliseconds.
+
+<pre>
+    T0CONbits.T0PS = 0b101;
+    T0CONbits.TMR0ON = 1;	
+    INTCONbits.T0IF = 0;	
+    while(INTCONbits.T0IF == 0);
+</pre>
+
+
+<!--
+To exit the while-loop the counter needs to go from 0x1234 = 4,660 to
+2<sup>16</sup> = 65,536, a total of 65,536 - 4,660 = 60,876 counts.
+We note in the first line of the code-snippet that the prescaler is
+being set to 1:64.  Now dimensional analysis will produce the answer.
+
+<pre>
+      1 second     1000 ms    64 clk    60,876 counts    243.5  ms
+    ------------ * -------- * ------- * ------------- = ------------
+    16*10^6 clks   1 second   1 count   1 while-loop    1 while-loop
+</pre>
+-->
+
+<li>You have been asked to rank the number of times each line
+of code in the following program is executed.  This algorithm (introduced
+earlier in this lecture) measures the duration of short (&lt; 50 ms) logic 
+low pulses on pin RA2.  You are examining the following code over 1 
+second, during which there was a single 30 ms logic low pulse.
+
+<pre>
+    for (;;) {
+1. 	while(PORTAbits.RA2 == 1);	
+2. 	start = TMR0;
+3. 	while(PORTAbits.RA2 == 0);
+4. 	end = TMR0;
+5.	duration = end - start;
+    } // end infinte loop
+</pre>
+
+<ol type="a">
+<li>Rank the lines of code, from most executed to least execute.
+<!--
+Most 1
+Next 3
+Least (all tied at one time) 2,4, 5
+-->
+<li>If each line of code takes 1us to execute, provide an estimate of
+	the number of us spent (over a 1 second period) executing each
+	instruction.
+<!--
+Lines 2, 4, and 5 all require 1 us because they are executed once.
+Line 3 requires 30,000 us to execute because there was a single 30 ms pulse
+Line 1 required approimatly 970,000 us - it consumes all the remaining clock cycles.
+-->
+
+</ol>
+
+
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture21.html">&ltPrev</a></li>
+                        <li><a href="./lecture23.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>22</td></tr>
+<tr><td>Objective: <td>Design antialias filter using sampling frequency,
+	ADC resolution, signal of interest and filter order.
+</table>
+
+
+<h1>Analog to Digital Conversion</h1>
+
+<h2>Antialias filters</h2>
+<ol>
+
+<li>Aliasing:<br>
+You're sampling an analog signal at 20kHz.  List all the frequencies in the first four harmonics that will look like 2kHz signals.
+
+<pre>
+1st harmonic:	2kHz			20kHz-2kHz = 18kHz
+2st harmonic:	20kHz+2kHz=22kHz	40kHz-2kHz = 38kHz
+3st harmonic:	40kHz+2kHz=42kHz	60kHz-2kHz = 58kHz
+4st harmonic:	60kHz+2kHz=62kHz	80kHz-2kHz = 78kHz
+</pre>
+<br><img src="./img/freqFold.jpg"><br> <br>
+
+<li>Decades:<br>
+A first-order LPF has a cutoff frequency of 2kHz.  Describe
+the attenuation of an 80kHz input signal in decibels and as
+a ratio of output voltage to input voltage.
+
+<pre>
+Since a decade is a multiplicative factor of 10, we need to find how may powers of 10 you have to multiply 2 to get 80.  In order words:
+
+2*10<sup>x</sup> = 80, solving for X yields
+x = log<sub>10</sub>(80/2) = 1.6
+
+So we know that a 80kHz waveform is 1.6 decades above a 2kHz waveform.  Since the LPF attenuates -20dB/decade, the 80kHz waveform will be attenuated:
+
+1.6*-20 = -32dB
+
+Decibels can be converted to the ratio of output/input using its definition.
+
+-32dB = 20dB log_10(V<sub>out</sub>/V<sub>in</sub>)
+V<sub>out</sub>/V<sub>in</sub> = 0.025 = 1/40
+</pre>
+
+<br><img src="./img/filterFindDecibels.jpg"> <br><br>
+
+
+
+<li>ADC convert:<br>
+You're working with a N-bit ADC and would like to attenuate a full scale
+input to a voltage that has a converted value below 1/2 LSB.  How many dB 
+will be required to achieve this?
+
+<pre>
+The hardware diagram below explains visually what this problem is asking.  The LPF needs to reduce a full scale (5 V) input to a voltage X that has a converted value of 0.5 bits.  We have already looked at this concept when we covered quantization error.
+
+    5 V   X v                   5 V
+    --- = ---             X V = ----
+    2<sup>N</sup>    0.5                    2<sup>N+1</sup>
+
+This is the input voltage to the ADC which generates 0.5 bit output.  But it is also the output of the LPF when a full scale input (5 V) is applied.  So the LPF needs to attenuate a 5V input into X V.  Let's see how many decibels that works out to.
+
+             (5 V / 2<sup>N+1</sup>)
+    20 log<sub>10</sub> -----------   = 20 log<sub>10</sub>(2<sup>-(N+1)</sup>)
+                 5 V
+
+</pre>
+<br><img src="./img/filterULP.jpg"><br><Br>
+
+</body>
+</html>

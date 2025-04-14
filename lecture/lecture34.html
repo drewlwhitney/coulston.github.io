@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+
+
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture33.html">&ltPrev</a></li>
+                        <li><a href="./lecture35.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>   <td>34</td></tr>
+<tr><td>Objective:      <td>An introduction to Real Time Operating Systems.
+<tr><td>Extra:		<td>
+<a href="http://www.pumpkininc.com/content/doc/manual/SalvoUserManual.pdf">Salvo</a></td></tr>
+<tr><td>Code:		<td><a href="./code/vendingMachine.c">vendingMachine.c</a></td></tr>
+</table>
+
+<h1>Embedded Software Architectures</h1>
+The architectures are driven by the need for response time.
+<ul>
+<li>Round-Robin (or superloop).
+<li>Round-Robin with interrupts
+<li>Non-preemptive Real-Time Operating System
+<li>Preemptive Real-Time Operating System</h3>
+</ul>
+
+<h3>Round-Robin (or superloop)</h3>
+A main loop checks each of the I/O devices and services each in a 
+prescribed order.
+<pre>
+void main() {
+    init();
+    while(1) {
+	task1();
+	task2();
+	...
+}   }
+</pre>
+
+<b>Example</b>
+A digital multimeter which checks the position of a switch, reads a value 
+from a proble, performs an ADC conversion and then displays the result on 
+an LCD is such an example.
+<br><br>
+
+<b>Advantage</b>
+Works well when there are few I/O devices, no lengthy processing, 
+and no tight response requirements.
+<br><Br>
+
+<b>Disadvantage</b>
+If any device has a response time which is less than the time required
+to get around the superloop.  If any of the tasks requires length 
+processing.  Modification made to meet requirements results in a 
+fragile architecture.
+
+<h3>Round-Robin with interrupts</h3>
+A main loop checks each of the I/O devices and services each in a 
+prescribed order.  Interrupts are used to deal with the time 
+constrained I/O devices.
+
+<pre>
+int8 data_for_device_A;
+
+void main() {
+    init();
+    while(1) {
+	task1();
+	task2();
+	...
+	if (global_flag_A) taskA();
+}   }
+
+void ISR_deviceA() {
+    service_A(data_for_device_A);
+    set(global_flag_A);
+}
+</pre>
+
+<b>Example</b>
+36 position rotary encoder which selects which function to perform 
+on a DS1302 real time clock.  Assume that it takes 100mS to read the
+time from the DS1302.  We assume that we want to be able to monitor the
+rotary encoder when it is turned slower than 1 rotation per second.  
+This means that we must examine the rotary encoder at least 
+36 clicks/sec * 4 detents / click = 144 detents / sec or 7mS / detent.  
+Thus, we need to put either the DS1302 or the rotart encoder onto an 
+interrupt so that we can perform both tasks.
+<br><br>
+
+<b>Advantage</b>
+Simple.
+<br><br>
+
+<b>Disadvantage</b>
+Open to problems associated with shared data.  All the tasks in main
+operate with the same priority.  For example, a laser printer spends
+lots of time calculating where to put the tiny dots of ink.  Main would
+then get "stuck" working on this task at the exclusion of all the other
+tasks.  Moving the other tasks into ISRs is a solution, but then a low
+priority interrupt might take to long to service.  In addition, if there
+were a pair of time consuming tasks then one of them would always have
+to wait for the other.
+
+
+<h3>Shared Data Problem</h3>
+As soon as we use interrupts to share information between an ISR and
+main we can create problems.  The foundation for these problems arises
+from the fact that we don't want the ISR to perform all the work.
+Generally, we use the ISR to manipulate some I/O device and pass
+all the work of actually processing the information from the sensor
+to main.<br><br>
+
+The problems that can arise from sharing data between an ISR and
+main are shown in the following code snippet.  In this example we
+are to monitor the temperature from two sensors and set off an
+alarm if these are different (we are to assume that this condition
+indicates that there is a problem with the sensors that someone needs
+to know about).
+
+<pre>
+int8 iTemp[2];
+
+void interrupt ReadTemp(void) {
+    iTemp[0] = ReadSensor0;
+    iTemp[1] = ReadSensor1;
+}
+
+void main(void) {
+    int8 iTemp0, iTemp1;
+
+    while(1) {
+        iTemp0 = iTemp[0];
+        iTemp1 = iTemp[1];
+        if (iTemp0 != iTemp1)
+            Set off the klaxon;
+}   }
+</pre>
+
+So where is the error?  Well it arises out of a sequence of events.
+<ol>	<li>The temperature is changing.
+	<li>We have just finished executing the "iTemp0..." line in main
+	<li>The interrupt occurs and updates both values of iTemp[]	</ol>
+
+The alarm will sound even though there was no real error.  Even worse this
+error will <u>not</u> be repeatable.  This is a instance of a so-called
+Heisenberg.  How about trying the following fix?
+<pre>
+int8 iTemp[2];
+
+void interrupt ReadTemp(void) {
+    iTemp[0] = ReadSensor0;
+    iTemp[1] = ReadSensor1;
+}
+
+void main(void) {
+    int8 iTemp0, iTemp1;
+
+    while(1) {
+        if (iTemp[0] != iTemp[1])
+            Set off the klaxon;
+}   }
+</pre>
+
+Well this really doesn;t work either.  So how to we solve this problem.
+Well go the source.  The interrupt is the real culprit, if it
+occurs when we are making the comparison then we can get a problem.
+The solution will consist of making a "critical section" around the
+comparison, not allowing interrupts to occur.
+<pre>
+int8 iTemp[2];
+
+void interrupt ReadTemp(void) {
+    iTemp[0] = ReadSensor0;
+    iTemp[1] = ReadSensor1;
+}
+
+void main(void) {
+    int8 iTemp0, iTemp1;
+
+    while(1) {
+	disable_interrupts();
+        iTemp0 = iTemp[0];
+        iTemp1 = iTemp[1];
+	enable_interrupts();
+        if (iTemp0 != iTemp1)
+            Set off the klaxon;
+}   }
+</pre>
+
+
+<h3>Interrupt Latency</h3>
+If we enable and disable interrupts to solve the problems associated
+with the shared data problem then we will increase the <u>interrupts
+latency; the time delay between the occurrence of an interrupting
+event and its being serviced.</u>  In some cases you will need to
+calculate the latency, so how can you do this?  You need to know
+4 things.
+
+<ol>
+<li>The longest period of time that the interrupt is disabled.
+<li>The length of time required to service interrupts at a higher
+priority level.
+<li>The time required to enter an ISR.  This is MCU book-keeping
+required to save the state of the MCU so that its not perturbed by
+the ISR.
+<li>How long if takes the ISR to set itself up and then "service"
+the interrupting event.
+</ol>
+
+Lets look at an example
+<ol>
+<li>You have to disable interrupts for 125us for your task code 
+to use a pair of temperature variables it shares with the
+interrupt routine that reads the temperatures from the hardware and
+writes them into the variables.
+<li> You have to disable interrupts for 250us for your task code to 
+get the tie variables from variables it shares with the interrupt routine that
+responds to the timer interrupt.
+<li>It takes 10us for the PIC to switch contexts.
+<li>You must complete a response within 625us when you get a special 
+signal (an interrupt) from another processor in your system; the 
+inter-processor interrupt routine takes 300us to complete.
+</ol>
+
+This solution assumes that the inter-process communication is given
+the highest priority and there are no other interrupts with that 
+interrupt priority.  Always work these types of problems assuming
+a worst-case scenario from the current state of the MCU to the resolution
+of the interrupt.  That is assume that we have just entered the
+portion of the foreground code which disables the interrupts.  Interrupts 
+are disabled for 250us, it takes 10us to switch to the inter-process ISR, 
+and inter-process communications require 300us.  Thus it takes 560us to
+service this requires, well within the 625us requirement.  What if we
+assumed that all the interrupts were of the same priority?
+
+
+<h3>Real Time Operating Systems</h3>
+A RTOS allows a collection of independent tasks to simultaneously
+use the MCU.  A task are small embedded systems programs with a 
+superloop structure.  Tasks have a priority which determines
+their relative importance to one another.  Since we have only
+one processor, we know that only one of the tasks can actually be
+running at a time.  Hence, the tasks will have to be in variety
+of states.
+<ul>	<li>Task - A sequence of instructions to perform some action.
+	<li>Interrupt - An external event which cause the ISR to run.
+	<li>Task priority - A tasks importance relative to the other tasks.
+	<li>Task switch - is the process of suspended one task and
+		starting another.
+	<li>Preemption - occurs when a task is interrupted to start another.
+	<li>Kernel - The software system managing the switching of tasks.
+	<li>delay - The amount of time that a tasks execution is suspended.
+	<li>event - an occurrence that a task can wait for.
+	<li>timeout - The amount of time that an event is willing to wait
+		for an event.  Timeouts are optional.
+	<li>Task state	<ul>
+<li><b>Running </b>- the MCU is executing this task.  A running task will
+puts itself into the blocked state if waits on an event or another
+task with higher priority becomes unblocked.
+
+<li><b>Ready</b> - Another task is running but this task has things that it 
+could do if the MCU became available.  The scheduler moves a task
+from the ready to the running state.
+
+<li><b>Blocked</b> - the task does not have anything to do.  Tasks get into 
+this state because they are waiting for some external event.  
+<ul>
+
+<li>A task will only enter the blocked state because it decides for itself 
+that it has run out of useful things to do.  Other tasks in the system or 
+the scheduler cannot decide for a task that it needs top wait for 
+something. As a consequence of this, a task had to be running just 
+before it is blocked.  It has to execute the instruction that figures 
+out that there 's nothing else to do.  
+<li>While a task is blocked it never get the CPU.  Therefore, some other
+task must signal that whatever the task was waiting for has happened.
+Otherwise the task will be blocked forever. This inter-task signaling
+is usually accomplished using semaphore.
+</ul>
+</ul>
+
+<li>Inter-Task communication -
+In order for the tasks of a RTOS application to perform meaningful
+work they must communicate with one another.  In order to avoid
+the shared data problem, some
+form of mutual exclusion must be implemented.  This is done using
+semaphores - a true/false variable which can be set by a task, and
+can be waited on by a task. An example of semaphores can be found 
+in the fairy tale application.
+<pre>
+void taskCow() {
+    while(1) {
+		WaitForEvent(semaphoreFullMoon);
+		JUMP_OVER_MOON();
+		SignalEvent(semaphoreGreenCheese,1);
+}   }
+</pre>
+
+The "WaitForEvent" function blocks the Cow task until the semaphore
+"semaphoreFullMoon" goes true.  A semaphore is used only once and
+then it has to be reset.  Several task could be waiting for the
+same semaphore, in which case all of then would get to use it once
+when it was set.  While waiting for "semaphoreFullMoon" to be set,
+the cow task is blocked.  After being unblocked the cow task is
+put into the ready state which will cause it to be run sometime
+soon. When it runs it will call the JUMP_OVER_MOON function which
+will then allow it to signal the "semaphoreGreeCheese" function.
+The cow task would then go back to waiting for the next full moon.
+
+<li>Scheduler - 
+The scheduler is part of the kernel which keeps track of each 
+tasks state and decides which one should be put into the running 
+state.  Generally, the highest priority task gets the MCU.  If you 
+write a RTOS application in which one task gets to hog the MCU and 
+all the lower priority tasks have to wait; the scheduler assumes 
+that you knew what you were doing when you set the task priorities.
+</ul>
+
+<h3>Non-preemptive Real Time Operating System</h3>
+<b>Advantage</b>
+Simple to write a non-preemptive RTOS.  Simple to program applications.
+<br><Br>
+
+<b>Disadvantage</b>
+The longest delay to service a high priority event is the time required
+by the longest task.  The RTOS cannot preempt any running task.  Consequently
+a bug in one task may very well bring the entire system down.  Using
+an RTOS consumes system resources (memory and MCU processing time).
+
+<h3>Preemptive Real-Time Operating System</h3>
+A preemptive RTOS can suspend one task to run another.
+<br><br>
+
+<b>Advantage</b>
+The response time of the system is stable if the code is changed.
+<br><Br>
+
+<b>Disadvantage</b>
+Using an RTOS consumes system resources (memory and MCU processing time).
+They increase the delivery cost of your product.
+
+</html>

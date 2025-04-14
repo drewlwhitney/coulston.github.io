@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab15.html">Lab 15</a></li>
+                    </ul>
+ 		     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Lab 15 - In-lab activities</center>
+
+<h2>Requirements</h2>
+Working in teams of two, read through the following lab activity and perform all the actions prescribed. You do not need to document bullet items. Make a record of your response to numbered items and turn them in a single copy as your teams solution on Canvas using the instructions posted there.
+
+Include the names of both team members at the top of your solutions. Use complete English sentences when answering questions. If the answer to a question is a table or other piece of art (like an oscilloscope trace or a figure), then include a sentence explaining the piece of art. Only include your answers, do not include the question-text unless it is absolutely needed.
+
+<h2>Objective</h2>
+
+
+<h3>Inversense MPU-6050</h3>
+Before you start on this lab, it is worth mentioning that the MPU-6050 has two datasheets;
+the "Product Specification" and the "Register Maps and Description".
+The Product Specification describes the electrical characteristics of
+the MPU-6050, the architecture of the chip, the communication interface, and 
+the sensor performance.  It tells you what the chip can do.<br><br>
+
+The Register Maps and Descriptions tells you how to get data from the MPU-6050.
+To do this, you need to interface to the myriad of internal registers inside
+the MPU-6050.  This inLab will introduce you to the most important of
+these registers.
+<br><br>
+
+If it's not clear by now, you should download both these documents
+by looking up the MPU-6050 in Digikey (part number 1428-1007-1-ND).
+<br><br>
+
+
+The Inversense MPU-6050  contains a 3-axis accelerometer and 3-axis
+gyroscope.  Meaning that this device can measure accelerations
+along 3 perpendicular axis and can measure the rate of rotation
+along 3 perpendicular axis.  These axis are aligned with the
+faces of the device package.  To understand this relationship
+answer the following question.
+
+<ol>
+<li>In the MPU6000 Datasheet, look for the Orientation of Axes section.
+Use the information here to add "+X", "+Y" and "+Z" to the three axis
+and three rotational directions to the image below.  Note the "+Z" is
+missing from its axis.
+<br><img src="./img/MPU6050axis.bmp"><br><br>
+
+<li>Look closely at the MPU-6050 chip and find the white dot indicating pin 1. 
+Now hold the daughter board in front of you so that you can read the
+white silk screen "POWER PACK" as shown in the image below. In
+this orientation, the you can move the daughter board to the forward, back 
+,left, right, up and down.  Up and down are not shown in the image, but
+correspond to moving the board up off the desk or pushing the board down
+towards the floor.
+
+<br><img width=300 src="./img/daughterBoardOrientation.jpg"><br><br>
+
+Now, relate the directions of the MPU-6050 axis, explored in the previous
+question,to the directions of the daughter board can be moved.  In
+the table below, use the terms forward, back ,left, right, up and down
+in the "Daughter board direction" column.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>MPU 6050 axis</td>       <td>Daughter board direction</td>
+<tr><td>+X</td>         <td>&nbsp;</td>
+<tr><td>-X</td>         <td>&nbsp;</td>
+<tr><td>+Y</td>         <td>&nbsp;</td>
+<tr><td>-Y</td>         <td>&nbsp;</td>
+<tr><td>+Z</td>         <td>&nbsp;</td>
+<tr><td>-Z</td>         <td>&nbsp;</td>
+</table>
+
+
+
+<li>In the MPU-6050 Product Specification document, look for the MPU-60X0 
+Overview section.  What is the difference between the serial interface of 
+the MPU-6000 and MPU-6050?  Use your own words, do not plagiarize.
+</ol>
+
+
+
+<h2>MPU-6050 function</h2>
+Now, lets dive into how the MPU-6050 reports acceleration and 
+rotation rates.  
+
+The MPU-6050 measures the amount of acceleration along each of
+its 3 axis using the units of g's, equivalent gravitational force.
+1g is the force felt by a stationary object on
+the surface of Earth.  If you are holding the MPU-6050 in front
+of you so that you can read the text, then the +Z axis is pointed
+up.  In order to hold the GY-521 like this, you are exerting an
+upward force on the board, otherwise the board would fall.  
+<br><br>
+
+The MPU-6050 also measures the rotational velocity around each of
+its 3 axis using the units of &deg;/s.  If you turn around once,
+you have turned, 360&deg;.  The MPU-6050 measures how fast you
+turn, your rotational velocity.  So if you turn around in half
+a second, your rotational rate is 720&deg;/s.  If it takes you
+2 seconds to turn around, your rotational rate is 180&deg;/s.
+<br><br>
+
+
+<ol start=4>
+
+<li>
+The MPU-6050 has upper and lower limits on the acceleration and
+rotational rates that it can measure.  These limits are configurable,
+allowing you maximize the sensitivity of the MPU-6050 in your particular
+application.  Look in the MPU6000 Register Maps and Description document
+to complete the following table. 
+Note, the top row is the name of the register.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=2>ACCEL_CONFIG		<td colspan=2>GYRO_CONFIG
+<tr><td>AFS_SEL[1:0]	<td>Full Scale Range	<td>FS_SEL[1:0]	<td>Full Scale Range
+<tr><td>0b00		<td>&nbsp;		<td>&nbsp;	<td>&pm;250&deg;/s
+<tr><td>0b01		<td>&nbsp;		<td>0b01	<td>&nbsp;
+<tr><td>&nbsp;		<td>&pm;8g		<td>0b10	<td>&nbsp;
+<tr><td>0b11		<td>&nbsp;		<td>0b11	<td>&nbsp;
+</table>
+</ol>
+
+
+<h3>Accelerometer</h3>
+The accelerometer in the MPU-6050 outputs a 16-bit 2's complement value that is proportional
+to the measured g-force on each axis over the full scale range.  
+Since g-force can occur in a direction opposite the measurement positive axis, the
+accelerometer accommodate negative accelerations with its  2's complement output.
+To convert the numerical output from the accelerometer into g-force, you need to 
+know the full scale range and then perform some simple dimensional analysis.
+<br><br>
+
+For example, say the MPU-6050 is configured with a full scale range of &pm;8g. 
+Then the largest positive 16-bit 2's complement value, 2<sup>15</sup> corresponds to 8g's.
+Then the largest negative 16-bit 2's complement value, -2<sup>15</sup> corresponds to -8g's.
+You can use this to form the ratio 8g's/2<sup>15</sup> to convert numerical outputs
+from the MPU-6050 into g's.<br><br>
+
+For example, say the MPU-6050 is configured with a full scale range of &pm;8g and output
+the value 0xD36A as the acceleration on its Z-axis.   I like the windows calculator to
+convert between bases.
+<ul>	<li>Click on the 3 horizontal lines in the upper left and select Programmer.
+	<li>Click on QWORD until you get WORD - this sets the word size to 16-bits.
+	<li>Click on Hex to enter values in as hexadecimal.
+</ul>
+<br><img width = 300 src="./img/windowsCalc.bmp"><br><br>
+
+Thus, 0xD36A, interpreted as a 16-bit 2's complement value is equal to -11,414.  I will
+use the units "counts" to refer to the accelerometer output.  To perform the calculation
+below, you should switch the windows calculator back to scientific mode, otherwise you
+will not get any fractional digits.
+
+<pre>
+			     8 g's
+	-11,414 counts	* --------- = -2.79 g's
+			  2<sup>15</sup> counts
+</pre>
+
+
+The following question asks you to put the MPU-6050 into different static (non-moving)
+orientations and determine the numerical output of the registers and the
+interpreted values based on the FSR setting.  It is important to remember that the g-force
+is a vectored component along each of the MPU-6050's axis.  So for example, if you tilt
+the MPU-6050, the earth's gravitational force will be some vector component along each
+of the 3-axis.  To calculate how much force is applied along each of the MPU-6050's axis
+you need to calculate the 
+<a href="https://en.wikipedia.org/wiki/Vector_projection">vector projection</a>
+of the upward force of 1-g (applied to keep the MPU-6050 from falling) onto each of
+the MPU-6050's 3 
+<a href="https://en.wikipedia.org/wiki/Orthogonal_coordinates">orthogonal axis</a>.
+This is nothing more than multiplying the 1 g of force by the appropriate sin or cosine.
+<br><br>
+
+
+
+In the pictures below, the MPU-6050 has been draw in different orientations.  
+The purple surface is the top of the MPU-6050 and the circle is the white dot.  
+As a result, the MPU-6050 is upright in diagrams A, B, C, D and is upside down 
+in E, F, G, and H.
+<img src="./img/orientation.bmp"><br>
+<img src="./img/orientation02.bmp"><br><br> 
+
+
+<ol start=5>
+<li>
+Complete the following table by calculating
+the expected MPU-6050 output in counts and g's assuming that the MPU-6050
+is configured with a full scale range of &pm;2 g's.  
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Orientation	<td>X g's	<td>X 16-bit 2's
+			<td>Y g's	<td>Y 16-bit 2's
+			<td>Z g's	<td>Z 16-bit 2's
+<tr><td>A  <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>B  <td>&nbsp; <td>&nbsp; <td>0.707  <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>C  <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>D  <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>E  <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>F  <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>-0.707 <td>&nbsp;
+<tr><td>G  <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>H  <td>0      <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+</table>
+
+</ol>
+
+<h3>Rate Gyroscope</h3>
+The rate gyroscope in the MPU-6050 outputs a 16-bit 2's complement value that is proportional
+to the measured angular velocity around each axis over the full scale range.  
+Since angular velocity can occur in a direction opposite the measurement direction, the
+rate gyroscope accommodate negative angular velocities with its  2's complement output.
+To convert the numerical output from the rate gyroscope into angular velocity, you need to 
+know the full scale range and then perform some simple dimensional analysis.
+<br><br>
+
+For example, say the MPU-6050 is configured with a full scale range of &pm;500&deg;/s. 
+Then the largest positive 16-bit 2's complement value, 2<sup>15</sup> corresponds to 500&deg;/s.
+Then the largest negative 16-bit 2's complement value, -2<sup>15</sup> corresponds to -500&deg;/s.
+You can use this to form the ratio 500&deg;/s/2<sup>15</sup> to convert numerical outputs
+from the MPU-6050 into &deg;/s.<br><br>
+
+For example, say the MPU-6050 is configured with a full scale range of &pm;500&deg;/s and output
+the value 0xD36A as the angular velocity around its Z-axis. Using the Windows calculator,
+0xD36A, interpreted as a 16-bit 2's complement value is equal to -11,414.  I will
+use the units "counts" to refer to the rate gyroscope output.  To perform the calculation
+below, you should switch the windows calculator back to scientific mode, otherwise you
+will not get any fractional digits.
+
+<pre>
+			  500&deg;/s
+	-11,414 counts	* --------- = -174 &deg;/s
+			  2<sup>15</sup> counts
+</pre>
+
+
+The following question asks you to calculate the angular displacement of the rate gyroscope that
+has measured an angular velocity for some duration.  The angular displacement is just the
+angular velocity multiplied by the duration.  Assuming the MPU-6050 is configured with a full 
+scale range of &pm;500&deg;/s.
+<ol start=6>
+<li>Complete the following table. Treat each row separate from all
+the other rows - do not accumulate the angular displacements down the table.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Gyroscope output	<td>angular velocity	<td>duration	<td>angular displacement
+<tr><td>0xD36A  		<td>-174&deg;		<td>0.1 second	<td>-17.4&deg;
+
+<tr><td>0x3E31  		<td>&nbsp;		<td>0.2 second	<td>&nbsp;
+<tr><td>0xB2C4  		<td>&nbsp;		<td>&nbsp;	<td>-17.4&deg;
+
+<tr><td>&nbsp;  		<td>100&deg;		<td>&nbsp;	<td>25&deg;
+<tr><td>&nbsp;  		<td>-36.4&deg;		<td>0.6 seconds <td>&nbsp;
+
+<tr><td>&nbsp;  		<td>&nbsp;		<td>0.3 second	<td>-26.6&deg;
+
+</table>
+</ol>
+
+
+<h3>Digital Low Pass Filter</h3>
+Noise in sensor systems is a fact of life.  The sources of this noise are varied and in
+many cases baked into the fabric of our universe - there is no way around them.  As a 
+result the measured output of the MPU-6050 will show variation even when the MPU-6050
+is perfectly still. If you looked at the samples over time, you would find that they
+fall on a normal distribution.  I made the following histogram from 256 acceleration
+samples taken while the MPU-6050 was sitting quietly on my desk.  <b>The RMS noise of the
+MPU-6050 is equal to the standard deviation of this Normal distribution.</b>
+<br><img src="./img/experiments/noiseHistogram.JPG"><br><Br>
+
+
+To combat noise, the MPU-6050 comes with a configurable digital low pass filter
+(DLPF).  The DLPF averages together N accelerations samples and then only
+outputs the average.  Since the DLPF uses several acceleration measurements to produce 
+one average measurement, the rate which samples are produced is reduced, but the
+RMS error goes down.   This reduction is measurement rate is described in terms of 
+bandwidth.  The bandwidth describes the fastest signal that the MPU-6050 can accurately 
+measure.
+<br><br>
+
+In order to understand the idea of sensor bandwidth let us image that we are
+recording the acceleration of the MPU-6050 as it is being moved up and down in
+a sinusoidal fashion.  This up and down sinusoidal movement (change in position)
+will cause a sinusoidal acceleration, because acceleration is the second derivative 
+of position and the second derivative of a sinusoid is a sinusiod.   It may 
+surprise you to learn that<i> the accuracy of the acceleration reported by the MPU-6050
+depends on the frequency at which it is being moved up and down</i>.
+At low frequencies, the MPU-6050 faithfully measures and reports its acceleration.
+However, as the frequency is increased, the accelerations reported by the 
+MPU-6050 becomes lower than the acceleration the MPU-6050 is actually experiencing.
+The frequency at which the reported acceleration is 0.707 times smaller than the
+actual acceleration the MPU-6050 is experiencing is called the bandwidth.  This
+ratio of output to input of 0.707 is equivalent to -3dB of attenuation between the input
+and output signals.  
+<br><br>
+
+The relationship between the bandwidth and RMS noise is characterized by a parameter
+called the Power Spectral Density.  Lookup this value in the MPU-6050 Product 
+Specification document.  Note the units are &micro;g/Hz<sup>0.5</sup>.  You can
+calculate the expected RMS noise by multiplying the Power Spectral Density by 
+the square root of the bandwidth.
+<br><Br>
+
+
+<ol start=7>
+<li>
+Now you will apply these ideas to complete the following table.  The MPU-6050 has a 
+configurable DLPF which sets the maximum bandwidth.  Look in the MPU6000 Register Maps 
+and Description document for the CONFIG register.  Use the information in the DLPF table
+to complete the Bandwidth column in the table below.  Next multiply the square root of
+the bandwidth by the Power Spectral Density you looked up earlier and put the result in
+the column "RMS noise (&micro;g)".  Convert the RMS noise (&micro;g) value into ADC
+counts (assuming a &pm;2 g full scale range) and put the value in the "RMS noise (counts)" 
+column.  You will need to come back and complete the "RMS noise (measured counts)" 
+after you have loaded the Lab 15 firmware on the PIC. 
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>DLPF_CFG<td>Bandwidth	<td>RMS noise (&micro;g) <td>RMS noise (counts) <td>RMS noise (measured counts)
+<tr><td>0	<td>&nbsp;	<td>&nbsp; 	<td>&nbsp; 			<td>&nbsp;
+<tr><td>1	<td>&nbsp;	<td>&nbsp;	<td>89				<td>&nbsp;
+<tr><td>2	<td>&nbsp;	<td>3,878	<td>&nbsp;			<td>&nbsp;
+<tr><td>3	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;			<td>&nbsp;
+<tr><td>4	<td>21 Hz	<td>&nbsp;	<td>&nbsp;			<td>&nbsp;
+<tr><td>5	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;			<td>&nbsp;
+<tr><td>6	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;			<td>&nbsp;
+</table>
+</ol>
+
+
+<h2>Lab 15 firmware</h2>
+It's time to install the software that you will be using for this lab
+using the following instructions.
+
+<ol>
+<li>Attach the USB cable between your PC and your development board.  The green
+power-on LED should be illuminated.
+<li>Launch MPLab X
+<li>Attached your SNAP programmer to your PC with a USB cable.
+<li>Connect your SNAP programmer to the development board.
+<li>Create a directory /EENG383/lab/lab15
+<li>Download
+<a href="./code/Lab15.X.production.hex">Lab15.X.production.hex</a>
+into the lab15 directory by right mouse clicking on the link and selecting
+"Save link as &hellip;", or whatever your browser calls it
+<li>In MPLab X, File &rarr; New Project
+<ul>    <li>In the New Project pop-up (Step 1. Choose Project)<br>
+                Categories: Microchip Embedded<br>
+                Projects: Prebuilt(Hex, Loadable Image) Project<br>
+                Next&gt;
+        <li>In the New Project pop-up (Step 2. Create Prebuilt Project)<br>
+                Prebuilt Filename: navigate to /EENG383/lab/lab15/Lab15.X.production.hex<br>
+                Device: PIC18F26K22<br>
+                Hardware Tool: SN: BURxxxxxxxxx where x's are ID<br>
+                Next&gt;
+        <li>In the New Project pop-up (Step 3. Select Project Name and Folder)<br>
+                Project Name: Lab15.X.prebuilt (default)<br>
+                Project Location: \EENG383\lab\lab15 (default)<br>
+                Finish
+</ul>
+
+        <li>Click green Play button in toolbar at the top center of the screen,
+        <li>Click OK to the MPLAB pop-up "CAUTION: Check that the device...."
+        <li>In the console area at the bottom of the MPLab X window you should
+        see the following activity in a tab labeled "SNAP".
+<pre>
+*****************************************************
+
+Connecting to MPLAB Snap...
+
+Currently loaded versions:
+Application version............00.03.23
+Boot version...................01.00.00
+Script version.................00.03.33
+Script build number............0540a22e50
+Target device PIC18F26K22 found.
+Device Id Revision = 0x4
+
+Erasing...
+
+The following memory area(s) will be programmed:
+program memory: start address = 0x0, end address = 0x52bf
+program memory: start address = 0xeb40, end address = 0xffff
+configuration memory
+
+Programming/Verify complete
+
+</pre>
+</ol>
+<br><br>
+
+Now go in and launch PuTTy using the correct serial port,
+but with Baud Rate 115200. This non-standard Baud rate will
+expedite spooling data stored on the SD card.  
+
+<br><img src="./img/puttyConfig.bmp"><br><br>
+
+Once you have properly configured PuTTy, type in "?" to see
+the following menu of functions provided by this software.
+
+
+<pre>
+-------------------------------------------------
+MPU6050 configuration
+Error with stored accelerometer FSR value = FF
+Error with stored gyroscope FSR value = FF
+Error with stored accelerometer DLPF value = FF
+Unknown AXIS being read = FF
+Unknown sampling rate = FF
+-------------------------------------------------
+?: Help menu
+Z: Reset processor
+z: Clear the terminal
+u: autonomous Usage instructions
+-------------------------------------------------
+i: Initialize SD card
+-/+: decrease/increase read address
+b: read a Block of 512 bytes from SD card
+-------------------------------------------------
+d: set digital low pass filter scale and store in PIC EEPROM
+f: set accelerometer FSR scale and store in PIC EEPROM
+F: set gyroscope FSR scale and store in PIC EEPROM
+E: Set the type of data that is logged and store in PIC EEPROM
+S: Set the sample rate of the MPU6050 and store in PIC EEPROM
+-------------------------------------------------
+o: reset accelerometer
+w: Write an arbitrary MPU6050 register and value
+r: Read an arbitrary MPU6050 register
+A: read all the registers from the MPU6050
+a: read acceleration data registers from the MPU6050
+g: read gyroscope data registers from the MPU6050
+n: collect and spool 512 samples
+-------------------------------------------------
+R: Record selected, from E function, data to SD card
+s: spool data on SD card data to terminal
+-------------------------------------------------
+</pre>
+
+
+There is a lot going on here, so let's take a few minutes
+to provide an overview.  You will gain familiarity with 
+these commands through the course of completing this lab.
+<br><br>
+
+I designed the software you have just downloaded to store 
+acceleration or gyroscope data to the SD card; a process
+called data logging.  You can store only 1 type of data,
+one of the 3 acceleration axis or 1 of the 3 rotational
+rate axis.  You can change the rate at which this data
+is stored and the DLPF setting.  Together I will call this
+your "MPU6050 configuration".
+<br><br>
+
+An important requirement in the design of this software
+was that I wanted you to be able to collect data 
+without having the development board/daughter board combination 
+tethered to a PC by the USB cable.  In order to do this, the
+PIC must be able to remember your MPU6050 configuration.
+I accomplished this by storing your configuration 
+in the EEPROM module inside the PIC 18F26K22.  This 
+brings us back to the menu displayed on PuTTy.  The 
+top 5 lines are the configuration currently stored in the 
+EEPROM.  The EEPROM inside the PIC is cleared to 0xFF's
+when you program the PIC.  This is situation is shown in
+screen capture above and reproduced below.
+<br><br>
+
+<pre>
+-------------------------------------------------
+MPU6050 configuration
+Error with stored accelerometer FSR value = FF
+Error with stored gyroscope FSR value = FF
+Error with stored accelerometer DLPF value = FF
+Unknown AXIS being read = FF
+Unknown sampling rate = FF
+-------------------------------------------------
+</pre>
+
+To start, change the MPU6050 configuration, to these settings:
+<ul>	<li>DLPF at 94 Hz
+	<li>Accelerometer is +/- 4g's
+	<li>Gyroscope FSR is +/- 250 degree/sec
+	<li>Recording the Z-axis acceleration every 5000 us
+</ul>
+
+To do this, use the following menu items:
+
+<pre>
+-------------------------------------------------
+d: set digital low pass filter scale and store in PIC EEPROM
+f: set accelerometer FSR scale and store in PIC EEPROM
+F: set gyroscope FSR scale and store in PIC EEPROM
+E: Set the type of data that is logged and store in PIC EEPROM
+S: Set the sample rate of the MPU6050 and store in PIC EEPROM
+-------------------------------------------------
+</pre>
+
+Let's look over some of the menu items to get a better understanding 
+of this interface and how you will use it to accomplish the goals of 
+this lab.
+
+<ul>
+
+<li><b>w and r</b><br>
+Allow you to read or write any register inside the MPU-6050.  This is handy
+if you want to experiment with the MPU-6050 configuration.  All values entered
+are assumed to be in hex.  For example, try reading the WHO_AM_I register located
+at address 0x75 using the r function, yields the following result.
+<pre>
+> r
+Enter 1 or 2 digit address then hit Enter
+>0x75
+I2C1_Read1ByteRegister(0x68, 0x75) = 0x68
+
+</pre>
+
+<li><b>A</b><br>
+A hold-over function from the previous lab, this function prints the value
+of a bunch of important registers in the MPU-6050.
+
+<li><b>a and g</b><br>
+These two menu options display the most immediate acceleration and gyroscope
+values as raw 16-bit values and interpreted as 16-bit 2's complement numbers.
+With your development board flat on your desk, press them and 
+you should get the following values (assuming you configured your MPU-6050
+as described in the previous step).
+
+<pre>
+> a
+Accelerometer values
+X:  fe6a    -406
+Y:  00aa    170
+Z:  1fbf    8127
+
+> g
+Gyroscope values
+X:  fff4    -12
+Y:  0029    41
+Z:  ffe9    -23
+</pre>
+
+<li><b>n</b><br>
+Records 512 samples from the MPU-6050 according to the current configuration and
+then spools them to the terminal.  This is a handy function to quickly grab a
+bunch of samples to plot in Excel.  Remember that selected text in PuTTy is 
+automatically put into the copy buffer.  So to cut-and-paste data from PuTTy
+into Excel, just select the text in PuTTy and then Ctrl-V in Excel.
+
+<li><b>R</b><br>
+This function allows you to record samples from the MPU-6050 to the SD card according 
+to the current configuration.  While samples are being recorded the green LED on the
+daughter board will flash every time a buffer of 512 bytes fills. When you press
+any key in PuTTy, recording will terminate as soon as the last 512 is filled with 
+samples.  Behind the scenes, the firmware records one extra block of data at the
+end of the sampled data.  This block consists of all 0xFF's and denotes the end of
+the recording.
+
+
+<li><b>s</b><br>
+This function spools the data on the SD card to the PuTTy terminal, similar to the
+function you implemented in Lab 9.  This function is a little bit more advanced as
+the spooling continues until it encounters a block consisting of 512 0xFF's.  When
+it does, spooling stops.  Of course, the block consisting of 0xFF's is not printed.
+
+</ul>
+
+Please experiment with these functions and the look at the data stored on the SD card
+as you do so.  This will help you gain a familiarity that will help you complete 
+this week's lab.  Let's discuss the remaining function of the firmware, autonomous mode.
+
+<h3>Autonomous Mode</h3>
+One of the requirements was to enable recording of MPU-6050 data while the
+development board/daughter board combination was not tethered to the PC.  This
+is what I call autonomous mode.  In order to run in autonomous mode you will 
+need a pair of AAA batteries installed in the daughter board's battery holder.
+With batteries installed, unplug the daughter board from the USB cable.  When
+providing power from AAA batteries, you will turn the development board on and
+off using the ON/OFF slide switch on the daughter board.
+However, for this test you will leave the development board plugged into the PC 
+through the USB cable so that the board gets power. 
+
+You will use the following procedure to operate the development board/daughter
+board combo in autonomous mode.  While performing the following procedure,
+you will need to focus on the READY, RECORD and FINISH LEDs as well as the TOP
+and BOTTOM buttons on the daughter board.
+
+<ul>	<li>Power on the daughter board, wait for the red FINISH LED to illuminate.
+	<li>While holding down the TOP push button, momentarily press the RESET button.
+	<li>The yellow READY LED should stay illuminated, you can release the TOP button now.
+	<li>The system is now ready to record data onto the SD card.  To start recording,
+	briefly press the BOTTOM push button.
+	<li>The green RECORD LED should be flashing.  Every flash is a block being 
+	recorded to the SD card.
+	<li>To stop recording, briefly press the TOP button.  After the last block is
+	written to the SD card, the red FINISH LED will illuminate.  A block filled
+	with 0xFF's has been written after your stored data so that the spool function
+	will automatically stop.
+</ul>
+
+The instructions for this procedure are printed (in an abbreviated form) on the 
+daughter board.  Also, if you happen to have the development board plugged in while 
+putting the system into autonomous mode, you will get additional information and 
+instructions shown below.
+
+<pre>
+Initializing SD card
+CMD0, Reset Response: 1
+CMD1, Init Response: 0
+Block Length Response: 0
+Initializing: acceleration scale, gyroscope scale, dlpf scale
+Finished initialization of accelerometer
+In autonomous record mode - press bottom button to start data logging.
+Data logging started.  Press top button to stop.
+Data logging stopped.  Terminal Ready.
+</pre>
+
+
+<h3>Finishing up the DLPF table</h3>
+
+You still have to complete the "RMS noise (measured counts)" column in the DLPF table you started a 
+while back.  Let's start that by configuring the MPU-6050 as follows, note that 
+this text appears at the top of the menu.
+<pre>
+MPU6050 configuration
+Accelerometer FSR is +/- 2 g's
+Gyroscope FSR is +/- 250 degree/sec
+DLPF set to 260 Hz bandwidth
+accelerometer Z-axis
+sample every 5000 us
+</pre>
+
+Next collect 256 samples using the "n" function in the PuTTy terminal.  Copy these samples
+and paste them into column A of the
+<a href="noiseAnalysis.xlsx">noiseAnalysis.xlsx</a> spreadsheet.  Yes, you should overwrite
+the values that I put into columns A and E - I put them there to give you an idea of what 
+sorts of values you could expect.  The spreadsheet will 
+automatically calculate the average and standard deviation.  Copy the standard deviation
+value from cell L5 into the "RMS noise (measured counts)" value in the DLPF table above. 
+<br><br>
+
+Change the DLPF value and repeat this procedure to determine the standard deviation for the
+remaining 6 DLPF settings.  Copy the remaining standard deviation values into the table. 
+You should find good agreement between the measured RMS error and the calculated RMS error.
+I interpret good agreement to mean "within 20%".  If you find significant deviation between
+the 2, re-run the data collection as there was probably some unanticipated environmental 
+influence.
+<br><br>
+
+
+
+
+
+</html>

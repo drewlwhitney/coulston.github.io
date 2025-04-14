@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture14.html">&ltPrev</a></li>
+                        <li><a href="./lecture16.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>15</td></tr>
+<tr><td>Objective:	<td>To reinforce how an interrupt service routine
+		is called and shares the processor with main.
+</table>
+
+
+<h1>Interrupts</h1>
+Last class we went over the big picture of interrupts and how to
+write a program to generate a waveform using a timer 0 interrupt.
+Some lessons that we learned...
+
+<ul>
+	<li>An interrupt service routine (ISR) is a function that is 
+		called by hardware.
+	<li>ISR has no input parameters and does not return a value.
+	<li>In our development environment you will declare an ISR:
+	<pre>void high_priority interrupt tmr0_isr(void)</pre>
+	<li>The event that causes the hardware to call the ISR is called 
+	an interrupt and generally corresponds to setting a hardware flag.
+	<li>Before leaving the ISR you need to clear the hardware flag.
+	<li>To generate a interrupt, you must set the interrupt enable bit
+	for the hardware subsystem and set global interrupts by
+	setting the INTCONbits.GIE bit.
+	<li>ISRs use "static" variables to retain values between ISR 
+		invocations.
+	<li>ISR's use global variables to share values with main.
+</ul>
+
+<h2>Processor timeline with an active interrupt</h2>
+Lets examine how the processor reacts when its running the program
+given in the basicInterrupt.c program linked at the top of this
+web page.
+
+<br><img src="./img/interruptTimeLineQuestionNumbers.bmp"><br>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Device	<td>0 <td>1  <td>2  <td>3  <td>4  <td>5  <td>6  <td>7  <td>8  <td>9  <td>10 
+<tr><td>CPU <td>&nbsp <td>&nbsp <td>main  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp 
+<tr><td>TMR0 <td>&nbsp <td>0xB000<td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp 
+<tr><td>TMRIF <td>&nbsp <td>&nbsp <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>Logic 0  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp 
+<tr><td>RC0 <td>&nbsp <td>&nbsp <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>&nbsp  <td>Logic 1  <td>&nbsp  <td>&nbsp  <td>&nbsp 
+</table>
+
+<h1>Example Interrupt Problem</h1>
+The goal of this exercise is to write a program, consisting of an ISR and
+main, that measure (an approximate) duration of a pulse on pin RA2 and light
+an LED on pin RC0 is the pulse if 50ms or longer.  The image below shows
+an example of csuch a pulse on RA2.  You program should store the duration 
+of the pulse, in milliseconds, in a variable pulseLength.  Hence, if the
+pulse was 123.4 ms, your program would assign the variable pulseLength 
+the value 123.
+
+<br><img src="./img/pulseLengthISR01.bmp"><br><br>
+
+Your program will divide this task into two parts, the ISR will:
+<ul>	<li>Use TMR0 to interrupt once every milliscond,
+	<li>Holds the intermediate pulse duration in a local variable,
+	<li>Write the pulse duration in a global variable,
+	<li>On every rising edge of RA2, set a global flag true.
+</ul> 
+
+Main will
+<ul>	<li>Wait for the flag indicating a new pulse,
+	<li>If the pulse length is less than 50ms turn an LED on.
+</ul>
+	
+I like to draw pictures of my algorithms to get a feel for how to structure
+the code.  In the image below, at left, is a representation of the major
+function (main and the ISR) and the variables (pulseLength, newPulse and 
+pulseLengthSoFar) they exchange.  An arrow from a function to a variable
+means that the function writes a value to the variable.  An arrow from
+a variable to a function means that the function reads that variable.
+At right in the image below is a revised figure of the logic pulse 
+with a hatch drawn on the pin-logic-level line every one millisecond
+when the ISR is called.  The falling and rising edges of the pulse are
+annotated with the actions taken by the ISR.
+
+<br><img src="./img/pulseLengthISR02.bmp"><br><br>
+
+Now let's turn this into code.  The top of your program should contain
+the global variables.  Their initial values are only that, first values.
+These initial values can be overwritten and changed by your program.
+<br><br>
+
+Next, main.  This is pretty straightforward, just poll the newPulse
+flag and then check if the pulse was 50ms or longer.
+<br><br>
+
+The ISR is really where the action happend.  The ISR looks first for a 
+negative edge on pin RA2.  This is characterized by the previous value
+of RA2 (on the last interrupt) being logic 1 and the current value of
+RA2 (during this interrupt) being logic 0.  I set the pulseLengthSoFar
+variable to 0 so that we can start counting the number of interrupt 
+cycles that RA2 is logic 0, by incrementing the pulseLengthSoFar variable.
+Since we need to maintain the value of this variable between ISR "calls",
+the variable is typed "static", meaning its value does not go away 
+when we leave the ISR, instead, the next time we enter the ISR, the
+pulseLengthSoFar variable will have the value it had when we last left
+the ISR (1ms ago).  Any initialization of a static variable pertains
+to <u>just the first ISR invocation</u>.  The initialization statement
+for a static variable is not used on any subsequent ISR invocation.
+<br><Br>
+
+Likewise, the prevRA2 variable needs the value
+that we assigned it on the previous ISR call (1ms ago).  The currRA2
+variable is set by reading PORTAbits.RA2, the logic level on pin RA2.
+One of the last things that we do in the ISR is to assign the 
+prevRA2 variable the value stores in currRA2.  This is because when 
+we leave to the ISR, we will return in 1ms.  In the future, what we 
+consider to be the current value of RA2  will be the previous value
+of RA2.
+<br><Br>
+
+When the ISR detects a positive edge on the RA2 pin, it writes the
+pair of global variables.  The final else condition is only 
+executed when the currRA2 == prevRA2 == 0.  In this case, the pulse
+is at logic 0.  Consequently, we increment the pulseLengthSoFar variable
+to indicate that the RA2 pin has spent yet another millisecond at logic
+0.
+
+
+
+<pre>
+
+// Global variables
+uint8_t pulseLength = 0;
+uint8_t newPulse = false;
+
+void main(void) {
+    INIT_PIC();
+
+    for (;;) {
+	while (newPulse == false);
+	newPulse = false;
+	if (pulseLength > 50) LATCbits.LATC0 = LED_ON;
+}   }
+
+
+void ISR(void) {
+    static uint8_t pulseLengthSoFar = 0;
+    static uint8_t prevRA2 = 1;
+    uint8_t currRA2;
+
+    currRA2 = PORTAbits.RA2;
+
+    if ( (prevRA2 == 1) && (currRA2 == 0) ) {		// negative edge
+	pulseLengthSoFar = 0;
+    } else if ( (prevRA2 == 0) && (currRA2 == 1) ) {	// positive edge
+	pulseLength = pulseLengthSoFar;
+	newPulse = true;
+    } else if (currRA2 == 0) {				// pulse is low
+	pulseLengthSoFar += 1;
+    }
+
+    prevRA2 = currRA2;		// current value is previous value 1ms from now
+    INTCONbits.TMR0IF = 0;	// clear flag for next interrupt
+    TMR0 = 0x1000 - 1000;	// 1,000 counts at 1:16 presaler = 1ms
+}
+</pre>
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+
+<ol>
+
+<li>Modify  <a href="./code/basicInterrupt.c">basicInterupt.c</a>
+to look at the active high button connected to RA2 every 10 ms
+and generate a 0.25 second long pulse if the button is pressed.
+
+<li>Modify  <a href="./code/basicInterrupt.c">basicInterupt.c</a>
+to debounce the active high button attached to RA0.  
+<a href="https://www.maximintegrated.com/en/app-notes/index.mvp/id/287">
+Switch bouncing</a> occurs because mechanical switches have
+mechanical contacts that literally bounce when making or breaking
+contact. <a href="https://www.youtube.com/watch?v=xadoeJEhTJU">Here</a>
+is a good video showing the output of a switch that exhibits switch
+bouncing.
+
+In order to debounce a switch, I want you to sample the switch you
+value every 10 ms.  Based on the sampled values, you should update
+a global variable <i>cleanButton</i>.  You should only change the
+value of cleanButton when there is overwhelming evidence that it
+is the wrong value.  Overwhelming evidence is the presence of 8
+consecutive samples of the button which disagree with the value
+in cleanButton.
+
+
+<!--
+
+In order to generate a 10 ms delay the timer needs to be set to
+a 4:1 prescaler.
+
+<pre>
+     1 second      1000 ms    4 clk     x counts      10 ms
+    ------------ * -------- * ------- * ---------- = -------- 
+    16*10^6 clks   1 second   1 count   1 ISR call   ISR call
+
+    x = 40,000 counts
+</pre>
+
+The idea behind the program is pretty simple, collect a new sample of 
+RA0 every 10 ms in the ISR by shifting the newest RA0 into the LSB of
+an 8-bit shift register.  When the shift register contains all 1's,
+this means that the last 8 samples all have been 1's and the global
+variable cleanButton should be set to 1.  Likewise when the shift 
+regsiter contains all 0's, the global variable cleanButton should be
+cleared to 0.
+
+//*****************************************************************
+//*****************************************************************
+#define TEN_MILLI 40000
+void high_priority interrupt tmr0_isr(void) {
+
+    static int8 shiftRegister = 0x00;
+    shiftRegister = (shiftRegister << 1) | PORTAbits.RA0;
+    if (shiftRegister == 0xFF)	cleanButton = 1;
+    if (shiftRegister == 0x00)	cleanButton = 0;
+
+    TMR0 = TMR0 + TEN_MILL;
+    INTCONbits.TMR0IF=0; 
+
+} // end tmr0_isr
+
+-->
+
+
+
+
+
+<li>Create an ISR on compare channel 0 that is called every 10ms.
+If the ISR detects that an active high button on RA1 is being
+pressed, generate a 1 second long pulse on RA2.  While generating
+the 1 second pulse, your ISR should not be using all the CPU
+cycles.
+
+<!---
+
+In order to generate a 10 ms delay the timer needs to be set to
+a 4:1 prescaler.
+
+<pre>
+     1 second      1000 ms    4 clk     x counts      10 ms
+    ------------ * -------- * ------- * ---------- = -------- 
+    16*10^6 clks   1 second   1 count   1 ISR call   ISR call
+
+    x = 40,000 counts
+<pre>
+
+To generate the one second pulse, I will have the RA2 pin set
+high for 100 10 millisecond calls of the ISR.
+
+
+<pre>
+
+//*****************************************************************
+//*****************************************************************
+#define TEN_MILLI 40000
+#define TRUE	1
+#define FALSE	0
+void high_priority interrupt tmr0_isr(void) {
+
+    static int8 tenMilliSecondCount = 0;
+    static int8 generatingOneSecondPulse = FALSE;
+
+    if (generatingOneSecondPulse == TRUE) {
+	tenMilliSecondCount += 1;
+	if (tenMilliSecondCount == 100) {
+	    LATAbits.LATA2 = 0;
+	    generatingOneSecondPulse = FALSE;
+    }	}
+	
+    if ((PORTAbits.RA1 == 1) && (generatingOneSecondPulse == FALSE)) {
+	generatingOneSecondPulse = TRUE;
+	tenMilliSecondCount = 0;
+	LATAbits.LATA2 = 1;
+    }
+
+    TMR0 = TMR0 + TEN_MILLI;   // Set the delay until the next interrupt
+    INTCONbits.TMR0IF=0; 
+    
+} // end timer 0 interrupt
+</pre>
+
+-->
+
+
+</body>
+</html>

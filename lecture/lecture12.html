@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture11.html">&ltPrev</a></li>
+                        <li><a href="./lecture13.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>12</td></tr>
+<tr><td>Objective:</td>	<td>How to measure time inteverals of pin events
+		using the capture subsystem.  This include the
+		configuration of the subsystem and assocaited timers.
+<tr><Td>Code:</td>	<td><a href="./code/lec12.c">lec12.c</a></td></tr>
+</table>
+
+<h1>Timer Capture</h1>
+We have now examined two important components of the timer subsystem,
+the 16-bit counter and compare modules.  The compare module looks for
+a match between TMRx and a value stored in CCPx.  We now introduce a 
+timer capability that allows you to capture the timer when a 
+prescribed event occurs on the associated pin.  This is the capture
+feature and is schematically represented in the figure below.
+
+
+<br><img src="./img/picTimerCapture.bmp"><br>
+The timer subsystem, adapted from Figure 14-1 on page 174 of the 
+PIC18(L)F2X/4XK22 Data Sheet<br><br>
+
+<h2>Capture Subsystem</h2>
+The capture subsystem captures the value of TMRx when some 
+prescribed event occurs on the associated pin.  Let's start
+our discussion with the pin itself. Each capture/compare
+module is associated with a single pin given in the following
+table:
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>CCP module	<td>Pin
+<tr><Td>CCP1		<td>RC2
+<tr><Td>CCP2		<td>RC1 (or RB3)
+<tr><Td>CCP3		<td>RB5 (or RC6)
+<tr><Td>CCP4		<td>RB0
+<tr><Td>CCP5		<td>RA4
+</table>
+
+In order to configure the capture function of the capture/compare subsystem,
+we need to configure the Mode Select bits in the CCPx control register. 
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>CCPxM	<td>Configuration
+<tr><td>0b0100	<td>Capture on every falling edge
+<tr><td>0b0101	<td>Capture on every rising edge
+<tr><td>0b0110	<td>Capture on every 4th falling edge
+<tr><td>0b0111	<td>Capture on every 16th falling edge
+</table>
+
+The assignment of timer TMRx to Capture/Compare channel CCPx is accomplished
+with the CCP timer selection control register 0 (page 200 of the
+PIC18(L)F2X/4XK22 Data Sheet) called CCPTMRS0. 
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>CxTSEL	<td>Timer
+<tr><td>0b00	<td>CCPx module uses TMR1
+<tr><td>0b01	<td>CCPx module uses TMR3
+<tr><td>0b10	<td>CCPx module uses TMR5
+<tr><td>0b11	<td>Reserved
+</table>
+
+This means that if you are using the CCP1 module and set CCP1M = 0b0100;
+and C1TSEL=0b00; then the every falling edge (transition from logic 1 to 
+logic 0) will cause the current TMR1 value to be stored in CCP1.
+<br><br>
+
+In addition, when configuring the capture/compare subsystem in the
+capture mode, the associated pin should be configured as an input.
+<br><br>
+
+To see how these concepts can be applied to the solution of practical 
+problems we will examine a device to determine the RPM of an engine 
+and the second to determine the muzzle velocity of a projectile.
+
+<h2>Quadrature Encoder</h2>
+Imagine we are working in an application that has some moving mechanisms.
+Our system issues commands to move the mechanism by a finite amount.  In
+many applications, the resulting movement will contain some amount of
+error.  In applications where this uncertiantity is unacceptable, we 
+need some feedback mechanism that tells the us how much the system actually
+moved.  One popular feedback mechanism is a quadrature encoder or
+quad encoder for short.  A quad encoder is a 2-channel sensor that provides
+directional as well as positional feedback.  In other words, a 
+quad-encoder tells you which direction the mechanism moved and by how much.  
+A mechanical quad encoder is easily built from an a specially etched
+copper disk and a pair of contacts forming a pair of normally open 
+switches shown in the yellow box in the schematic below.  A pair of
+10k&ohm; resistors pulls the switch outputs high.  The internal mechanical
+operation of a mechanical quad encoder produces a lot of 
+<a href="https://en.wikipedia.org/wiki/Switch#Contact_bounce">switch 
+bouncing</a> which is surpressed in this circuit with a pair of 
+<a href="https://en.wikipedia.org/wiki/Low-pass_filter#RC_filter">low-pass 
+filters</a> (formed by a 10k&ohm; and 0.01&micro;F) in front of the signal 
+output.
+
+<br><img src="./img/enc_sch.gif"><br>
+
+
+The 2 channels 
+are frequenty called A and B.  Both A and B are 50% duty cycle square waves.
+Each period of A or B corrsponds to some known amount of movement
+of the mechanism.  The sqaure waves on channels A and B have the same
+frequency but are out-of-phase by 90&deg.  The channel which has its
+positive edge 90&deg before the other channel's positive edge is said 
+to lead.  The image below shows two examples of the channels leading 
+each other.
+
+<br><img src="./img/quadEncode.jpg"><br>
+Taken from National Semiconductors "How Do I Use a Quadrature Encoder
+with My Data Acquisition Board?"<br><Br>
+
+If each pulse on a channel represents a known amount of movement, then
+the speed of the mechanism is proportional to the number of pulses
+per unit time.  More pulses in a unit of time means the mechanism is
+moving faster.  Fitting more pulses in a unit of time means that the
+period of the pulses must be shorter.  Thus, if we can measure the
+duration of the pulses, we can determine the speed of the mechanism.
+<br><br>
+
+Lets measure the speed of a DC motor that we will use in our next lab,
+Polou micro metal gearmotor.  This motor is connected to the
+<a href="https://www.pololu.com/product/1217">Pololu Wheel Encoder</a>.
+I did some experiments driving the motor with different duty cycle
+waveforms and looked at the duration of the pulses coming from the
+wheel encoder to get the data in the table below.  Note, I only
+looked at channel A; I didn't care about the direction of the
+wheels rotation.
+
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Duty Cycle	<td>Encoder Pulse Width <td>Speed	<td>Counts
+<tr><Td>0x10		<td>300 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0x20		<td>131 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0x30		<td>78.0 ms		<td>72mm/sec	<td>58,500
+<tr><Td>0x40		<td>58.0 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0x50		<td>46.5 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0x60		<td>38.2 ms		<td>148mm/sec	<td>28,500
+<tr><Td>0x70		<td>33.2 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0x80		<td>29.0 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0x90		<td>25.6 ms		<td>216mm/sec	<td>19,500
+<tr><Td>0xA0		<td>23.1 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0xB0		<td>20.8 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0xC0		<td>19.4 ms		<td>296mm/sec	<td>14,250
+<tr><Td>0xD0		<td>17.7 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0xE0		<td>16.8 ms		<td>&nbsp	<td>&nbsp
+<tr><Td>0xF0		<td>16.0 ms		<td>352mm/sec	<td>12,000
+</table>
+-->
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Duty Cycle	<td>Encoder Pulse Width
+<tr><Td>0x30		<td>31.0 ms
+<tr><Td>0x60		<td>19.1 ms
+<tr><Td>0x90		<td>12.8 ms
+<tr><Td>0xC0		<td>9.7 ms
+<tr><Td>0xF0		<td>8.0 ms
+</table>
+
+Let's assume that these encoder pulses are coming into RC2, write
+a program that outputs the number of timer counts of the pulses.
+<br><br>
+
+The first thing that we need to do is to determine the timer prescaler.
+Since the longest pulse that we intend to measure is 31 ms long, we 
+should use a 1:8 prescler because the its maximum period is 32.8 ms.
+<br><br>
+
+The idea that I have for the code is to stick it in an infinite loop
+so that it measures the pulse durations forever.  My code will first
+look for a positive edge on RC2, record the start time, and then look for
+a negative edge and record the end time of the pulse.
+
+<pre>
+    int16 start, end;
+
+    TRISCbits.RC2 = 1;		// Make pin RC2 an input
+    CCP1CONbits.CCP1M = 0b0101;	// Enable the capture channel 1 on rising edge
+    CCPTMRS0bits.C1TSEL = 0b00; // Associate TMR1 with CCP1
+    T1CONbits.T1CKPS = 0b11;    // 1:8 prescale
+    T1CONbits.TMR1ON = 1;       // Turn on timer 1
+
+    for(;;) {
+    	CCP1CONbits.CCP1M = 0b0101;	// Capture on rising edge on RC2
+	PIR1bits.CCP1IF = 0;            // CCPR1 register when a falling 
+        while (PIR1bits.CCP1IF == 0);   // edge of RC2 is detected
+        start = CCPR1;		
+
+    
+    	CCP1CONbits.CCP1M = 0b0100;	// Capture on falling edge on RC2
+	PIR1bits.CCP1IF = 0;            // CCPR1 register when a falling 
+        while (PIR1bits.CCP1IF == 0);   // edge of RC2 is detected
+        end = CCPR1;		// 
+
+	// speed = calculateSpeed(end - start);
+
+    } 
+</pre>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+
+<li>Complete the speed calculation for the wheel.  That is,
+given the number of 8:1 prescaled timer counts for a single 
+pulse from a 12 spoke 43mm diameter wheel.  Note that there
+are 12 spokes so there are 12 logic 1 pulses per wheel rotation.
+
+<!--
+The speed calculation is an interesting exercise in units factoring.
+Channel A makes 12 wavelengths per rotation of its 43mm diameter wheel.
+Our program above measures the number of 8:1 prescaled timer counts 
+that go by during the positive half of this wavelength.  This is
+enough information to perform the following dimensional analysis.
+
+<pre>
+
+1 pulse    1 count   16*10^6 clk    1 wave    1 rotation     135 mm
+-------- * ------- * ----------- * -------- * ---------- * ----------
+x counts    8 clks    1 second     2 pulses    12 waves    1 rotation
+
+This works out to:
+		 11,250,000 mm/sec              
+                 ----------------- 
+                        x         
+</pre>
+
+-->
+
+<li>
+<b>Muzzle Velocity</b><br>
+You are working on an Electromagnetic railgun and need an accurate 
+method of determining the muzzle velocity.  To accomplish this goal
+you setup a speed trap consisting of a pair of sensors placed 1 meter
+apart.  The projectile, when fired, passes by the first sensor
+sending a logic 1 pulse to PT0 and then passes by the second 
+sensor a short while later producing a logic 1 pulse on PT1.  The
+railgun is anticipated to have a muzzle velocity of 2,400 m/s.
+Your tasks are to:
+
+<ol type="a">
+<li>Use a 1:1 prescaler, determine the number of counts between
+a projectile moving between the two sensors at the anticipated
+velocity.
+<li>Write a code snippet that records the number of timer counts
+for the projectile to move between the two sensors.  Use the
+capture subsystem.
+<li>Write an equation that relates the number of timer counts
+to the projectile velocity.
+</ol>
+
+<!--
+Lets first determine the number of counts that will go by as the
+projectile moves from one sensor to the next.  We will use a 1:1
+prescaler for now and adjust if the number of counts is greater
+than 2<sup>16</sup>
+
+<pre>
+    16*10^6 clk   1 count     1 second       1 meter        6,667 count
+    ----------- * ------- * ------------- * ----------- =  -------------
+     1 second     1 clk     2,400 meters    1 detection     detection
+</pre>
+
+Since this number of counts is less than 2<sup>16</sup>, a 1:1 prescaler
+will work in our applicaiton.
+
+<pre>
+    int16 start, end;
+
+    TRISCbits.TRISC2 = 1;		// RC2 an input from first sensor
+    CCP1CONbits.CCP1M =  0b0101;	// Capture on positive edge
+    CCPTMRS0bits.C1TSEL = 0b00;		// Associate TMR1 with CCP1
+
+    TRISCbits.TRISC1 = 1;		// RC2 an input from first sensor
+    CCP2CONbits.CCP2M =  0b0101;	// Capture on positive edge
+    CCPTMRS0bits.C2TSEL = 0b00;		// Associate TMR1 with CCP2
+
+    T1CONbits.T1CKPS = 0b00;        	// 1:1 prescale
+    T1CONbits.TMR1ON = 1;           	// Turn on timer 1
+
+    PIR1bits.CCP1IF = 0; 
+    PIR1bits.CCP2IF = 0;  
+
+    
+    while(PIR1bits.CCP1IF  == 0);	// Wait for rising edge on first sensor
+    start = CCP1;			// 
+
+    while( PIR1bits.CCP2IF == 0);	// Wait for rising edge on second sensor
+    end  = CPP2;			// 
+
+    // speed = convertCountsToSpeed(end-start);
+
+    for(;;);			// Catch program in an infinite loop
+</pre>
+
+Finally, let's convert the timer counts into meters per second.  
+To do this, let's suppose that it take x counts
+for the projectile to move between the two sensors.  Using dimensional
+analysis, we get:
+
+<pre>
+    16*10^6 clk   1 count    1 meter	16,000,000 meters
+    ----------- * ------- *  -------  = -----------------
+     1 second     1 clk      x counts       x seconds
+</pre>
+
+From this, if the projectile took 10,000 counts to move between the
+sensors, the it would have a velocity of 1,600 meters/second which 
+is consistent with our initial calculations.  Unfortunatly, in this
+case we will need to use variables with type int32 as the constants
+involved are much larger than the 2<sup>16</sup> range aforded by int16.
+--->
+
+<li>
+<b>RPM measurement</b><br>
+Most modern car engines use computers to monitor and control almost
+every major function in an engine.  Among the most important is
+the timing of the spark which ignites the gas-air mixture inside
+a cylinder.  If the spark occurs too early, the explosion inside the
+cylinders will collide with the upward moving piston causing the 
+engine to "knock".  If the spark occurs too late, the expanding gasses
+from the explosion will not fully impart their energy into the piston
+causing the engine to hesitate.  The timing of the spark is determined
+in large part by the Hall-effect camshaft position sensor.  A small
+magnet is embedded in the crankshaft that rotates in time with the 
+moving pistons.  A Hall-effect sensor placed next to the crankshaft
+nominally outputs logic 0, buts outputs a brief logic 1 pulse every 
+time the magnet passes by.  These pulses are fed into the engine
+control unit (ECU) which is running a PIC.  It's your job to write a
+program which calculates the RPM for a crankshaft that rotates 
+somewhere between 800 (lowest RPM before the engine stalls) and 
+10,000 RPMs (when the rev-limiter kicks).  Your PIC is attached 
+to the camshaft position sensor through RC2.  Your tasks are to:
+<ol type="a">
+<li>Determine the clock speed and prescaler necessary to measure engine RPMs.
+<li>Write a code snippet to measure the number of timer counts
+required for the camshaft to make a single rotation.
+<li>Write an equation relating timer counts to RPMs.
+</ol>
+
+<!--
+The first step in solving this problem is to determine the timer
+configuration, meaning what prescaler is needed.  As a starting 
+point, I used dimensional analysis to determine the number of 
+non-prescaled clock occur during a single camshaft rotation.
+
+<pre>
+    16*10^6 clk   1 count   60 seconds       1 minute        96,000 counts
+    ----------- * ------- * ---------- * ---------------- =  -----------
+     1 second      1 clk     1 minute    10,000 rotations     rotation
+
+    16*10^6 clk   1 count   60 seconds     1 minute       1,200,000 counts
+    ----------- * ------- * ---------- * ------------- =  -------------
+     1 second       clk      1 minute    800 rotations       rotation
+</pre>
+
+Clearly, both of these values are far larger than 2<sup>16</sup>,
+so we will need a prescaler.  Looking at the two values, its clear
+that the 800 RPM case will require more prescaling to bring it
+inside 2<sup>16</sup>.  But just how much?  An easy way would be to 
+divide 1,200,000 by powers of 2 until you find one which a quotient 
+less than or equal to 2<sup>16</sup>.  I found that 1,200,000 / 32 =
+37,500 which is the smallest prescaler that make the quotient less 
+than 2<sup>16</sup>.  Unfortunatly, the PIC TMR1 (or TMR3 or TMR5)
+modules have a maximum prescaler of 1:8.  So we will need to slow the
+clock down.  We can use ratios to determine the maximum clock rate that
+will still be able to measure the engine rotating at 800 RPMs using a 
+1:8 prescaler.  
+
+<pre>
+	16,000,000 count/sec   X/8 clks/sec
+	-------------------- = ------------		X <= 6.9 MHz.
+	  1,200,000 counts    2<sup>16</sup> counts
+</pre>
+The largest frequency avaiable that is larger than this is 4MHz.
+<br><Br>
+Let's recalculate
+<pre>
+    4*10^6 clk   1 count   60 seconds       1 minute         3,000 counts
+    ----------- * ------- * ---------- * ---------------- =  -----------
+     1 second     8 clk     1 minute    10,000 rotations       rotation
+
+    4*10^6 clk   1 count   60 seconds     1 minute        37,500 counts
+    ----------- * ------- * ---------- * ------------- =  -------------
+     1 second     8 clk      1 minute    800 rotations       rotation
+</pre>
+
+
+<pre>
+    uint16_t pulseWidth, camshaftRPM, oldPulseCount;
+
+    TRISCbits.TRISC2 = 1;		// Make RC2 an input from camshaft
+    CCP1CONbits.CCP1M =  0b0101;	// Capture on rising
+    CCPTMRS0bits.C1TSEL = 0b00;		// Associate TMR1 with CCP1
+    PIR1bits.CCP1IF = 0;
+    T1CONbits.T1CKPS = 0b11;		// 1:8 prescale
+    T1CONbits.TMR1ON = 1;		// Turn on timer 1
+
+    for(;;) {  
+	while (PIR1bits.CCP1IF == 0);	// Wait for hall effect (rising edge)
+	pulseWidth = CCP1 - oldPulseCount;	// current time - previous time
+	oldPulseCount = CCP1;	// Store for the next camshaft rotation
+	PIR1bits.CCP1IF = 0;	// Clear flag to capture next camshaft rotation
+	// camshaftRPM = convertCountsToRPM(pulseWidth);	// TBD
+  } // end infinite loop
+</pre>
+
+Our final problem is to convert the timer counts into RPMs.  Not 
+surprisingly we will use dimensional analysis.
+
+<pre>
+    4*10^6 clk   1 count    1 rotation   60 seconds     30,000,000 
+    ---------- * ------- *  ---------- * ----------  = ----------- RPMs
+     1 second     8 clk     x counts      1 minute           x    
+</pre>
+
+That looks like a pretty big numerator, so let's make a reality check on our
+answer.  In the earlier discussion, we calculated that 37,500 counts at
+a 8:1 prescaler should correspond to 800 RPMs.  So lets plug this
+information into our equation and see what we get.
+
+<pre>
+    30,000,000  rotations
+    ----------- ---------  where x = 37,500 counts
+          x     seconds
+
+    30,000,000         
+    ----------- = 800  RPM
+      37,500            
+</pre>
+
+Spot frickin on.
+-->
+
+<!--
+This question is not ready.
+<li>Given <a href="./code/captureCompare.c">captureCompare.c</a>
+answer the followig questions.
+<ol type="a">
+<li>What pin is set to an output?
+<li>What action is being taken on a successful compare? 
+<li>Where is the compare flag being cleared?
+<li>Where is the compare register (CCP1) written?
+<li>What is the shape of the output waveform?
+<li>What is the period of the output waveform?
+<li>What pin is bring used to capture the waveform?
+<li>Where is the capture register (CCP1) read?
+<li>What variable is storing the waveform half period?
+<li>What edges of the waveform are we capturing on?
+<li>What is the maximum period of the timer?
+</ol>
+-->
+
+</body>
+</html>

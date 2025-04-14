@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab10.html">Lab 10</a></li>
+                    </ul>
+ 		     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Lab 10 - Audio recording and playback </center>
+
+<h2>Requirements</h2>
+Working in teams of two, read through the following lab activity and perform all the actions prescribed. You do not need to document bullet items. Make a record of your response to numbered items and turn them in a single copy as your teams solution on Canvas using the instructions posted there.
+
+Include the names of both team members at the top of your solutions. Use complete English sentences when answering questions. If the answer to a question is a table or other piece of art (like an oscilloscope trace or a figure), then include a sentence explaining the piece of art. Only include your answers, do not include the question-text unless it is absolutely needed.
+
+<h2>Objective</h2>
+To familiarize you with the digital to analog (DAC) conversion method
+that converts a PWM waveform into an analog waveform using a low
+pass filter.
+
+
+<h2>External Hardware</h2>
+
+Take a moment to verify that the discrete component (capacitor and resistor)
+values from the low pass filter schematic (shown below) match those found
+on your development board.
+
+<img src="./img/lpf.bmp"><br><br>
+
+Look at Figure 2 at the wikipedia page on the 
+<a href="https://en.wikipedia.org/wiki/Sallen%E2%80%93Key_topology">
+Sallen–Key topology</a> low pass filter.  Note the wikipedia article 
+refers to corner frequency as f<sub>o</sub>
+<ol start=1>
+<li>What is the calculated corner frequency of our (2<sup>nd</sup> order) 
+low pass filter?
+<li>Draw a rough (theoretical) sketch of the frequency response graph 
+for our second order low pass filter using the graph below.
+<br><img src="./img/bode.bmp"><br><br>
+
+</ol>
+
+Finally, let's take a look at performance of the low pass filter
+by plotting its frequency and phase response.  In other words, let's
+draw a Bode plot for the filter. 
+You are going to use a function generator to provide an input 
+signal to low pass filter on your development board.  Be careful 
+otherwise you might damage your board. To start, you will want
+to make sure that the sine wave that you will be feeding into the 
+LPF oscillates between 0V to 3.0V.  The following image and 
+instructions will walk you through this process.
+
+<br><img src="./img/functionGeneratorSetup02.jpg"><br><br>
+
+<ol type="A">
+</font><li> <font color=red>
+Connect a proper signal generator cable to the function generator
+yellow BNC connector labeled "CH1",
+</font><li> <font color=red>
+If the [Sine] function key is not illuminated, press the [Sine] key
+to illuminate it,
+</font><li> <font color=red>
+Press the [Amp] soft key twice to highlight "HiLevel",
+</font><li> <font color=red>
+Enter 3.0 on the numeric keypad, and then press the "V" softkey
+</font><li> <font color=red>
+Press the [loLevel] soft key once,
+</font><li> <font color=red>
+Enter 0 on the numeric keypad, and then press the "V" softkey
+</font><li> <font color=red>
+Press the [Freq] soft key once,
+</font><li> <font color=red>
+Enter 1.0 on the numeric keypad, and then press the "kHz" softkey
+
+</font><li><font color=blue>
+Connect a proper oscilloscope probe to the channel 1 input of
+the oscilloscope.  Adjust the vertical scale to 1V/div and the
+horizontal scale to 500us, make sure that channel 1 is DC coupled,
+and that the trigger level is around 1.65V,
+</font><li><font color=blue>
+Connect the function generator and oscilloscope cables, black clip
+to black clip and red clip to scope probe,
+</font><li><font color=blue>
+Adjust the scopes so that they display frequency and the peak-to-peak
+amplitude of the waveform.
+<ul>	<li>[Meas] &rarr; <u>Clear Meas</u> &rarr; <u>Clear All</u>
+	<li>[Meas] &rarr; <u>Source</u> &rarr; <u>1</u> &rarr;
+	<li>[Meas] &rarr; <u>Type</u> &rarr; <u>Peak-Peak</u> &rarr;
+		<u>Add Measurement</u>
+	<li>[Meas] &rarr; <u>Type</u> &rarr; <u>Freq</u>
+	<li>[&uarr; Back]
+</ul>
+</font>
+
+Note the items in red are paramount to the safety of your development board.
+The setup image shown above, is a properly setup function generator.
+If you are uncertain if your function generator is properly setup,
+please call for verification,
+<br><br>
+
+You are now going to use the function generator to send sin waves with
+varying frequencies into the LPF input and measure the amplitude and
+phase shift of the output waveform.  When you have set up everything 
+correctly it should look like the following picture.  The steps in the
+instructions will walk you though the setup.
+
+<img src="./img/bodeMeasure.jpg"><br><br>
+
+<ul>
+<li>Install a jumper over the single RC2 pin of the "RC2/LPF_in" header
+	leaving the LPF_in pin available,
+<li>Attach the black ground clip of the function generator to the ground 
+	loop of the development board,
+<li>Attach the red signal clip of the function generator to the LPF_in
+	pin of JP2.  It may simplify things to use one of your jumper
+	wires.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>LPF_in on JP2 header
+<tr><td>Ch1 ground clip		<td>Dev board ground loop
+<tr><td>Ch1 (scale) 		<td>1V
+<tr><td>Ch2 probe		<td>LPF_out on L2A header
+<tr><td>Ch2 ground clip		<td>Disconnect
+<tr><td>Ch2 (scale) 		<td>1V
+<tr><td>Horizontal (scale) 	<td>1 ms
+<tr><td>Trigger mode		<td>Auto
+<tr><td>Trigger source		<td>1
+<tr><td>Trigger slope		<td>&uarr;
+<tr><td>Trigger level		<td>1.65V
+</table>
+
+<ul>	<li>[Meas] &rarr; <u>Type</u> &rarr; <u>Phase</u> 
+	<li>[Meas] &rarr; <u>Setting</u> &rarr; <u>Source1: 2</u> 
+	<li>[Meas] &rarr; <u>Setting</u> &rarr; <u>Source2: 1</u> 
+	<li>[Meas] &rarr; <u>Add Measurement</u>
+	<li>[Meas] &rarr; <u>Type</u> &rarr; <u>Ratio - Full Screen</u> 
+	<li>[Meas] &rarr; <u>Add Measurement</u>
+	<li>[&uarr; Back]
+</ul>
+
+
+
+<li>As the input frequency gets higher (around 2kHz) and the output 
+waveform decrease in amplitude, measuring the attenuation and phase change
+will become almost impossible.  When this happens:
+<ul>	<li>Switch channel 2 into AC coupling, by pressing the 
+	channel 2 button and select Coupling: AC.  Move the channel 2 ground
+	reference up to the middle of the upper half of the display,
+	<li>Use the acquire function to average together several
+	channel 2 waveforms.  Acquire &rarr; AcqMode &rarr; Averaging
+	&rarr; #Avgs: 128.  You will notice that the waveform updates
+	occur much more slowly and morph whenever you change the 
+	frequency.  However, you will be able to measure incredibly 
+	small amplitudes (down to about -60dB) in this mode,
+</ul>
+	
+
+Save the image on the screen<br>
+<ul>	<li>[Save/Recall] &rarr; <u>Save</u> &rarr; <u>Format</u> 
+	&rarr; <u>24-bit Bitmap image (*.bmp)</u>
+	<li>[Save/Recall] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
+</ul>
+
+When you have your scope setup correctly, you should see something like the 
+following image.
+<br><img src="./img/bodeScope.bmp"><br><br>
+
+<ol start=3>
+<li>Include a screen shot with the function generator set to 500Hz.  Make
+sure that the screen shot includes the attenuation and phase measurements.
+</ol>
+
+Now you are ready to collect the data to draw your Bode plot.  Start by 
+downloading the <a href="./filterWorkSheet.xlsx">filterWorkSheet</a>.
+Open the spreadsheet.  Set the function generator to each frequency listed 
+in column B and record the gain and phase measured by the oscilloscope
+in the columns "Meas Gain" and "Meas Phase" respectively.  As you add
+values you should see the Bode plots fill with data.  If a cell in the
+Freq column does not have an entry, find the frequency (by adjusting the 
+function generator) that generates the gain or phase listed in that row.
+
+<ol start=4>
+<li>Include the Gain and Phase plots as the answer to this question.
+</ol>
+
+<h2>Internal Subsystem</h2>
+We will be focusing on a familiar subsystem today, the pulse width
+modulation subsystem.  Let's get started.
+
+<h2>Firmware Organization</h2>
+
+<ul>
+<li>In the INTERNAL OSCILLATOR area of the System Module window
+<ul>	<li>Oscillator Select:	Internal oscillator block
+	<li>System Clock Select: FOSC
+	<li>Internal Clock: 16MHz_HFINTOSC
+	<li>Software PLL Enabled: Check
+</ul>
+The Current System clock should be 64MHz (4x PLL)
+
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR0,
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR2,
+<li>In the Device Resources area of the project window, expand the ECCP
+option.  Double click ECCP1,
+<li>In the Device Resources area of the project window, expand the EUSART
+option.  Double click EUSART1 [PIC10/PIC12/&hellip;],
+
+
+<li>In the Project Resources area of the project window click on TMR0.
+<ul>	<li>Enable Timer:	&check;
+	<li>Enable Prescaler:	&check;
+	<li>Prescaler:		1:256
+	<li>Timer mode:		16-bit
+	<li>Clock Source:	FOSC/4
+	<li>Timer Period:	1ms
+	<li>Enable Timer Interrupt:	&square;
+</ul>
+
+<li>In the Project Resources area of the project window click on EUSART1.
+<ul>	<li>Enable EUSART:	&check;
+	<li>Enable Transmit:	&check;
+	<li>Enable Wake-up:	&square;
+	<li>Auto-Baud Detection:	&square;
+	<li>Enable Address Detect:	&square;
+	<li>Baud Rate:		9600
+	<li>Transmission Bits:	8-bit
+	<li>Reception Bits:	8-bit
+	<li>Clock Polarity:	async_noninverted_sync_fallingedge
+	<li>Enable Receive:		&check;
+	<li>Enable EUSART Interuupts:	&square;
+	<li>Redirect STDIO to USART	&check;
+</ul>
+
+<li>In the Project Resources area of the project window click on TMR2
+<ul>	<li>Enable Timer:	&check;
+	<li>Prescaler:		1:4
+	<li>Timer Period:	16us
+</ul>
+
+<li>In the Project Resources area of the project window click on ECCP1
+<ul>	<li>ECCP mode:	Enhanced PWM
+	<li>Timer Select:	Timer2
+	<li>Duty Cycle:		50%
+</ul>
+<u>Note three PWM Parameters for a later question.</u>
+
+<li>In the Project Resources area of the project window, click "Pin Module".
+The editor window will change from the System Module to Pin Module.
+Click on the Pin Manager tab in the console area. Click on Port C bit
+0 and Port C bit 1 in the GPIO output row . The blue open lock should
+change to a green closed lock. Now in the Pin Module area, click on
+the Custom Name text box in the RC0 Pin Module row and change the name
+to "TEST_C0_PIN" and hit enter. Name RC1, "TEST_C1_PIN".
+
+<li>Click File &rarr; Save All
+<li>Leave the configuration file name as "MyConfig.mc3"
+<li>Click on the "Generate" button in the Project Resources area of the
+project manager window. Remember that anytime that you make a change to 
+the configuration you must re-generate the supporting files by clicking 
+on the generate button,
+<li>Click on the Project tab in the project manager window,
+expand the Source Files folder and double click main.c to open 
+it in the editor window,
+<li>Replace the contents of main.c with 
+<a href="./code/inlab10.c">inlab10.c</a>,
+<li>Compile and download the code to the PIC,
+</ul>
+<br>
+
+
+<h2>Firmware Experiments</h2>
+This week's program generates an analog sine wave using the PWM
+subsystem connected through a low pass filter.  Setting the duty
+cycle of the PWM waveform changes the analog output of the LPF.
+Doing this fast enough (but not too fast) allows you to produce
+analog waveforms that you will play back through a speaker.
+Given the right conditions, when a PWM signal is input into a low pass 
+filter (LPF), the output of the LPF is the average value of the PWM signal.
+For example, in the image below a 62.5kHz PWM waveform with a 20% duty cycle
+is applied to a LPF (with corner frequency 724Hz).  The LPF will average
+the PWM waveform generating a DC output with voltage 0.2*3.3V = 0.66V
+on the output.  
+
+<br><img src="./img/pwm2DC.bmp"><br><br>
+
+As mentioned, there are right conditions under which a LPF can average
+a PWM waveform.  The most important of these is that the corner frequency
+of the LPF be much lower than the frequency of the PWM waveform.  A 
+general rule of thumb is have the PWM frequency 10 times higher than the
+corner frequency of LPF.  This 1 decade of frequency separation will 
+give a second order filter (like the one on our development board), -40dB
+of attenuation.  This will effectively remove the AC component of the 
+PWM waveform and leave only a residual average.  Even with a good LPF 
+you can observe a slight ripple on the output waveform.  The amount of
+ripple is one characteristic of the quality of the DAC conversion.
+<br><br>
+
+
+As a first step to generating a sine wave, we will look at how the
+the low pass filter averages the duty cycles contained
+in the sin array.  To do this, configure your development board
+and oscilloscope as follows.
+
+<ul>
+<li>Setup your development board to send the PWM output from RC2 to
+	the LPF_in pin by placing a jumper over the two pin header,
+<li>Use the terminal interface to the development board to generate a 
+	sine wave using the "s" option,
+</ul>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>RC2/LPF_in
+<tr><td>Ch1 ground clip		<td>Dev board ground loop
+<tr><td>Ch1 (scale) 		<td>2V
+<tr><td>Ch2 probe		<td>LPF_out on L2A header
+<tr><td>Ch2 ground clip		<td>Dev board ground loop
+<tr><td>Ch2 (scale) 		<td>2V
+<tr><td>Horizontal (scale) 	<td>1ms
+<tr><td>Trigger mode		<td>Auto
+<tr><td>Trigger source		<td>2
+<tr><td>Trigger slope		<td>&uarr;
+<tr><td>Trigger level		<td>1.65V
+</table>
+
+Make sure to:
+<ul>	<li>Align Ch 1 on the second lowest reticule,
+	<li>Align Ch 2 on the second lowest reticule on the upper half
+		of the display,
+	<li>Align the horizontal position at the second left-most reticule,
+</ul>
+
+<ol start=5>
+<li>Use the "s" function to change the 8-bit value used to set the 
+PWM frequency and complete the following table.  
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Duty Cycle (percentage)	<td>LoadDutyValue 	<td>LPF output (volt)
+<tr><td>31%			<td>&nbsp;		<td>&nbsp;
+<tr><td>86%			<td>&nbsp;		<td>&nbsp;
+<tr><td>&nbsp;			<td>199			<td>&nbsp;
+<tr><td>&nbsp;			<td>22 			<td>&nbsp;
+<tr><td>&nbsp;			<td>&nbsp;		<td>0.48V
+<tr><td>&nbsp;			<td>&nbsp;		<td>2V
+</table>
+</ol>
+
+Instead of having you hit a key to advance through the sin array,
+we will turn over that control to our program.  The image below shows
+consecutive values from the sin array being sent to the 
+EPWM1_LoadDutyCycle function.  The percentage duty cycle is calculated
+by dividing the argument to EPWM1_LoadDutyValue by 256.  The input to
+the LPF is shown in the top (colored) graph.  The output from the 
+LPF is shown below the input graph.
+
+<br><img src="./img/pwm2AC.bmp"><br><br>
+
+You should notice that Vout does not make an instantaneous 
+transition from one voltage output level to the next.  Instead the 
+voltage level gradually changes like a charging RC circuit.  We will
+examine this effect in the next question.
+
+<ol start=6>
+When the PWM duty cycle changes, the output from the LPF does not
+respond instantaneously.  The "S" function changes the PWM duty cycle
+from 0% to 100% causing the output from the LPF to change from about
+0 to 3.3V.  Leave the oscilloscope setup the same and perform the
+following.
+
+<li>Use the "S" function to change the PWM duty cycle from 0% to 100%. 
+Note, this creates a step input to the LPF.  Measure the rise time, 
+denoted t<sub>r</sub> of the LPF output.  Remember
+the rise time is the time required for the LPF output to go from 10%
+of the final value to 90% of the final value.  You may find the 
+oscilloscope cursors helpful in making this measurement.
+You may find it useful to zoom out on the scopes horizontal division
+(eg 5ms) and to use single mode to capture the rise.  
+
+<li>Screen shot the rise time waveform as your answer to this question.
+
+<li>Use the equation (familiar to some of you) 
+t<sub>r</sub> = 2.2 / &omega;<sub>0</sub> where 
+&omega;<sub>0</sub> = 2&pi;f<sub>0</sub> to compute the theoretical rise
+time of the low pass filter.  
+
+<li>Compute the percentage difference between the actual rise time and
+theoretical rise time as the difference divided by the theoretical times
+100.
+
+</ol>
+
+
+<h3>Spectral content</h3>
+In order to convert the PWM waveform into an analog sinusoid, the low
+pass filter does its best to average the duty cycle of each PWM
+pulse, however, some of the residue will get through.  This will 
+appear as noise on top of the sinusoid output from the LPF.  The 
+structure of this noise is virtually impossible to understand when
+viewing the waveform in the time domain.  However, by looking at
+the output sinusoid in the frequency domain using the fast Fourier
+transform (FFT) of the oscilloscopes, you can understand the spectral
+composition of the noise and design strategies to reduce it.<br><br>
+
+For the time being remove channel 2 from the display by pressing the
+illuminated "2" button twice.  Add the FFT to the scope using the following
+instructions:
+
+<ul>
+<li>[Math] &rarr; <u>Function: f(t)</u> &rarr; <u>Operator:	FFT</u>
+<li>[Math] &rarr; <u>Source 1: 1</u> 
+<li>[Math] &rarr; <u>Span: 100kHz</u> 
+<li>[Math] &rarr; <u>Center: 50kHz</u> 
+<li>[Math] &rarr; <u>Display Math &rarr; Math1</u> 
+</ul>
+
+You are looking at the frequency content of the unfiltered PWM
+	waveform.  The big spike in the middle of the screen is the
+	frequency of the PWM waveform (around 60kHz).  The sine wave 
+	you saw on channel 2 (around 150Hz) is on the far left side
+	of the display,
+<br><br>
+
+Experiment with the horizontal adjust for channel 1, adjusting it
+	from 100ms/div to 100us/div.  The fidelity of the FFT increases
+	as you provide it with more time-domain data until you saturate
+	the FFT hardware with data, then the FFT just shrinks.  Before 
+	you move to the next step, make sure that the time scale 
+	is 10 ms/div.
+<br><br>
+
+
+
+<ol start=10>
+<li>Capture the FFT for the unfiltered PWM waveform (channel 1) and include 
+	it as the answer to this question.
+<li>Capture the FFT for the filtered PWM waveform (channel 2) and include 
+	it as the answer to this question.  To do this you will need to 
+	go back into Math mode on the oscilloscope and change the Source
+	setting to channel 2.  Note the difference between the two FFTs.
+	Explain why the FFT of the unfiltered PWM waveform (from the previous
+	question) and FFT of the filtered PWM waveform (from this question) 
+	look so different.  Hint, use the behavior of the Bode plot for the 
+	LPF in your explanation.
+<li>Keep the FFT at channel 2 and adjust the span of the FFT to 
+	2k (and center at 1k) and capture the FFT 
+	as your answer to this question.
+</ol>
+
+
+<h3>Going further with the FFT - not required as part of the inLab</h3>
+The following will not be graded as part of the inLab.  It is provided
+in case you would like to experiment with the FFT and gain some
+additional understanding of the relationship of periodic signals and
+their spectral content.
+<br><br>
+
+Disconnect the oscilloscope from your development and put the development
+board aside for the following experiments.  For these experiments you are
+going to feed a signal from the function generator directly into the 
+oscilloscope and have the oscilloscope perform a FFT on the input signal
+from the function generator.  Go ahead and connect the function generator
+to the oscilloscope (see the setup image at the top of this page for help).
+<br><Br>
+
+As a first experiment, set the function generator to generate a sine wave
+at 10kHz.  Adjust the FFT to have a span of 100kHz and a center at 40kHz.
+Adjust the time base to 10ms per division (feel free to adjust the time 
+base to increase/decrease the resolution of the FFT).  You may want to 
+turn "off" Ch1 on the oscilloscope so that it does not crowd the screen
+with the sine wave.  Do this by pressing the illuminated "1" button just
+below the Channel 1 vertical adjust.
+Note that the ground symbol represent 0dB.  Usually only one frequency 
+spike will reach 0dB, this is usually the frequency of the signal that
+you are applying.  The magnitude of the other spikes are measured 
+relative to this level - when in Math mode the scope will display the
+vertical dB/division scale.
+<br><Br>
+
+Adjust the frequency of the sine wave on the function generator and observe 
+how the FFT of the sine wave changes.  Notice that there is always a large
+spike on the extreme left side of the screen.
+
+For the sine wave input answer the following questions.
+<ul>
+<li>How many Hertz are in 1 horizontal division?
+<li>What is the frequency of the large spike on the extreme left of the
+FFT?  What do we call a signal with this frequency? 
+<li>Adjust the offset of the sine wave to remove the 1.5V DC offset.
+Do this by pressing the [Offset/LoLevel] soft key until Offset is 
+selected then enter the offset of 0V using the keypad.
+What happens to the magnitude of the spike on the extreme left of the
+FFT?
+</ul>
+
+From your previous course work you know that any periodic signal can
+be represented as the infinite sum of sin waves using a Fourier series.  
+For example a period function f(t) with period T, has a Fourier series:
+<pre>
+  f(t) = A0/2 + A1*sin(2*&pi;t/T) + A2*sin(2*2*&pi;t/T*t) + A3*sin(3*2*&pi;t/T) + &hellip;
+</pre>
+
+The function f(t) is characterized by the coefficients Ai in the Fourier
+series.  Here is the cool part, the FFT function on an oscilloscope shows
+you these coefficients without having to do any math.
+<br><br>
+
+Now switch the function generator to generate a 1kHz square wave.   Make
+sure that the FFT span is 10kHz and the center is 5kHz.
+
+<ul>
+<li>Focus on the large spikes on the FFT.  Measure the frequency (in Hz)
+and amplitude (in dB) of the first three spikes after 1kHz.  
+<li>Switch the function generator to generate a ramp.  Focus on the 
+large spikes on the FFT.  Measure the frequency (in Hz)
+and amplitude (in dB) of the first three spikes after 1kHz.  
+<li>Switch the function generator to generate noise.  How many 
+spikes does the FFT look like?  Note this is a defining characteristic
+of noise.
+</ul>
+
+
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture22.html">&ltPrev</a></li>
+                        <li><a href="./lecture24.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>23</td></tr>
+<tr><td>Objective: <td>Design antialias filter using sampling frequency,
+        ADC resolution, signal of interest and filter order.
+
+</table>
+
+
+<h1>Analog to Digital Conversion</h1>
+
+<h2>Antialias filters</h2>
+<ol>
+
+
+<li>Sampling frequency:<br>
+Given:
+<ul>	<li>Signal of interest is 0-2kHz
+	<li>2ond order filter
+	<li>10-bit ADC
+</ul>
+What is the minimum sampling rate?
+
+<pre>
+The antialias filter needs to reduced the lowest frequency alias of 2kHz below 1/2 LSB of its full scale value in order to make it undetectable to the ADC.  In the case of a 10-bit ADC this means that the filter needs to reduce the first alias to 20*log(2<sup>-11</sup>) = -66bB.  Since the corner frequency is set to 2kHz, the first alias must be reduced -66dB.  For a second order filter with a total attenuation of -40dB/decade this is:
+
+	  -40dB        -66dB
+	---------- = ---------
+	1 decade     x decades
+
+x = 1.65 decades above 2kHz.  Now we have:
+	log<sub>10</sub> ((fs-2kHz)/2kHz) = 1.65
+Solving yields fs = 87kHz.
+</pre>
+<br><img src="./img/filterFindSample.jpg"> <br><br>
+<br><br>
+
+<li>Filter specs:<br>
+Given:
+<ul>	<li>Signal of interest is 0-2kHz
+	<li>8-bit ADC
+	<li>Maximum possible sampling rate of 80kHz
+</ul>
+What order filter do we need?
+<pre>
+The antialias filter needs to reduced the lowest frequency alias to 1/2 LSB of its full scale value in order to make it undetectable to the ADC.  In the case of a 8-bit ADC this means that the filter needs to reduce the first alias to 20*log(2<sup>-9</sup>) = -54bB.  Since the corner frequency of the filter is set to 2kHz, first alias at 80kHz - 2kHz must be reduced -54dB.  The filter can attenuate the signal over a range of 2k to 78k.  This works out to: 
+
+	log<sub>10</sub>(78kHz/2kHz) = 1.6 decades
+
+We will call the unknown order of the filter "k".  Hence this filter with a total attenuation of -20*k dB/decade.
+
+	-20*k dB       -54dB
+	---------- = ---------
+	1 decade     1.6 decades
+
+-20*k = 33.75 or k=1.69.  Since the order of a filter must be an integer, we need to round up in order to ensure that the resulting attenuation is more than we need.  Hence the filter must be second order.
+</pre>
+<br><img src="./img/filterFindOrder.jpg"> <br><br>
+
+<li>Signal bandwidth:<br>
+Given:
+<ul>	<li>16-bit ADC
+	<li>4th order filter
+	<li>Sampling frequency 250kHz
+</ul>
+What is the maximum frequency of the signal of interest?
+<pre>
+The antialias filter needs to reduced the first alias to 1/2 LSB of its full scale value in order to make it undetectable to the ADC.  In the case of a 16-bit ADC this means that the filter needs to reduce the first alias to 20*log(2<sup>-17</sup>) = -102bB.  For a 4th order filter with a total attenuation of -80dB/decade this is:
+
+	  -80dB       -102dB
+	---------- = ---------
+	1 decade     x decades
+
+x = 1.28 decades.
+
+Since the maximum frequency of the signal of interest is unknown, we will call it "x".  Since the sampling rate is set to 250kHz, our filter has 1.28 decades to attenuate the first aliasing frequency of 250kHz - x down by 106dB so that when it is sampled and aliased as a x kHz signal it is not detectable by the ADC.  In other words:
+
+	log<sub>10</sub> ((250kHz - x)/x) = 1.28 decades
+		250kHz = 20*x
+		x = 12.5kHz
+</pre>
+<br><img src="./img/filterFindBand.jpg"> <br><br>
+
+</ol>
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ul>
+<li>Sampling frequency:<br>
+Given:
+<ul>	<li>Signal of interest is 0-2kHz
+	<li>1st order filter
+	<li>10-bit ADC
+</ul>
+What is the minimum sampling rate?
+
+<!--
+<pre>
+The antialias filter needs to reduced the lowest frequency alias to 1/2 LSB of its full scale value in order to make it undetectable to the ADC.  In the case of a 10-bit ADC this means that the filter needs to reduce the first alias to 20*log(2<sup>-11</sup>) = -66bB.  Since the corner frequency of the LPF is set to 2kHz, the first alias must be reduced -66dB.  For a first order filter with a total attenuation of -20dB/decade this is:
+
+	  -20dB        -66dB
+	---------- = ---------
+	1 decade     x decades
+
+x = 3.3 decades above 2kHz.  Now we have:
+	log<sub>10</sub> ((fs-2kHz)/2kHz) = 3.3
+Solving yields fs = 3988kHz or about 4MHz.
+</pre>
+-->
+
+<li>You want to know how much bandwidth your sampling system can accommodate.
+Your sampling system uses a16-bit ADC with a sampling frequency of 250kHz.
+You are using a 4th order low pass filter.  What is the maximum frequency 
+of the signal of interest?
+
+
+<!--
+<pre>
+½ULP needs 20 log(2^-17) = -102dB of attenuation.
+A fourth order LPF has a roll off of -80dB/decade.
+
+-80dB         -102dB
+--------- =  --------- 	x = 1.275 decades
+1 decade     x decades
+
+The sampling frequency is 250kHz so now we have:
+1.275 decades = log_10(250kHz – x / x)	or
+18.8 = (250kHz – x)/x
+19.8x = 250Khz
+X = 12.6kHz
+
+Thus our sampling system can handle signals from 0Hz–12.6kHz.
+</pre>
+-->
+
+
+<li>You are to design a sampling system using the following specifications. 
+The signal of interest is from 0-2kHz, passes through a third order filter
+and sampled at 48kHz. How many bits of accuracy can you expect from the ADC?
+
+<!--
+<pre>
+Determine the range of frequencies:	log(46/2) = 1.36 decades
+A third order LPF has a roll off of -60dB/decade.
+
+-60dB           x dB
+--------- =  ------------ 	x = -81.6dB
+1 decade     1.36 decades
+
+An important point to note is that this is the attenuation to get 
+noise below ½ULP.  
+
+-81.6dB = 20*log(V_o/V_i)	thus 
+V_o / V_i = 83*10^-6		
+Let V_i = 1v to normalize input. Then in order to represent V_o = 83*10^-6 
+we need log_2(83*10-6) = -13.55 bits.  This is ½ULP of our ADC.  Thus our 
+ADC needs -12.55 bit.  Since we do not have fractional bits and since we 
+want meaningful information out of the ADC, we can only expect 12-bits of 
+accuracy out of our ADC.
+</pre>
+-->
+
+<li>You are to design a low pass filter using the following specifications.  
+The signal of interest is from 0-2kHz and sampled using an 8-bit ADC.  The 
+sampling rate of your system is 48kHz.  What order filter do you need for 
+this application? 
+
+<!--
+<pre>
+Determine the amount of attenuation:	20 log(2^-9) = -54dB
+Determine the range of frequencies:	log(46/2) = 1.36 decades
+
+-20dB * x      -54 dB
+--------- =  ------------ 	x = 1.98
+1 decade     1.36 decades
+
+Thus we need a second order filer
+</pre>
+-->
+
+
+
+
+</body>
+</html>

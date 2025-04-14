@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture29.html">&ltPrev</a></li>
+                        <li><a href="./lecture31.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Date:</td>	<td>April 3</td></tr>
+<tr><td>Lecture:</td>	<td>30</td></tr>
+</table>
+
+
+<h1>Assembly Language</h1>
+In this final unit of the class, we will examine how to write programs
+in <u>assembly language</u>.  An assembly language is the set of
+primitive operations that are natively executed by the processor. These
+primitive operations are represented in one of two ways, as mnemonics or 
+in binary.  The mnemonic form uses letters and numbers to describe the 
+primitive operations and their associated operands.  These mnemonics
+are called <u>assembly instructions</u> and are suited for humans to 
+read.  The binary form uses 0's and 1's to describe the primitive operations
+and their associated operands.  These binary forms are called <u>machine 
+instructions</u> and are better suited for processors to read.  A program 
+written using assembly instructions is called an <u>assembly language 
+program</u>.  A program written using machine instructions is called a 
+<u>machine language program</u>.
+<br><br>
+
+In general, every different processor family has it's own unique assembly 
+language.  Consequently, an assembly program written for an Intel processor 
+will not run on a Motorola processor.  This contrasts with high-level languages 
+(HLLs) like C which are portable across different processors.  A HLLs 
+cross-platform portability is a result of two things; the standardization 
+of the C programming language and processor-specific compilers. 
+<br><br>
+
+In order to understand how to write an assembly language program you
+need to understand two concepts, how memory works and the programmers
+model of the processors.  For the most part, the representation of data
+in memory and the operation of memory is fairly consistent across most 
+processors.  For no other reason, let's make this the starting point
+in our journey into the relm of assembly langugage.
+
+<h2>Memory</h2>
+Understanding a random access memory (RAM) is prerequisite to understanding 
+how to program the CPU in assembly language because both our operations and
+operands are stored in RAM.
+
+A RAM is a collection of 
+contiguous storage locations where data can be stored and retrieved.  The data 
+items contained in a RAM, called <u>words</u>, are represented in binary 
+and have a fixed width 
+called the <u>word size</u>. The data items are moved into and out of a RAM 
+using a data bus; the width of this bus is equal to the word size of the 
+RAM.  In the case of the HCS12, the word size is 8-bits. 
+<br><br>
+
+Every word in a RAM has a unique location, called the word's 
+<u>address</u>, different from every other data item in the RAM.  The address
+of each word is described as a binary number.  The number of bits in this
+binary number of the address size of the RAM.  The HCS12 has 16-bit 
+addresses.  If we know that a RAM has N-bits of address the RAM can have
+up to 2<sup>N</sup> words in the RAM  because there are 
+2<sup>N</sup> difference arrangements of N-bits.
+<br><br>
+
+There will be many occasions when you need to store multi-byte 
+values in a RAM.  In these cases, the value will be split so that
+most significant byte is store at the lowest address.  This is 
+called a big-endian representation.  
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Address	<td>Value
+<tr><td>0xC040	<td>0x0B
+<tr><td>0xC041	<td>0xF5
+
+<tr><td>0xC042	<td>0xE6
+<tr><td>0xC043	<td>0x80
+
+<tr><td>0xC044	<td>0xC0
+<tr><td>0xC045	<td>0x4A
+
+<tr><td>0xC046	<td>0x50
+<tr><td>0xC047	<td>0x75
+<tr><td>0xC048	<td>0x67
+<tr><td>0xC049	<td>0x73
+<tr><td>0xC04A	<td>0x21
+<tr><td>0xC04B	<td>0x00
+
+<tr><td>0xC04C	<td>0x12
+<tr><td>0xC04D	<td>0x34
+<tr><td>0xC04E	<td>0x98
+<tr><td>0xC04F	<td>0x76
+</table>
+
+<ul>	<li>Interpret the 8-bit word at address 0xC040 as an unsigned value.
+	<li>Interpret the 8-bit word at address 0xC041 as an signed value.
+	<li>Interpret the 16-bit word starting at address 0xC042 as an HCS12
+	instruction (hint look at the True-Term simulator image below). 
+	Remember that the HCS12 stores things using little endian.
+	<li>Interpret the 16-bit word start at address 0xC044 as an address.
+	What 8-bit word is stored at this address?
+	<li>Interpret the 8-bit words starting at address 0xC046 as a null
+	terminates string of ASCII characters. What does it say?
+	<li>Add together the 16-bit value starting at address 0xC04C to the
+	16-bit word stored at address 0xC04E.
+</ul>
+
+For the solution to these questions, right mouse click on this web page
+and select "view page source".
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Address	<td>Value
+<tr><td>0xC040	<td>0x0B	// unsigned char +11
+<tr><td>0xC041	<td>0xF5	// signed char -11
+
+<tr><td>0xC042	<td>0xE6	// HCS12 instruction: LDAB 0x0, SP
+<tr><td>0xC043	<td>0x80
+
+<tr><td>0xC044	<td>0xC0	// Address 0xC04A
+<tr><td>0xC045	<td>0x4A
+
+<tr><td>0xC046	<td>0x50	// ASCII 'P'
+<tr><td>0xC047	<td>0x75	// ASCII 'u'
+<tr><td>0xC048	<td>0x67	// ASCII 'g'
+<tr><td>0xC049	<td>0x73	// ASCII 's'
+<tr><td>0xC04A	<td>0x21	// ASCII '!'
+<tr><td>0xC04B	<td>0x00	// Null terminate string
+
+<tr><td>0xC04C	<td>0x12	// int16 0x1234
+<tr><td>0xC04D	<td>0x34	
+<tr><td>0xC04E	<td>0x98	// int16 0x9876
+<tr><td>0xC04F	<td>0x76
+</table>
+-->
+
+<h3>Demo program</h3>
+We will use the following program that looks for the largest element
+in an array as the motivating example for our discussion about 
+assembly language and the programmers model for the HCS12.  The program's 
+lines have been numbers to make the following discussion easier - clearly
+the line numbers are not part of the program.
+
+<pre>
+00.	// This program looks for the largest element in the array
+01.	int8 array[8] = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77};
+02.	void main(void) {
+03.	    int8 i, max;		// Declare variables
+04.	    max=0;			// Initialize max to smallest int8
+05.	    for(i=0; i<8; i++) {	// loop through all elements of array
+06.		if (array[i] > max) 	// Is array element larger than max?
+07.		    max = array[i];	// If so make new max
+08.	    }
+09.	} // end main
+</pre>
+
+
+This program starts by initializing the variable <b>max</b> to the
+smallest possible value so that every element in the array will be 
+at least as large as this value.  The for-loop in line 05 enumerates
+all eight indicies in the array and compares them against the current
+maximum value.  If the current array element is larger than the current
+maximum, in line 07, the maximum value is updated to equal this array
+value.  At the end of the for-loop, the <b>max</b> contains the largest
+element in the array.  The fact that we don't do anything with this 
+value is unimportant to our discussion, what is important is how this
+C program is represented and executed by the HCS12.
+<br><br>
+
+Before we start looking at the hardware that executes a program, we need
+to clearly understand how the computer's memory works.  Let's have a small
+review to make sure that we are all on the same page.
+
+<h2>Programmers Model</h2>
+A programmer's model of a processors described the essential structure
+and operation of the processor.  Let's start with a very basic programmer's
+model, the computer has a memory which stores instructions and data 
+and a central processing unit (CPU) that fetches and executes the 
+instructions.  Let's develope the programmers model by answering some
+questions about how our C program would be executed by hardware.
+<br><br>
+
+
+<dl>
+
+<dt>Where is the program stored in memory?</dt>
+<dd><i>The program can be stored anywhere in memory.  However for practical
+reasons it is stored in consecutive locations and separate from data.
+</i></dd>
+
+<dt>How is the program represented in memory?</dt>
+<dd><i>The answer to this question is complex and the subject of several
+upcoming lectures.  However, here is the gist of the thing.  The 
+CodeWarrior compiler translates each line of our C program into one or 
+more basic, machine dependent, instructions in the machine language.
+Since the machine language is stored in memory it consists of 0's and 1's.
+In order to facilitate humans working with machine language the binary
+machine instructions are frequently reinterpreted using mnemonics into 
+assembly language.  There is a one-to-one relationship between an
+assembly instruction and a machine instruction meaning given one you
+can unambiguously determine the other.  Consequently, being humans, we 
+will most frequently work with assembly instructions.
+</i></dd>
+
+<dt>How does CPU know where program is stored in memory?</dt>
+<dd><i>Since we insisted that the instruction were stored in consecutive 
+memory locations, the CPU only need to know the location of the first
+instruction.  It stores this address in a register called the program
+counter (PC).
+</i></dd>
+
+<dt>How does CPU execute the program?</dt>
+<dd><i>The CPU goes through an endless sequence of 
+<ul>	<li>Fetch the instruction at the PC,
+	<li>Decode the instruction,
+	<li>Execute the instruction,
+	<li>Increment the PC,
+	<li>Check for interrupts,
+</ul>
+</i></dd>
+
+<dt>What does the CPU do when power is applied?</dt>
+<dd> <i>When the CPU power's up, the PC is loaded with the address stored
+at memory location 0xFFFF.   
+</i></dd>
+
+
+<dt>Where is array stored in memory?</dt>
+<dd><i>The array can be stored anywhere in memory.  However for practical
+reasons it is stored in consecutive locations and separate from the 
+instructions.
+</i></dd>
+
+<dt>How is array represented in memory?</dt>
+<dd><i>As we discussed previously, everything in a memory is represented in
+binary.  Fortunately, the array values have an obvious 8-bit binary
+representation.  For example, 0x33 is represented as 00110011 in memory.
+The next memory location would be the next array element and contain 01000100.
+</i></dd>
+
+<dt>How does CPU know where data is stored in memory?</dt>
+<dd><i>As we discussed previously, everything in a memory has a location
+given by its address.  So the CPU must know the address of the array elements.
+The CPU will store the address of the array in 16-bit index registers X and Y.
+</i></dd>
+
+
+<dt>How is data manipulated by the program?</dt>
+<dd><i>In order to perform data manipulations like addition, the CPU will
+use accumulators inside the CPU.  General-purpose 8-bit accumulators A and B are used to hold operands and results of operations.  Some instructions treat the combination of these two 8-bit accumulators (A : B) as a 16-bit double accumulator (D).  Most operations can use accumulator A or B interchangeably. However, there are a few exceptions. Add, subtract, and compare instructions involving both A and B (ABA, SBA, and CBA) only operate in one direction, so it is important to make certain the correct operand is in the correct accumulator. The decimal adjust accumulator A (DAA) instruction is used after binary-coded decimal (BCD) arithmetic operations.  There is no equivalent instruction to adjust accumulator B.
+</i></dd>
+
+
+<dt>How does the CPU manipulate things like the port T data direction
+register?</dt>
+<dd>
+<i>The HCS12 uses a memory-mapped approach to storing the special function
+register between address 0x0000 to 0x03FF.  In the specific case of the
+Port T Data Direction Register, I opened the mc9s12c32.h file inside the
+CodeWarrior development environment, searched for "DDRT", and came across
+the following comment as the first result.
+<pre>
+/*** DDRT - Port T Data Direction Register; 0x00000242 ***/
+</pre>
+This strongly suggests that the DDRT register is accessed by reading
+and writing memory location 0x0242.
+</i></dd>
+</dl>
+
+The image below will be the subject for the remainder of the lecture
+and shows the C-code, assembly code, CPU core registers, and the 
+HCS12 memory where the program is stored.
+
+<br><img src="./img/introAssembly.jpg"><br><br>
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ul>
+<li>Use two separate resources to determine the addresses for the following
+device registers.  To do this you will need to consult:
+<ul>	<li>The detailed Register Map (section 1.2.2) in the MC9S12C hardware 
+	manual posted on the class web page,
+	<li>The mc9s12c32.h file inside the CodeWarrior development 
+	environment.
+</ul>
+For each register provide two pieces of information from each source,
+the page or line number where you found the information and the value
+of that device's address.  Clearly, both addresses should agree.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Register	<td>MC9S12C hardware manual<br>Address range
+	<td>mc9s12c32.h address
+<tr><td>DDRT	<td>Page 41: 0x0242	<td>Line 8521: 0x0242
+<tr><td>PTT	<td>&nbsp	<td>&nbsp
+<tr><td>TSCR2	<td>&nbsp	<td>&nbsp
+<tr><td>TIOS	<td>&nbsp	<td>&nbsp
+<tr><td>TFLG1	<td>&nbsp	<td>&nbsp
+<tr><td>TCNT	<td>&nbsp	<td>&nbsp
+<tr><td>ATDCTL3	<td>&nbsp	<td>&nbsp
+<tr><td>ATDDR0	<td>&nbsp	<td>&nbsp
+<tr><td>SCIBD	<td>&nbsp	<td>&nbsp
+<tr><td>PWMDTY0 <td>&nbsp	<td>&nbsp
+
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Register	<td>MC9S12C hardware manual<br>Address range
+	<td>mc9s12c32.h address
+<tr><td>DDRT	<td>Page 41: 0x0242	<td>Line 8521: 0x0242
+<tr><td>PTT	<td>Page 41: 0x0240	<td>Line 8451: 0x0240 
+<tr><td>TSCR2	<td>Page 32: 0x004D	<td>Line 2889: 0x004D
+<tr><td>TIOS	<td>Page 32: 0x0040	<td>Line 2451: 0x0040
+<tr><td>TFLG1	<td>Page 32: 0x004E	<td>Line 2929: 0x004E
+<tr><td>TCNT	<td>Page 31: 0x0044-0x0045	<td>Line 2591: 0x0044
+<tr><td>ATDCTL3	<td>Page 34: 0x0083	<td>Line 3302: 0x0083
+<tr><td>ATDDR0	<td>Page 34: 0x0090-0x0091	<td>Line 3757: 0x0090
+<tr><td>SCIBD	<td>Page 35: 0x00C8-0x00C9	<td>Line 4815: 0x00C8
+<tr><td>PWMDTY0	<td>Page 38: 0x00F8	<td>Line 5730: 0x00F8
+</table>
+-->
+
+
+</body>
+</html>

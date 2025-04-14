@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture01.html">&ltPrev</a></li>
+                        <li><a href="./lecture03.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>2</td></tr>
+<tr><td>Objective:</td>	<td>C data types, declarations, arithmetic,
+				 and logic operations.
+</table>
+
+
+<h1>Operations</h1>
+When you write code to perform a computation, you are manipulating 
+one or more operands using an operation.  The operands are the data
+values being manipulated and the operation defines how the operands
+are manipulated.  The execution of a C operation generates a result 
+that depends, in part, on the data type of the operands.  This 
+dependency is generally a result of overflow, a topic that we will
+take up shortly. The operands and operators are combined into C
+expressions, combinations of one or more constants, variables, 
+operators, and functions evaluated to produce result. Today we will
+look at several different types of operations and operands common
+to many of the C programs you will write in this class.  However,
+before we get started lets examine a helpful C construct to alias
+data types and make our programs self documenting and more readable.
+
+<h2>typedef</h2>
+C provides a way to provide an alias to a data type using the 
+keyword <u>typedef</u>.  This keyword allows you to
+rename a data type.  This is especially common on large development
+projects where code is shared across hardware and software platforms
+which may have different size interpretations for types like "int".  The
+following declarations are made <u>outside main</u> in the 
+area you would generally use for global variables and include statements.
+
+<pre>
+	typedef unsigned char  uint8_t;
+	typedef signed char    int8_t;
+	typedef unsigned int   uint16_t;
+	typedef signed int     int16_t;
+	typedef unsigned long  uint32_;
+	typedef signed long    int32_t;
+</pre>
+
+Fortunately for you, these declarations are automatically included in the
+XC8 compiler used in our class whenever you put 
+<font face="courier">#include &lt;stdint.h&gt;</font> at the top of you
+program (before main).  We will do this in all our programs in lab and
+so will assume the same for all programs written in class.
+
+<h2>Main, variable declaration and assignment</h2>
+Every C program starts running at the beginning of a code module 
+(a function) called "main".  In our class, you will always identify
+main using the declaration, <font face="courier">void main(void) {</font>.
+Every line of code after this and up to the closing "}" is considered to
+be in main.  An example program is given below and used in the following
+discussion.<br><br>
+
+<pre>
+void main(void) {
+
+    uint8_t x = 100;
+    uint8_t z;
+
+    z = x + x;
+}
+</pre>
+
+After you declare main, most of your programs will have variable 
+declarations.  These should all be placed at the top of main before
+any of the expressions composing the body of your program.  While
+some C compilers may allow it, it is generally frowned on to include 
+new variable declarations in the body of your programs.  C is 
+"typed language" meaning that you are required to declare the data 
+type for any variable that you want to use.  You do this by placing 
+the data-type followed by the variable name, and an optional initial value
+on a single line followed by a semicolon.
+<br><br>
+
+In the example above, the variables x and z are stored in 8-bits and 
+interpreted as unsigned 
+binary numbers.  This means that we can store the values [0, 255] in
+these variables.  The variable declaration 
+<font face="courier">uint8_t x = 100;</font> initializes the variable
+x, so the first time that it is referenced in the program (if it hasn't
+already been changed), it has value 100.   The value of x can be changed 
+anywhere in your program - an initial value does not make a variable
+a constant.
+<br><br>
+
+I don't really consider variable declarations to be code that is
+executed, rather it sets aside space for our variables that are
+manipulated by the following instructions.  The real work of the program
+occurs with the expression composing the body of the program.  In the 
+very simple program above, the body consists of a single statement
+<font face="courier">z = x + x;</font>  The equal sign in this expression
+divides the statement into a left had side (LHS) and a right hand side
+(RHS).  The computer will evaluate the expression on the RHS and assign
+it to the variable on the LHS.  The computer evaluates an expression by
+looking up the values for any variables, then applying operations to
+the operands until the RHS is reduced to a single value.  In our simple
+program, evaluating <font face="courier">x + x</font> produces the value
+200, which is then assigned to the variable z.  Any subsequent reference
+to the variable z (on a RHS), will cause z to evaluate to 200.<br><br>
+<!--
+The concept of evaluation requires us to consider operator precedence
+which needs to be added to this lecture in subsequent revisions.
+-->
+
+All went well in our example; the result of the evaluation, 200, was
+able to "fit" into the uint8_t data type for the result variable z.
+However, this will not always be the case.  Unlike general purpose
+computers, microcontrollers will almost never alert you when the
+evaluation of an expression is too large to fit into the result 
+variable.  For example, what would happen if x = 200 when the 
+statement <font face="courier">z = x + x;</font> is executed by a 
+microcontroller?
+
+<h2>Overflow and modular arithmetic</h2>
+When performed with the correct sized data type, you should rarely 
+need to concern yourself what happen when the result of an operation 
+exceeds the ability of data-type to hold it.  If you peform an operation 
+on data which yields a result that exceed the range of the word-size
+you have generated an <u>overflow</u> condition.<br><br>
+
+Let's look at a simple case of overflow to more clearly understand what
+is going on.  Let's work on a hypothetical computer that has a uint3_t data
+type (a 3-bit word size).  A 3-bit integer can only represent values
+from [0 &hellip; 7] inclusive.  When interperted as integers the 
+decimal values for each
+possible 3-bit word are shown at left in the figure below.  The values
+are arranged in clockwise counting order.  As you count up from 0, you
+should travel clockwise around the circle encountering incrementally 
+larger numbers.  But what is going on when we reach 7 and increment back
+to 0?<br><Br>
+
+The hardware that performs the addition of two values
+inside the computer is called an adder.  Adders are built from full-adders.
+The adder for our imaginary machine has 3 full adders, forming what is called
+a 3-bit adder.  When told to add 1 to 7, the 3-bit adder cannot generate
+the value 8 because it has a 4-bit representation, 0b1000.  By its nature,
+the 3-bit adder keeps the least significant 3-bits from the sum 7+1, yielding
+a result 0.<br><br>
+
+Now let's perform an operation on data that will yield an overflow: 5+4.  
+Let's use a adding technique that you first learned in school, counting 
+off on a number line, however in our case, let's count around our circle.
+In the figure at right, we start at 5 and count-up around the circle 4
+times, landing on the value 1.   So 5+4=1.  
+
+<br><img src="./img/threeBit.bmp"><br><br>
+
+You could also arrive at this
+answer by performing 5+4=9, and then recognizing that 9 is greater than
+the largest 3-bit representation, subtract off 1 encirclement of the 
+3-bit counting wheel, 8.  Hence, I would write 5+4 = 9-8 = 1.  You will
+find this second technique more useful when diagonising overflow problems
+in your programs.  Let's do one more example using an 8-bit word-size.
+<br><br>
+
+Let's return to the example at the end of the previous section, the computer
+was trying to store the value 400 (200 + 200) into the variable z.  Since
+z has type uint8_t it can only store values in the range [0, 255].  Most
+microcontollers will not halt execution on this error and instead 
+store the least significant 8-bit of the binary representation of 400 
+in z.  You can verify that 400 = 0b110010000, so z = 0b10010000 
+which is equal to 144 when interpreted as an unsigned decimal value.  I
+tend to prefer a more graphic portrayal of what happens and think that
+when we try to count past the maximum value that z can hold, in this case
+255, we wrap around back to 0 instead of going to 256.  Thus we drop a 
+set of 256 every time we count past 255.  In the example above this would
+assign z the value of 400 - 256 = 144.  
+<br><br>
+
+If we were in an advanced computer science class, we would call the 
+operation of subtracting sets of 256 from a value until the value 
+is less than 256, finding the residue modulo 256.
+<br><br>
+
+You need to be on the look-out for invalid answers generated by the 
+operations because the microcontroller will not provide you with any
+indication that overflow has occurred.  Be vigilant!
+
+
+<h2>C arithmetic operations</h2>
+The most familiar type of operations are those that you learned 
+early in elementary school, arithmetic operations.  Let's look at 
+a C-code example consisting of variable declarations and expressions
+and then evaluate the expressions.  You should notice that,
+<ul>	<li>every expression is terminated with a semicolon 
+	<li>variable are declared before any expressions 
+	<li>variables can be assigned an initial value in their declaration
+	<li>Comments are denoted with the "//" symbol
+	<li>expression are on the right side of the "=" sign
+	<li>the value of the expression is assigned to the variable on the 
+	left side of the "=" sign
+</ul>
+
+<pre>
+void main(void) {
+
+    uint8_t x = 25;
+    uint8_t y = 15;
+    uint8_t z = 10;
+
+    // comments will contain variable values after expression is executed
+    z = x + y;		// z = 40
+    z = x - y;		// z = 10
+    z += x;		// z = 35
+    z = x++;		// z = 25, x = 26
+
+    // expressions which generate overflow
+    z = y - x;		// z = 245 (15 - 26 = -11 rolls to 256 - 11 = 245)
+    z = x * y;		// z = 134 (26*15 = 390 mod 256 = 134) remember x=26!
+
+    // expressions which invoke operator precedence
+    z = 3*(x + y);	// z = 123 (3*(26+15) = 123)
+} // end main
+</pre>
+<br><br>
+
+
+<h2>Operator Precedence</h2>
+Operator precedence tells you how to evaluate an expression where there
+is ambiguity about the order in which operators are applied to the operands.
+The list from <a href="http://microchipdeveloper.com/tls2101:precedence">
+this</a> Microchips website is reproduced below.
+<br><br>
+
+
+<i>
+<p style="margin-left: 40px">
+In the following table operators grouped together in a section have the
+ same precedence. For example, the first four entries in this table (),
+ [], ., and -&gt; all share the same precedence. These four operators
+ follow the rule of Left-to-Right associativity which is used as a tie
+ breaker when two or more of these appear in the same expression. The
+ next group of operators starting with + and ending with (type) all share
+ the next level of precedence.
+</p></i>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Associativity</th>
+</tr>
+<tr>
+<td><tt>( )</tt><br />
+<tt>[ ]</tt><br />
+<tt>.</tt><br />
+<tt>-&gt;</tt></td>
+<td>Parenthesized Expression<br />
+Array Subscript<br />
+Structure Member<br />
+Structure Pointer</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>+ -</tt><br />
+<tt>++ - -</tt><br />
+<tt>! ~</tt><br />
+<tt>*</tt><br />
+<tt>&amp;</tt><br />
+<tt>sizeof</tt><br />
+<tt>(type)</tt></td>
+<td>Unary + and - (Postitive and Negative Signs)<br />
+Increment and Decrement<br />
+Logical NOT and Bitwise Complement<br />
+Dereference (Pointer)<br />
+Address of<br />
+Size of Expression or Type<br />
+Explicit Typecast</td>
+<td>Right - to - Left</td>
+</tr>
+<tr>
+<td><tt>* / %</tt></td>
+<td>Multiply, Divide, and Modulus</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>+ -</tt></td>
+<td>Add and Subtract</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>&#171; &#187;</tt></td>
+<td>Shift Left and Shift Right</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>&lt; &lt;=</tt><br />
+<tt>&gt; &gt;=</tt></td>
+<td>Less Than and Less Than or Equal To<br />
+Greater Than and Greater Than or Equal To</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>== !=</tt></td>
+<td>Equal To and Not Equal To</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>&amp;</tt></td>
+<td>Bitwise AND</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>^</tt></td>
+<td>Bitwise XOR</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>|</tt></td>
+<td>Bitwise OR</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>&amp;&amp;</tt></td>
+<td>Logical AND</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>||</span></tt></td>
+<td>Logical OR</td>
+<td>Left - to - Right</td>
+</tr>
+<tr>
+<td><tt>?:</tt></td>
+<td>Conditional Operator</td>
+<td>Right - to - Left</td>
+</tr>
+<tr>
+<td><tt>=</tt><br />
+<tt>+= -=</tt><br />
+<tt>/= *=</tt><br />
+<tt>%=</tt><br />
+<tt>&#171;= &#187;=</tt><br />
+<tt>&amp;= |=</tt><br />
+<tt>^=</tt></td>
+<td>Assignment<br />
+Addition and Subtraction Assignments<br />
+Division and Multiplication Assignments<br />
+Modulus Assignment<br />
+Shift Left and Shift Right Assignments<br />
+Bitwise AND and OR Assignements<br />
+Bitwise XOR Assignment</td>
+<td>Right - to - Left</td>
+</tr>
+<tr>
+<td><tt>,</tt></td>
+<td>Comma Operator</td>
+<td>Left - to - Right</td>
+</tr>
+</table>
+
+<i>
+<p style="margin-left: 40px">
+When expressions contain multiple operators, their precedence determines
+the order of evaluation as shown in the following examples.
+</p></i>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr>
+<th>Expression</th>
+<th>Effective Expression</th>
+</tr>
+<tr>
+<td><tt>a - b * c</tt></td>
+<td><tt>a - (b * c)</tt></td>
+</tr>
+<tr>
+<td><tt>a + ++b</tt></td>
+<td><tt>a + (++b)</tt></td>
+</tr>
+<tr>
+<td><tt>a + ++b * c</tt></td>
+<td><tt>a + ((++b)*c)</tt></td>
+</tr>
+</table>
+
+<i>
+<p style="margin-left: 40px">
+If functions are used in an expression, there is no set order of evaluation
+for the functions themselves.<br />
+<tt>e.g. x = f() + g()</tt><br />
+There is no way to know if <tt>f()</tt> or <tt>g()</tt> will be evaluated
+first.
+
+If two operators have the same precedence, their associativity determines
+the order of evaluation.<br />
+</p></i>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr>
+<th>Expression</th>
+<th>Associativity</th>
+<th>Effective Expression</th>
+</tr>
+<tr>
+<td><tt>x / y % z</tt></td>
+<td>Left - to - Right</td>
+<td><tt>(x / y) % z</tt></td>
+</tr>
+<tr>
+<td><tt>x = y = z</tt></td>
+<td>Right - to - Left</td>
+<td><tt>x = (y = z)</tt></td>
+</tr>
+<tr>
+<td><tt>~++x</tt></td>
+<td>Right - to - Left</td>
+<td><tt>~(++x)</tt></td>
+</tr>
+</table>
+
+<i>
+<p style="margin-left: 40px">
+You can rely on these rules, but it is good programming practice to 
+explicitly group elements of an expression by using parentheses.
+</p></i>
+
+
+<h2>C bitwise logical operations</h2>
+Bitwise logical operations are the familiar AND, OR, XOR and NOT 
+performed on each pair of bits from the same bit-position in each 
+operand.  We will explain this with an examples, but first let's 
+revview the logic operators AND, OR, XOR and NOT.
+<br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr>	<td>operations	<td>AND	<td>OR	<td>XOR	<td>NOT
+<tr>	<td>symbol	<td>&	<td>|	<td>^	<td>~
+<tr>	<td>truth table
+	<td><table>	<tr><td>0 & 0 = 0
+			<tr><td>0 & 1 = 0
+			<tr><td>1 & 0 = 0
+			<tr><td>1 & 1 = 1	</table>
+	<td><table>	<tr><td>0 | 0 = 0
+			<tr><td>0 | 1 = 1
+			<tr><td>1 | 0 = 1
+			<tr><td>1 | 1 = 1	</table>
+	<td><table>	<tr><td>0 ^ 0 = 0
+			<tr><td>0 ^ 1 = 1
+			<tr><td>1 ^ 0 = 1
+			<tr><td>1 ^ 1 = 0	</table>
+	<td><table>	<tr><td>~ 0 = 1
+			<tr><td>~ 1 = 0		</table>
+</table>
+
+With these tables in hand, let's look at an example of a C 
+bitwise logical operator using the following line of code.
+<pre>
+	uint8_t x;
+
+	x = 0b10100011 & 0b11001010;
+</pre>
+
+This line of code will assign the bitwise logical AND of the two binary
+operands to the variable x.  To do this, for each bit position 
+(from the least significant bit to the most significant bit), get the pair 
+of operand bits, AND them together, and place the resulting bit in the 
+result at this same bit position.
+<br><br>
+
+In order to make this process easier, I like to align the operands on
+top of each other (like when you add two multi-digit numbers together)
+and AND each pair of bits in a coloumn as shown below.  Note,
+that I like to seperate long binary numbers into 4-bit units with a 
+space so that I can more easily work with them.
+
+<pre>
+		  1010 0011
+		& 1100 1010
+		-----------
+		x=1000 0010
+	Hence,
+	x = 0b10100011 & 0b11001010 = 0b10000010;
+</pre>
+
+
+Just in case this isn't clear, look at the least signifiant bit 
+(right-most) in the operation above.  The 1 on top is ANDed with the
+0 on the bottom.  From the truth table for AND you should verify that
+1 & 0 = 0.  Hence the least significant bit of the result is 0.
+Unlike the carry bit in addition, the AND of any one slice can not 
+effect the AND in adjacent bit slices.
+<br><br>
+
+The process to determine the bitwise logical value for a pair of
+variables is identical to that for constants.  Just align the bits
+and determine the value of the result based on the operation.  There
+is one variation of this idea called bit-masking that proves to be 
+very useful tool to test and isolate bits in a variable.  For
+example, the following code-snippet tells you the bit value of the
+most significant bit of an 8-bit variable x.
+
+<pre>
+	if ((x & 0b10000000) == 0)
+		printf("MSB of x is 0.\r\n");
+	else		
+		printf("MSB of x is 1.\r\n");
+</pre>
+
+In the explaination that follows, the 8-bits of x are denoted as 
+x<sub>7</sub> x<sub>6</sub> x<sub>5</sub> x<sub>4</sub> 
+x<sub>3</sub> x<sub>2</sub> x<sub>1</sub> x<sub>0</sub>.  So what
+we are cheking is the value of x<sub>7</sub> in our code segment.
+The code snippet works because 0 ANDed with any bit is equal to
+0. While 1 ANDed with a bit x, is equal to x.  These two relationships
+are described in the following:
+
+<pre>
+		    x<sub>7</sub> x<sub>6</sub> x<sub>5</sub> x<sub>4</sub> x<sub>3</sub> x<sub>2</sub> x<sub>1</sub> x<sub>0</sub>
+		&   1  0  0  0  0 0  0  0
+		    ----------------------
+		    x<sub>7</sub> 0  0  0  0 0  0  0
+	
+</pre>
+
+The result of "(x & 0b10000000)" is either equal to 1000 0000 if 
+x<sub>7</sub> is 1 or 0000 0000 if x<sub>7</sub> is 0.
+Because "0" is easier to write than "10000000", I checked the
+result against 0.  Note that "0" is the same as "00000000" because the
+compiler will always pad values with leading zeros.
+<br><Br>
+
+The following are some bitwise logical operations that you can try on your
+own.  The solutions are shown in the comments.
+
+<pre>
+void main(void) {
+
+    uint8_t x = 0b10101100;
+    uint8_t y = 0b00110101;
+    uint8_t z = 0;
+
+    // comments will contain variable values after expression is executed
+    z = x & 0x0F;	// z = 0b0000 1100
+    z = x & 0xF0;	// z = 0b1010 0000
+    z = x | 0x0F;	// z = 0b1010 1111
+    z = x | 0xF0;	// z = 0b1111 1100
+    z = x ^ 0x0F;	// z = 0b1010 0011
+    z = x ^ 0xF0;	// z = 0b0101 1100
+    z = ~0b10101100;	// z = 0b0101 0011
+
+    z = x & y;		// z = 0b0010 0100
+    z = x | y;		// z = 0b1011 1101
+    z = x ^ y;		// z = 0b1001 1001
+    z = ~x;		// z = 0b0101 0011
+
+    z = x<<1;		// z = 0b0101 1000
+    z = x>>3;		// z = 0b0001 0101
+
+} // end main
+</pre>
+
+<h2>C relational operations</h2>
+In the next lecture we will examine conditional statements; statements
+allowing us to change the execution flow of a program based on the
+results of operation.  Conditional statements use a True or False value
+to determine which execution flow to follow.  Operations which produce
+a True or False value are called relational operators.  In C, the
+truth value True is associated with the integer value 1 and False
+with the integer value 0.  Hence relational operators always evaluate
+to 0 or 1 regardless of the inputs.
+
+<pre>
+void main(void) {
+
+    uint8_t x = 172;
+    uint8_t y = 53;
+    uint8_t z = 0;
+
+    // comments will contain variable values after expression is executed
+
+    // What follows are some uncommon statements that I would not
+    // expect to see in your (or my) programs from here on out.  They
+    // are presented here to illustrate the evaluation of relational
+    // operators.
+    z = x > y;		// z = 1
+    z = x >= y;		// z = 1
+    z = x < y;		// z = 0
+    z = x > 'a';	// z = 1 because 'a' is 97
+    z = x > y;		// z = 1
+    z = 1 == 0;		// z = 0
+    z = 0 == 0;		// z = 1
+    z = 0x0F == 0x00;	// z = 0
+    z = 0x00 == 0x00;	// z = 1
+} // end main
+</pre>
+
+
+Please be careful when using the equality check relational operation
+"==".  It's very easy to overlook using a single equal sign and creating
+a syntax error and an unintended assignment at worst (this is a tricky
+bug to find).
+
+<h2>C conditional logical operations</h2>
+There are frequently cases when you need to change the execution flow
+bases on more than one relational operation.  In such cases you need to
+use a logical operation to combine two or more relational operations.
+We will call these combinations conditional logical operations. We will 
+use three conditional operations in our course, AND, OR and NOT,
+represented using "&&", "||", and "!" respectively.<br><br>
+
+It is a quirk of the C programming language that any non-zero value
+is treated as TRUE and zero is FALSE.  So for example, 35 && 16 is
+equivlent to TRUE && TRUE which is TRUE.  So the result of 
+35 && 16 would be 1.  The following code provides some examples with 
+these operators.
+
+<pre>
+void main(void) {
+
+    uint8_t z = 0;
+
+    // comments will contain variable values after expression is executed
+    z = 1 && 1;		// z = 1
+    z = 0 && 1;		// z = 0
+    z = 1 || 0;		// z = 1
+    z = 0 || 0;		// z = 0
+    z = !0;		// z = 1
+    z = !1;		// z = 0
+
+    z = 0x0F && 0x0F;	// z = 1
+    z = 0x00 && 0x0F;	// z = 0
+    z = 0x0F || 0x00;	// z = 1
+    z = 0x00 || 0x00;	// z = 0
+    z = !0x0F;		// z = 0
+    z = !0x00;		// z = 1
+
+} // end main
+</pre>
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+
+<li>
+Complete the following table by interpreting the values of A, B, and Sum 
+as 4-bit unsigned binary numbers and as 4-bit 2’s complement numbers.  
+When filling in the unsig_ovf and sig_ovf columns use the validity of 
+the results to determine if overflowed has occurred.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>A	<td>unsign <td>sign <td>B	<td>unsign	<td>sign	<td>Fnc	<td>Sum	<td>unsigned	<td>signed	<td>unsig_ovf	<td>sig_ovf
+
+<tr><td>1010<td>&nbsp<td>&nbsp<td>1010<td>&nbsp<td>&nbsp<td>sub<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+
+<tr><td>1010<td>10<td>-6<td>1111<td>15<td>-1<td>add<td>1001<td>9<td>-7<td>1	<td>0
+
+<tr><td>0010<td>&nbsp<td>&nbsp<td>0011<td>&nbsp<td>&nbsp<td>sub<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>0011<td>&nbsp<td>&nbsp<td>1010<td>&nbsp<td>&nbsp<td>sub<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>0100<td>&nbsp<td>&nbsp<td>0011<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>0111<td>&nbsp<td>&nbsp<td>0010<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1000<td>&nbsp<td>&nbsp<td>0001<td>&nbsp<td>&nbsp<td>sub<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1010<td>&nbsp<td>&nbsp<td>0101<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1010<td>&nbsp<td>&nbsp<td>1010<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1100<td>&nbsp<td>&nbsp<td>1111<td>&nbsp<td>&nbsp<td>sub<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1100<td>&nbsp<td>&nbsp<td>0100<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+
+<tr><td>1100	<td>12	<td>-4	<td>0001	<td>1	<td>1	<td>sub	<td>1011	<td>11	<td>-5	<td>0	<td>0
+
+<tr><td>1110<td>&nbsp<td>&nbsp<td>0100<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1110<td>&nbsp<td>&nbsp<td>1111<td>&nbsp<td>&nbsp<td>sub<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1111<td>&nbsp<td>&nbsp<td>0000<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>1111<td>&nbsp<td>&nbsp<td>1111<td>&nbsp<td>&nbsp<td>add<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>A	<td>unsign <td>sign <td>B	<td>unsign	<td>sign	<td>Fnc	<td>Sum	<td>unsigned	<td>signed	<td>unsig_ovf	<td>sig_ovf
+<tr><td>1010	<td>10	<td>-6	<td>1010	<td>10	<td>-6	<td>sub	<td>0000	<td>0	<td>0	<td>0	<td>0
+<tr><td>1010	<td>10	<td>-6	<td>1111	<td>15	<td>-1	<td>add	<td>1001	<td>9	<td>-7	<td>1	<td>0
+<tr><td>0010	<td>2	<td>2	<td>0011	<td>3	<td>3	<td>sub	<td>1111	<td>15	<td>-1	<td>1	<td>0
+<tr><td>0011	<td>3	<td>3	<td>1010	<td>10	<td>-6	<td>sub	<td>1001	<td>9	<td>-7	<td>1	<td>1
+<tr><td>0100	<td>4	<td>4	<td>0011	<td>3	<td>3	<td>add	<td>0111	<td>7	<td>7	<td>0	<td>0
+<tr><td>0111	<td>7	<td>7	<td>0010	<td>2	<td>2	<td>add	<td>1001	<td>9	<td>-7	<td>0	<td>1
+<tr><td>1000	<td>8	<td>-8	<td>0001	<td>1	<td>1	<td>sub	<td>0111	<td>7	<td>7	<td>0	<td>1
+<tr><td>1010	<td>10	<td>-6	<td>0101	<td>5	<td>5	<td>add	<td>1111	<td>15	<td>-1	<td>0	<td>0
+<tr><td>1010	<td>10	<td>-6	<td>1010	<td>10	<td>-6	<td>add	<td>0100	<td>4	<td>4	<td>1	<td>1
+<tr><td>1100	<td>12	<td>-4	<td>1111	<td>15	<td>-1	<td>sub	<td>1101	<td>13	<td>-3	<td>1	<td>0
+<tr><td>1100	<td>12	<td>-4	<td>0100	<td>4	<td>4	<td>add	<td>0000	<td>0	<td>0	<td>1	<td>0
+<tr><td>1100	<td>12	<td>-4	<td>0001	<td>1	<td>1	<td>sub	<td>1011	<td>11	<td>-5	<td>0	<td>0
+<tr><td>1110	<td>14	<td>-2	<td>0100	<td>4	<td>4	<td>add	<td>0010	<td>2	<td>2	<td>1	<td>0
+<tr><td>1110	<td>14	<td>-2	<td>1111	<td>15	<td>-1	<td>sub	<td>1111	<td>15	<td>-1	<td>1	<td>0
+<tr><td>1111	<td>15	<td>-1	<td>0000	<td>0	<td>0	<td>add	<td>1111	<td>15	<td>-1	<td>0	<td>0
+<tr><td>1111	<td>15	<td>-1	<td>1111	<td>15	<td>-1	<td>add	<td>1110	<td>14	<td>-2	<td>1	<td>0
+</table>
+--->
+
+<li>What happens when you increment an unsigned 8-bit variable x 
+which is currently equal to 255? 
+<!--
+The variable x will equal 0 because the addition causes x to
+"wrap around" to the next available integer.
+-->
+
+<li>Write an arithmetic expression that computes the radicand of
+the quadratic formula.  That is the expression inside the square
+root.  Assume that A,B and C are given as signed 16-bit values
+and the radicand should also be signed 16-bit.  Make sure to 
+include the variable declaration of the result.
+<!--
+    int16_t result;
+    result = B*B - 4*A*C;
+-->
+
+<li>Write an arithmetic expression that computes the average of
+4 values in the range [0,100].  The values are given in variables
+A, B, C, and D.  Make sure to include the variable declaration of
+the result.
+<!--
+    uint16_t result;			// Need 16-bit because we will add four 8-bit values first which could overflow an int8
+    result = (A + B + C + D)/4;
+
+-->
+
+<li>If you tried to store the value 8,456,325 into an 8-bit variable,
+what decimal value would end-up being stored in the variable?
+
+<!--
+Solution approach #1
+8,456,325 = 0b 1000 0001 0000 1000 1000 0101, so only the least 
+significant 8-bits, 0b10000101 would be stored.  This is equal to
+133 in decimal.
+
+Solution approach #2
+8,456,325 / 256 = 33,032.51953125
+This means that 8,456,325 goes around the 256 counting wheel 33,032
+times, after which it is 0.51953125 of the way around.  Multiplying
+this fraction by 256 will give us the value on the counting wheel.
+256 * 0.51953125 = 133  So this is the value that will be stored
+in the 8-bit variable.
+
+-->
+
+<li>Write an expression to keep only the least significant byte of
+a 32-bit integer X and set all the other bits to 0.
+<!--
+    uint32_t result;
+    result = X & 0x000000FF;
+-->
+
+<li>Write an expression to multiply a 16-bit integer X by 10 using
+shifts and adds.
+<!--
+    uint32_t result;
+    result =  (X << 3) + (X << 1);
+-->
+
+<li>Complete the Result column in the following table listing any
+variable(s) that change as a result of the operation.  Your answers
+should be in radix requested.   In some cases
+there may be more than one variable that changes.  Assume that
+the operands x, y, and z have type uint8_t.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=5><center>Answers in decimal</center></td>
+<tr><td>x	<td>y		<td>z		<td>Operation	<td>Result
+<tr><td>82	<td>23		<td>10		<td>z = x + y;	<td>&nbsp
+<tr><td>82	<td>0x23	<td>10		<td>z = x + y;	<td>&nbsp
+<tr><td>0x82	<td>23		<td>10		<td>z = x + y;	<td>&nbsp
+<tr><td>0x82	<td>0x23	<td>10		<td>z = x + y;	<td>&nbsp
+<tr><td>82	<td>23		<td>10		<td>z = y - x;	<td>&nbsp
+<tr><td>82	<td>23		<td>10		<td>z += x; 	<td>&nbsp
+<tr><td>82	<td>23		<td>10		<td>z += x++; 	<td>&nbsp
+<tr><td>82	<td>23		<td>10		<td>z -= x; 	<td>&nbsp
+<tr><td>82	<td>23		<td>10		<td>z *= x; 	<td>&nbsp
+
+<tr><td colspan=5><center>Answers in hexadecimal</center></td>
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = x & y;	<td>&nbsp
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z &= x;	<td>&nbsp
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = x | y;	<td>&nbsp
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z |= x;	<td>&nbsp
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = x ^ y;	<td>&nbsp
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z ^= x;	<td>&nbsp
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = ~x;	<td>&nbsp
+<tr><td>0xC5	<td>0x3		<td>0x3A	<td>z = x << y;	<td>&nbsp
+<tr><td>0xC5	<td>0x3		<td>0x3A	<td>z = x >> y;	<td>&nbsp
+
+
+<tr><td colspan=5><center>Answers in decimal</center></td>
+<tr><td>82	<td>23		<td>10		<td>z = x > y;	<td>&nbsp
+<tr><td>82	<td>23		<td>10		<td>z = x < y;	<td>&nbsp
+<tr><td>82	<td>82		<td>10		<td>z = x < y;	<td>&nbsp
+<tr><td>82	<td>82		<td>10		<td>z = x <= y;	<td>&nbsp
+<tr><td>82	<td>82		<td>10		<td>z = x == y;	<td>&nbsp
+<tr><td>82	<td>82		<td>10		<td>z = x != y;	<td>&nbsp
+
+<tr><td colspan=5><center>Answers in decimal</center></td>
+<tr><td>1	<td>1		<td>10		<td>z = x && y;	<td>&nbsp
+<tr><td>0	<td>1 		<td>10		<td>z = x && y;	<td>&nbsp
+<tr><td>0	<td>1 		<td>10		<td>z = x || y;	<td>&nbsp
+<tr><td>0	<td>0 		<td>10		<td>z = x && y;	<td>&nbsp
+<tr><td>82	<td>23 		<td>10		<td>z = x && y;	<td>&nbsp
+<tr><td>82	<td>0 		<td>10		<td>z = x && y;	<td>&nbsp
+<tr><td>1	<td>0		<td>10		<td>z = !x;	<td>&nbsp
+<tr><td>1	<td>0		<td>10		<td>z = !y;	<td>&nbsp
+<tr><td>82	<td>1		<td>10		<td>z = !x;	<td>&nbsp
+</table>
+
+<!--
+</table>
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=5><center>Answers in decimal</center></td>
+<tr><td>x	<td>y		<td>z		<td>Operation	<td>Result
+<tr><td>82	<td>23		<td>10		<td>z = x + y;	<td>z=105
+<tr><td>82	<td>0x23	<td>10		<td>z = x + y;	<td>z=117
+<tr><td>0x82	<td>23		<td>10		<td>z = x + y;	<td>z=153
+<tr><td>0x82	<td>0x23	<td>10		<td>z = x + y;	<td>z=165
+<tr><td>82	<td>23		<td>10		<td>z = y - x;	<td>z=197
+<tr><td>82	<td>23		<td>10		<td>z += x; 	<td>z=92
+<tr><td>82	<td>23		<td>10		<td>z += x++; 	<td>z=92, x=83
+<tr><td>82	<td>23		<td>10		<td>z -= x; 	<td>z=184
+<tr><td>82	<td>23		<td>10		<td>z *= x; 	<td>z=52
+<tr><td colspan=5><center>Answers in hexadecimal</center></td>
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = x & y;	<td>z=0x41
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z &= x;	<td>z=0x00
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = x | y;	<td>z=0xD7
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z |= x;	<td>z=0xFF
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = x ^ y;	<td>z=0x96
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z ^= x;	<td>z=0xFF
+<tr><td>0xC5	<td>0x53	<td>0x3A	<td>z = ~x;	<td>z=0x3A
+<tr><td>0xC5	<td>0x3		<td>0x3A	<td>z = x << y;	<td>z=0x28
+<tr><td>0xC5	<td>0x3		<td>0x3A	<td>z = x >> y;	<td>z=0x18
+
+
+<tr><td colspan=5><center>Answers in decimal</center></td>
+<tr><td>82	<td>23		<td>10		<td>z = x > y;	<td>z=1 
+<tr><td>82	<td>23		<td>10		<td>z = x < y;	<td>z=0
+<tr><td>82	<td>82		<td>10		<td>z = x < y;	<td>z=0
+<tr><td>82	<td>82		<td>10		<td>z = x <= y;	<td>z=1
+<tr><td>82	<td>82		<td>10		<td>z = x == y;	<td>z=1
+<tr><td>82	<td>82		<td>10		<td>z = x != y;	<td>z=0
+
+<tr><td colspan=5><center>Answers in decimal</center></td>
+<tr><td>1	<td>1		<td>10		<td>z = x && y;	<td>z=1
+<tr><td>0	<td>1 		<td>10		<td>z = x && y;	<td>z=0
+<tr><td>0	<td>1 		<td>10		<td>z = x || y;	<td>z=1
+<tr><td>0	<td>0 		<td>10		<td>z = x && y;	<td>z=0
+<tr><td>82	<td>23 		<td>10		<td>z = x && y;	<td>z=1
+<tr><td>82	<td>0 		<td>10		<td>z = x && y;	<td>z=0
+<tr><td>1	<td>0		<td>10		<td>z = !x;	<td>z=0
+<tr><td>1	<td>0		<td>10		<td>z = !y;	<td>z=1
+<tr><td>82	<td>1		<td>10		<td>z = !x;	<td>z=0
+</table>
+--->
+</li>
+
+Embedded C allows you to do some weird things that, as you gain
+proficiency, can be used to great effect.  However, when starting out,
+these powers will more than likely allow you to make some splendid
+errors.  Lets explore a few of these.
+
+<li>What is the initial value for the following variable declarations?
+<pre>
+    uint8_t a = 25;
+    uint8_t b = 300;
+    uint8_t c = 15793705;
+    uint8_t d = -1
+</pre>
+
+
+<!--
+There is nothing suspecious about the first declaration, a is set
+equal to 25.
+<br><br>
+
+There is certianly a problem with the declaration of b as it's a
+uint8_t and its range is 0 to 255.  Using the number wheel analogy,
+the value for b is 300 mod 256, or just 300-256 since 300 only has 1
+set of 256 in it.  This means that the initial value of b in our
+program is 44.
+<br><Br>
+
+Well c is really way bigger than 256.  In this case I was fortunate
+enough to have a "mod" operator on my calculator, otherwise I would
+have to subracted <u>a lot</u> of sets of 256 in order to get the
+8-bit value for c.  My calculator 15793705 mod 256 = 41.
+<br><Br>
+
+The 8-bit representation for -1 is 1111 1111.  When interperted as
+an unsigned 8-bit value this is 255.  Thus the initial value of d
+in our program is 255.
+<br><br>
+
+The C compiler will give you some evidence that there is something 
+amiss with your program if you try these initialization.  I got the 
+following three warnings in my program:
+<pre>
+arithmetic.c:40: warning: (751) arithmetic overflow in constant expression
+arithmetic.c:42: warning: (751) arithmetic overflow in constant expression
+arithmetic.c:43: warning: (751) arithmetic overflow in constant expression
+</pre>
+
+Moral of the story, keep an eye on those warnings, epsecially if your
+code is doing something odd.
+
+--->
+
+
+
+</ol>
+
+</body>
+</html>

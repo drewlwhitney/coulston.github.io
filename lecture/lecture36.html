@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+
+
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture35.html">&ltPrev</a></li>
+                        <li><a href="./lecture37.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>   <td>36</td></tr>
+<tr><td>Objective:      <td>
+</table>
+
+<h3>Record/playback audio RTOS application</h3>
+
+Look at the task diagram shown below along with the
+<a href="./code/playRecord.html">PlayRecord template</a>. 
+Complete the RTOS application by filling in the underlines 
+in the code template.
+The task diagram for audio record, playback looks something like this.  
+Note, the StartRecord message sent from the ReadyJoy task to the ReadMic 
+task, also needs to be sent to the StoreMic task.
+<br><br>
+
+<img src="./img/AudioRTOS.gif"><br><br>
+
+
+In case you forgot how the hardware is organized for the audio 
+record/playback program, here it is.
+<br><br>
+
+<img width = 500, src="./img/AudioSchematic.gif"><br><br>
+
+</html>

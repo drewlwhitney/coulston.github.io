@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab02.html">Lab 2</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 383</h1>
+In Lab 2 - Morse Codes
+</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams solution on Canvas using the instructions posted there.
+<Br><Br>
+
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+<h2>Objective</h2>
+The objective of this lab is to familiarize you with the MPLAB X 
+development environment so that you can perform simulations with
+and without hardware.  This lab will introduce you to two important
+tools, the oscilloscope and excel spreadsheets. You will use these
+frequently throughout the term.
+
+<h2>External Hardware</h2>
+Today you will write code that you can interact with through a button
+(input) and an LED (output).  In order to accomplish this you will need
+understand how these devices are wired and controlled by the PIC.
+<br><Br>
+
+<ol start=1>
+<li>Open the schematic for the development board and locate the circuit for the
+the push button labeled "TOP".  Determine the voltage (0v or 3.3v) and logic
+level (logic 0 or logic 1) that pin RA2 will see for the two possible states 
+of the push button listed in the table below.  
+<br><Br>
+
+You can verify your answers by connecting the bench digital multimeter (DMM)
+to the RA2 header break-out pin on the development board as follows.  
+Power-up the DMM by pressing the power-on button on the
+lower left of the DMM.  Next plug-in a black cable to the black COM jack on 
+the DMM.  Plug-in a red cable to the upper right red jack labeled "V&ohm;Hz".
+Press the white "DC V" button on the DMM.  Connect the other end of
+the black cable to the ground loop on the development board.  Connect the
+other end of the red cable to pin RA2 on the break-out header on the
+development board (lower right of the PIC 18F25K22).  Pressing and releasing 
+the TOP button should change the value displayed on the DMM.
+<br><Br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Button state	<td>Voltage at RA2	<td>Logic level at RA2
+<tr><td>Unpressed	<td>&nbsp		<td>&nbsp
+<tr><td>Pressed 	<td>&nbsp		<td>&nbsp
+</table>
+</li>
+
+We will be illuminating the LED at the bottom of the board by connecting
+a jumper wire from RB5 to either the R, G, or B header pin.  In order
+to illuminate the LED you will need to assert a logic level on a PIC
+pin.  The relationship between the logic level and illumination state
+of the LED is investigated in the following question.
+<br><br>
+
+<li>Open the schematic for the development board and locate the circuit for the
+the RGB LED labeled "SMT_RGBLED".  Determine the voltage (0v or 3.3v) and logic
+level (logic 0 or logic 1) that the signal connected to R/G/B need to drive
+the LED into one of its two states (illuminated or off).  If you are having 
+problems with this, try the experiment described after the table below.
+<br><Br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>LED state	<td>Voltage at R/G/B	<td>Logic level at R/G/B
+<tr><td>Illuminated	<td>&nbsp		<td>&nbsp
+<tr><td>Off 		<td>&nbsp		<td>&nbsp
+</table>
+
+Verify your answers by connecting a R/G/B header pin to a VCC/GND header
+pins surrounding the PIC using jumper wire as shown in the photo below.
+<br><img src="./img/jumper.jpg"><br><br>
+</li>
+
+</ol>
+
+
+
+<h2>Firmware Organization</h2>
+Since today is the first time that most of you will have used the MPLAB X 
+development environment we will first review the basics of how to 
+create and simulate your code before diving into how the code 
+manipulates the I/O pins of the PIC. 
+
+<h3>Create a MPLab X project</h3>
+Start by launching MPLabX on your PC.  Then select File &rarr; New Project.
+<ul>
+<li>In the New Project pop-up (Step 1: Choose Project)<br>
+	Categories: Microchip Embedded<br>
+	Project: Standalone Project<br>
+	Next&gt;
+<li>In the New Project pop-up (Step 2: Select Device)<br>
+	Family: Advanced 8-bit MCUs (PIC18)<br>
+	Device: PIC18F25K22<br>
+	Next&gt;
+<li>In the New Project pop-up (Step 3: Select Header)<br>
+	Select Tool: <font color=green>&#11044;</font> SNAP<br>
+	Next&gt;
+<li>In the New Project pop-up (Step 6: Select Compiler)<br>
+	Select Compiler: XC8 (latest version)<br>
+	Next&gt;
+<li>In the New Project pop-up (Step 7: Select Project Name and Folder)<br>
+	Project Name: inLab02<br>
+	Project Location: hornetDrive\EENG383\labs<br>
+	Finish&gt;
+<li>In the project manager area of MPLAB X IDE, right mouse click on 
+	Source Files and select New &rarr; C main file &hellip;.
+	You may need to expand the "inLab02" project to reveal 
+	"source files".
+<li>In the New C Main File pop-up (Step 2: Name and Location)<br>
+	File Name: inLab02.c<br>
+	Finish
+<li>Open <a href="./code/inlab02.c">inlab02.c</a> and cut-and-paste the
+	contents into the inlab02.c tab of the editor area.  Yes,
+	you should delete the default template provided by the
+	MPLab X IDE.  
+</ul>
+
+<ol start=3>
+<li>In your own words, what does the "#asm" directive do?  You can find 
+information in section 5.12.2 of the MPLAB® XC8 C Compiler User’s Guide.  
+A link to this document is posted on the main course web page.
+<li>Look-up the NOP instruction on page 388 of the PIC18(L)F2X/4XK22
+Data Sheet.  A link to this document is posted on the main course web page.
+Describe, in your own words, what this instruction does?
+<li>In the inLab02 program, how is LED_PIN defined?  What happen when 
+you assign a value to this "variable"?
+<li>When line 66, "LED_PIN^=1;" is executes, what behavior do 
+you expect to see from the LED?
+<li>Select the Classes tab in the Project Manager window.  Expand the
+inLab02 selection, then the Libraries selection and then the 
+Microchip\xc8\v1.38\include selection.  Scroll down and double click on 
+PORTA (NOT PORTAbits_t).  Click Yes on the pop-up warning.  Record the 
+assembly language definition for PORTA (a couple of lines below the 
+"#define PORTA PORTA" statement - it's the stuff inside the quoted 
+asm statement).  Note "equ" stands for equate and is just like a #define.
+<li>Look at section 5.4.4. on page 77,78 of the "Microchip PIC18F25K22 Data 
+Sheet". From the 
+information on these pages interpret the meaning of the PORTA definition. 
+Note when the technical documents describe a hexadecimal number they place 
+the letter "h" after the numerical value.  In order to solve this problem
+you will need to reference your answer to problem 7.
+</ol>
+
+<h2>Firmware Operation</h2>
+This program is designed to blink the LED 
+attached to RB5 at 500Hz when the TOP button on the 
+development board is pressed.  Its important to note that in order 
+to blink an LED on and off at 500Hz, the LED pin must be toggled 
+1000 times a second (or once every 1ms).  This point will be 
+important in the development of the code.  <br><br>
+
+Before you start the following task, connect pin RB5 to one of the
+RGB header pins using a jumper wire.
+
+
+<h3>Debugging code on the development board</h3>
+There are times when you are having difficulty understanding what
+your program is doing that it will be handy to be able to single 
+step through your code.  Since we want the PIC 18F25K22 to be under the
+control of the MPLab X IDE, we need to the two connected via the 
+PICkit 3.  For this reason, <u>when debugging your code through the 
+MPLab X IDE, you must keep the PICkit 3 connected to the development board.</u>
+While working through the following instructions if you find the 
+instructions unclear, try consulting the figure below for some useful
+terms.
+
+<ul>
+<li>Connect the development board to a USB port on the PC.
+<li>Connect the SNAP to a USB port on the PC.
+<li>Connect the SNAP to the development board so that the white triangle
+on the SNAP and the development board align. 
+
+<li>In project management window right mouse click on project name (inLab02) 
+and select Properties.  In the Project Properties pop-up select "Conf" 
+in the Categories pane and then "SN: BURxxxxxxxxx" in the Hardware Tool
+pane (the x's are the unique ID number found on the back of your PICkit 3).
+Then click Apply and then OK.
+
+<li>Build the project by clicking the Debug Project in the toolbar area (to 
+the right of the blue circular arrow).  You can also click Debug &rarr; 
+Debug Project (inLab02).  This process may take 2-3 minutes.  During this time, 
+you should see the project build in the Output &rarr; inLab02 (Build)
+window and then some activity in the Output &rarr; PICkit3 window.  
+
+<li>When
+your program is running, you will notice a green progress square moving 
+in the lower right corner of the MPLab X window and an orange "Pause 
+(Ctrl+Alt+Pause)" button in the simulator control area of the toolbar. 
+Go ahead and press the orange pause button. Your program should be paused 
+on line 61.
+
+<!--
+<li>Now press F8 or the "Step Over" button in the simulator controls area 
+of the toolbar.   Every time that you perform a Step Over function the
+the PIC executes the highlighted line of code (stepping over any subroutine
+calls).   Continue pressing F8 until your program enters the loop on line
+61.
+-->
+
+<li>BUTTON_PIN is a reference to the value of the TOP button on the 
+development board.  Note, that your development board is upright when 
+Blaster is in his correct orientation.  Now press and hold down the 
+TOP button the development board (changing the value of 
+BUTTON_PIN to 0) while pressing
+the F8 key several times.  You should notice that the program has stepped
+to the "while (BUTTON_PIN == 0);" line of code and is holding there because
+the TOP button is sending a logic 0 to the PIC.
+
+<li>Now release the TOP button on the development board and press 
+F8 several more times and iterate through the while loop on lines 65-68
+several times and observe the LED toggling.
+
+<li>Now press the "Step Into (F7)" in the 
+simulator controls area of the toolbar (or just press F7).  You should
+observe that you have stepped into the milliSecondDelay and then 
+microSecondDelay functions.  The difference between step into and step 
+over is that step into goes into subroutines while step over executes 
+them in one simulation step. 
+
+<li>Right mouse click on the line where the LED is toggled (line 66) and
+select "Run to cursor".  You should see line 67 selected as the currently
+running line of code.  Try pressing F8 several times while pressing and
+releasing the TOP button on the development board.  Observe how the
+button's state effects the flow of control in your code.
+
+<li>Press the TOP button on the development board and F8, to get the
+debugger into the loop that toggles LED_PIN.  Now click on the "Continue (F5)"
+in the simulator controls area of the toolbar (or just press F5).  You 
+will notice a green progress square moving in the lower right
+corner of the MPLab X window and an orange "Pause (Ctrl+Alt+Pause)" button 
+in the simulator control area of the toolbar.  These tell you that the 
+debugger is running code on the PIC at full speed.  To stop execution, press
+the pause button.  It's impossible to tell with certainty what line of
+code was executing when you pressed the pause button, but most likely you
+program will stop inside the microSecondDelay subroutine. 
+
+<li>Running code using F5 allows you to conveniently execute large chunks of 
+code quickly without having to single step through them, but the fact that
+we did not know, for certain, where we would stop is a big drawback.  
+Fortunately, breakpoints allow us to stop a running program anytime that
+it attempts to execute a line of code that you have marked with a breakpoint.
+
+<li>Set a breakpoint on the line where the LED is toggled (line 66).
+Right mouse click on the "LED ^= 1;" in the editor pane. Select "Toggle 
+Line Breakpoint".  Press the F5 key to run your program and note where 
+execution stops.  Hold down the TOP button on the development board
+and then press F5.  Now your program is outside the while loop that 
+toggles the LED.  Press and release the TOP button on the development
+board to re-enter the loop and stop at the breakpoint.
+
+<li>Click on the Finish Debugger Session button in the toolbar when you
+want to close-out your debugging session.
+
+</ul>
+
+<br><img src="./img/mplabWindow.jpg"><br><br>
+
+<h3>Identify warnings errors</h3>
+Let's intentionally create a couple of errors in our program  to see
+how they are identified and resolved.   After introducing a change,
+click on "Clean and Build Project" (hammer and brush icon) in the toolbar.
+Note that "Clean and Build" is the same as compiling your project.
+You will need to scroll through the console messages in the Build area at 
+the bottom of the MPLAB X window to answer to find the warning/error
+messages.
+
+<ol start=9>
+<li>Complete the following table by introducing each change one at a time.
+After creating an error, fix it before moving to the next row of the table.
+If a change creates both a warning and an error, note only the error.
+If a change creates multiple errors, note only the first.
+</ol>
+
+<ul>
+<li>In the "Warning or Error" column indicate if the change created a
+warning, error or both a warning and error.  
+<li>In the "Line number of Warning/Error" column indicate the line number
+where the compiler thinks the problem(s) occurred.
+<li>In the "Warning/Error message" column cut-and-paste the warning or error 
+message(s) from the console window.  Typically these messages will be in blue 
+font; a typical error message looks like:<br>
+<font face="courier" color=blue>
+inLab02.c:87: error: (195) expression syntax
+</font><br>
+This means that the compiler has found an "expression syntax" error on line 87.
+Clicking on the blue message will take you to the line number where the
+compiler has encountered the error.
+</ul>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Change 	<td>Warning or Error <td>Line number of Warning/Error	<td>Warning/Error message
+<tr><td>Remove the semicolon at the end of line 66.
+	<td>&nbsp	<td>&nbsp	<td>&nbsp
+<tr><td>Remove one of the "=" in line 62 yielding "while(BUTTON_PIN = 0);"
+	<td>&nbsp	<td>&nbsp	<td>&nbsp
+<tr><td>Add a call to a non-existent subroutine "pugs();" on line 60
+	<td>&nbsp	<td>&nbsp	<td>&nbsp
+</table>
+
+
+<h3>Running code on the development board</h3>
+When debugging code on the development board, the PICkit 3 remains attached
+to the development board so that it can halt the PIC 18F25K22 processor 
+under your control (at a break-point or single stepping).  Running your
+code means that the PIC 18F25K22 will no longer be under the control of
+the PICkit 3.  For this reason, after you download your program to the
+PIC 18F25K22 (on the development board), you will disconnect the SNAP from
+the development board.  Since the PIC 18K25K22 is a flashed-based part, now
+every time that the PIC is powered-up, it will run this program.
+
+
+<ul>
+<li>Connect the development board to a USB port on the PC.
+<li>Connect the SNAP to a USB port on the PC.
+<li>Connect the SNAP to the development board so that the black triangle
+on the SNAP and the development board align. 
+<li>In the toolbar click on the Clean and Build Project icon (hammer and
+broom).
+<li>In the toolbar click on the Run Project icons (green arrow pointing right).
+<li>Check the "Do not show this message again" checkbox in the 
+MPLab pop-up and then click OK.
+<li>Three things will now happen that should alert you that the download
+is in progress:
+<ul>	<li>Text will scroll by in the SNAP tab of the console ending with
+	<font face="courier">Programming/Verify complete</font>
+	<li>The lower right corner of the MPLab X window you should see
+	"inLab02 (Build, Load)" with a progress bar flashing
+</ul>
+<li>When programming is complete, press the TOP button and RB5 pin will
+	quickly toggle its logic level.  
+</ul>
+
+
+<h3>Observe firmware behavior on oscilloscope</h3>
+You will be using an oscilloscope to measure the period of RB5.  To do this
+setup your oscilloscope as follows:
+<br><br>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>RB5
+<tr><td>Ch1 ground clip		<td>Dev board ground loop
+<tr><td>Horizontal (scale) 	<td>1ms
+<tr><td>Ch1 (scale) 		<td>1V
+<tr><td>Trigger mode		<td>Auto
+<tr><td>Trigger source		<td>1
+<tr><td>Trigger slope		<td>&uarr;
+<tr><td>Trigger level		<td>1.5V
+</table>
+
+Make sure to:
+<ul>	<li>Align Ch 1 on the second lowest reticule,
+	<li>Align the horizontal position at the second left-most reticule,
+	<li>Clear all menus off the bottom of the screen<br>
+	[&uarr;Back]
+	<li>Screen shot the screen on USB:<br>
+	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr; 
+	<u>24-bit Bit... (*.bmp)</u>
+	[Save] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
+</ul>
+<br><br>
+
+<ol start=10>
+<li>Include the screen shot from the waveform save on your oscilloscope.
+<li>Using the volts per division information on the oscilloscope screen and
+the height of the waveform (described in divisions), show your calculation for 
+the amplitude of the waveform on RB5.  For example, if your oscilloscope was
+set to 1v/divisions and the waveform had an amplitude of 4.6 divisions, then
+your answer would look like:
+<pre>
+Oscilloscope set to 1v/division
+The amplitude of the RB5 waveform is 4.6 divisions
+
+	  1v        
+	-------- *  4.6 divisions = 4.6v
+	division 
+</pre>
+
+<li>Using the time per division information on the oscilloscope screen and
+the duration the waveform (described in divisions), show your calculation for 
+the period of the waveform on RB5 using the same approach as the previous
+problem.
+</ol>
+
+
+<h2>Firmware Experiments</h2>
+As given the inLab02.c program does not generate a 500Hz waveform.
+In this section you are going to determine the exact number of NOP statements
+needed in the microSecondDelay subroutine function in order to create a 
+precise 1 microsecond delay.  To do this you will run the program three times;
+each time will have a different number of NOP statements in the 
+microSecondDelay function and you are to record the delay created.  You will 
+then interpolate this data to determine the exact number of NOPs needed to 
+produce a 1 microsecond delay.
+<br><br>
+
+To do this, you will need to create an excel spreadsheet as follows.
+<ul>	<li>Enter "#nop" in cell E3.  This column will be the number of NOP
+	statements in the microSecondDelay function.
+	<li>Enter "us" in cell F3.  This column will be the delay measured
+	using the simulator stopwatch.
+	<li>Edit the microSecondDelay subroutine so that it has either
+	4, 10, or 20 NOPs.  Run the program and observe the waveform
+	on pin RB5 using an oscilloscope.  Measure the time high (or low)
+	of the waveform (in microseconds) and record that value in cells 
+	F4 (for 4 NOPs), F5 (for 10 NOPs), or F6 (for 20 NOPs).
+	For more accurate and easier measurements on the oscilloscope do 
+	the following
+	<ul>
+	<li>Press measure (Hard Button)
+	<li>Press Add Measurement (Soft Button)
+	<li>Scroll Down in the Menu on the screen
+	<li>Under the Time header select +Width
+	<li>You should now see two dashed vertical orange lines 
+	surrounding the peak of your waveform. On the right-hand 
+	side of the screen you should be able to see the time width 
+	between these two lines in milliseconds
+	</ul>
+
+
+	<li>Select cells E3 through F6 by clicking on E3 and dragging to
+	cell F6.
+	<li>Insert &rarr; Insert Scatter (X,Y) or Bubble Chart &rarr; 
+	Scatter with Straight Lines and Markers
+	<li>Change the title to "us delay vs. #NOPs"
+	<li>Add a vertical axis label by first making sure that the 
+	graph is selected.  Then select: Chart Tools &rarr; Design 
+	&rarr; Add Chart Element &rarr; Axis Title &rarr; Primary 
+	Vertical.  Change the label to "Delay(us)"
+	<li>Add a horizontal axis label by first making sure that the 
+	graph is selected.  Then select: Chart Tools &rarr; Design 
+	&rarr; Add Chart Element &rarr; Axis Title &rarr; Primary 
+	Horizontal. Change the label to "number of NOPs"
+	<li>Looking at the scatter chart you should be able to get 
+	good idea of the number of NOPs needed to get a 1000us delay
+	by tracing along the horizontal grid at 1000us to the data
+	line and then following the intercept down to the number of
+	NOPs.  However, I want you to determine this value quantitatively
+	using the following steps.
+	<li>Enter "m" in cell E8.  Enter the equation for the slope of
+	the line in your chart in cell F8.  To do this select the cell
+	F8 and enter "=(F6-F4)/(E6-E4)" in the formula bar at the top
+	of the window.  Notice how the references are highlighted in
+	spreadsheet.
+	<li>Enter "b" in cell E9.
+	Use some basic algebra along with the equation of a line
+	to determine the equation for the y-intercept for the line 
+	in terms of the y-value in cell F6, the x value in cell E6,
+	and the slope in cell F8.  Enter this equation in cell F9.
+	<li>Enter "y" in cell E11.  Enter the value "1000" in cell
+	F11.  This is the delay in microseconds that we want. 
+	<li>Enter "x" in cell E12.
+	Use some basic algebra along with the equation of a line
+	to determine the equation for the x-value of a straight line
+	in terms of the y value entered in cell F11, the y-intercept
+	in cell F9, and the slope in cell F8.
+	<li>You should round a fractional value for the number of 
+	NOPs to the closest whole number (because we cannot have a 
+	fractional number of NOP statements).  Do this by entering
+	"=round(F12,0)" in cell F13.
+</ul>
+
+When complete your spreadsheet should look something like this:
+<br><img src="./img/excel.jpg"><br><br>
+
+<ol start=13>
+<li>Include the graph "us delay vs. # NOPs"
+<li>What is the equation you entered in cell F12 and how many NOPs
+are required to generate a 1000 us delay?
+</ol>
+
+

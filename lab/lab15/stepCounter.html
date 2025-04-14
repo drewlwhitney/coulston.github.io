@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #15 - Accelerometer</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab15.html">Lab 15</a></li>
+                    </ul>
+                     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+
+<body>
+
+<center>
+<h1>Step Counter</h1>
+</center>
+<br>
+
+The objective of this experiment is to calculate the number of steps that you have
+taken as a proxy to the distance you have walked.
+<br><Br>
+
+Configure the Lab 15 firware to record the acceleration. Attached the development 
+board/daughter board combo to your person, start logging data and walk or run a known
+distance - perhaps once around a track.
+<br><br>
+
+Stop logging the data and then spool it to a file.  You can import the file in Excel
+or into Matlab (using a command like
+<font face="courier">noiseData = importdata("rawDataFromPutty.csv");</font>).  Plot
+the data to produce something like the image below.
+
+<br><img src="./img/experiments/stepCount.JPG"><br><br>
+
+You will need to write a function (in excel, Matlab or a programming language) that 
+uses this data to count the number of steps taken.  Multiple this by your stride
+length to estimate the distance you traveled and compare it against the actual distance
+you traveled.
+
+</html>

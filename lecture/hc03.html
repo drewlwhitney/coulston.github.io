@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture32.html">&ltPrev</a></li>
+                        <li><a href="./lecture33.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Date:</td>	<td>April 14</td></tr>
+<tr><td>Lecture:</td>	<td>33</td></tr>
+<tr><td>Code:</td>	<td><a href="./code/simpleLoops.asm">simpleLoops.asm</a></td></tr>
+</table>
+
+
+
+<h2>Looping structures</h2>
+Looping structures iterate a code body some number of times.  Interestingly
+the most natural looping structure in assembly language is a count down
+loop.  The reason is that it's easy for the CPU to check if a result 
+equals 0.  The following C-code snippet is a typical count down loop
+that we will use as a template for our assembly for loop.
+<pre>
+B=0;
+for (A=4; A!=0; A-=1) {
+    B = B + 1;		// Body of for loop
+}
+</pre>
+
+The B variable in the body of the for-loop is just there to give the
+loop something to do as well as to count the number of times the body
+is executed.  The following table lists the value of the loop index,
+A, in the body of the for-loop and at the very end of the for-loop,
+just before the next iteration.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>A in body	<td>A at end
+<tr><td>4		<td>3
+<tr><td>3		<td>2
+<tr><td>2		<td>1
+<tr><td>1		<td>0
+</table>
+
+<h3>Count down loop using the A accumulator</h3>
+
+In our count down loop, the accumulator A will play the role of the
+variable A in the C-code snippet and the B accumulator will play the
+role of the B variable.  The following assembly code performs exactly
+the same fuction as the count-down loop above.
+
+<pre>
+            CLRB                  ; clear accumulator
+            LDAA    #4            ; set the number of iterations
+            
+For_Down:   INCB                  ; These two lines are the body
+            NOP                   ; of the loop
+            DBNE    A, For_Down  
+</pre>
+
+Some notes about this program are in order.
+<ul>	<li>DBNE - Decrement Branch Not Equal.  The DBNE instruction
+	decrements the selected accumulator and branches to the target 
+	address if after decrementing the accumulator  does not equal 0.
+
+	<li>The For_Down label is an alias for an address in
+	the instruction memory.  It allows us to avoid hard
+	coding in address which can be problematic.
+</ul>
+
+
+<h3>For Loop - count up using the A accumulator</h3>
+The following C-code snippet is more reminisent of a regular for-loop
+that you might program in one of your assignments.  Ironically, this
+type of loop is a bit of a pain to program in assembly language as we
+will see below.
+<pre>
+B=0;	
+for (A=0; A<4; A+=1) {	
+    B = B + 1;	
+}
+</pre>
+
+The B variable in the body of the for-loop play the same role as the
+previous program, just to give the body something to do and to keep
+track of the number of times the body is executed.
+The assembly code for the count-up for-loop is shown below.  The
+A accumulator plays the role of the A variable in the C-code.  The
+same goes for the B accumulator.
+
+<pre>
+            CLRB                  ; clear accumulator
+            LDAA    #0            ; 
+            
+For_Up:     CMPA    #Loop_Its     ; compare it to target loop iteration
+            BEQ     Next_For_Up   ; exit loop if A == #Loop_Its
+            
+            INCB                  ; These two lines are the body
+            NOP                   ; of the for loop
+            INCA                  ; Increment the loop count variable and
+            BRA     For_Up        ; iterate again
+
+Next_For_Up:
+</pre>
+
+In this program we do not have the luxery of using a built-in 
+HCS12 instruction to perform a decrement and branch instruction so 
+we need the INCA instruction to increment the loop index variable and
+the pait of instructions CMPA and BEQ to terminate the loop when the 
+number of iterations has reached its target.  Thus, a count-up loop
+requires 3 instructions instead of the count-down loops 1 instruction.
+
+<h3>For Loop - count up with loop variable stored in RAM</h3>
+Often you will have need to use the A register for more than
+just a loop counter, as in the previous problem.  In this case
+you will want to move the current loop count into and out-of the
+A register.  The idea in the code segment below is to store the
+current loop count index in the memory location related to the Loop_Cnt
+label.  When needed, this index variable is loaded into accumulaor A
+and compared to the constant Loop_Its.  This is done at the start of the
+loop at the label For_Mem.  The body of the for loop may do what it wants
+with accumulator A, it just needs to make sure to store any important value
+before the start of the next iterations because the start of the loop will
+overwite accumulator.  At the end of the loop the Loop_Its memory location
+is increment and an unconditional branch takes up back to the begining.
+
+<pre>
+Loop_Its:   EQU     4             ; Defines an assembler-time constant
+Loop_Cnt:   DS.B    1             ; allocates 1 byte in RAM
+Temp:       DS.B    1
+
+            CLR     Loop_Cnt      ; Initialize the loop counter
+            CLR     Temp          ; Clear temporary var in memory
+            
+For_Mem:    LDAA    Loop_Cnt
+            CMPA    #Loop_Its     ; compare it to target loop iteration
+            BEQ     Next_For_Mem  ; exit loop if A == #Loop_Its 
+            
+            INC     Temp          ; These two lines are the body
+            NOP                   ; of the for loop
+
+            INC     Loop_Cnt      ; Increment the loop count variable and
+            BRA     For_Mem       ; iterate again
+Next_For_Mem: 
+</pre>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Create a loop in assembly language that is equivlent to the
+following:
+<pre>
+for (i=3; i&lt10; i++) {
+    B = B + 1;
+}
+</pre>
+Where B is the B accumulator.
+
+<!--
+<pre>
+	LDAA	#3
+	
+qLoop:	CMPA	#10
+	BHS	next
+	INCB
+	BRA	qLoop
+next:
+</pre>
+-->
+
+</body>
+</html>

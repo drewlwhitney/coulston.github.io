@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab01/lab01.html">&ltPrev</a></li>
+                        <li><a href="../lab03/lab03.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Lab 2 - Morse Code
+</center><br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>2</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+<h2>InLab 2</h2>
+Some self-guided <a href="./inlab02.html">activities</a>.
+
+
+<h2>Lab 2 theory</h2>
+During this weeks lab you will create a program that outputs a 
+sequence of illumination pulses that transmits a Morse code coded 
+message upper button is pressed.  
+<br>
+
+Morse code is a method for transmitting text-based messages using a
+series of short and long signals called dot and dash respectively.
+The signal, in our case, will
+be an LED that illuminates for a short or long period.  The pulses
+of LED illumination are separated by non-illuminated periods of variable 
+length.  Each letter and number has a specific, predefined, pattern of
+dots and dashes given in the figure below.
+
+<br><img width=500 src="./img/morseCodeAlphabet.bmp"><br><br>
+
+For example in order to send the message "sos help", your program
+would flash the LED in the following sequence:
+<pre>
+	DOT IMD DOT IMD DOT LETTER_PAUSE DASH IMD DASH IMD DASH LETTER_PAUSE DOT IMD DOT IMD DOT
+	WORD_PAUSE
+	DOT IMD DOT IMD DOT IMD DOT LETTER_PAUSE DOT LETTER_PAUSE DOT IMD DASH IMD DOT IMD DOT LETTER_PAUSE DOT IMD DASH IMD DASH IMD DOT </pre>
+
+The sequence "DOT DOT DOT" is code for the letter "s", "DASH DASH DASH" the 
+code for "o".  Everywhere there is a DOT in this message your LED would be on
+for 1 time unit, everywhere there is a DASH the LED would be on for 3 time
+units.  Between the DOTs and DASHes is an the intra-mark delay (IMD).
+During the IMD the LED must be turned off for 1 time unit.  Between the 
+letters of the message, a "LETTER_PAUSE", the LED is turned off for 3 time 
+units.  Between the words of a message, a "WORD_PAUSE", the LED is turned 
+off for 7 time units.  We will standardize a time unit as a fifth of a second
+or 200 ms.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Symbol		<td>LED State	<td>Duration	<td>Time
+<tr><td>DOT		<td>On		<td>1 time unit	<td>200ms
+<tr><td>DASH		<td>On		<td>3 time unit	<td>600ms
+<tr><td>IMD		<td>Off		<td>1 time unit	<td>200ms
+<tr><td>LETTER_PAUSE	<td>Off		<td>3 time unit	<td>600ms
+<tr><td>WORD_PAUSE	<td>Off		<td>7 time unit	<td>1400ms
+</table>
+
+<h2>Lab 2 assignment</h2>
+You may work in teams of one or two on this lab.  Your first task is 
+to write a set of functions that you will use to complete the lab.
+<br><br>
+
+Write a pair of function, "microSecondDelay" and "milliSecondDelay",
+from the inLab to generate delays using NOPs.  Make sure that these 
+functions are properly tuned to accurate delays.
+<br><Br>
+
+Write a function called "convert" that takes as input a lower-case
+ASCII character 
+and returns a uint8_t that is the index of the letter in the alphabet.
+For example, convert('a'); returns 0 while convert('k'); should return 10.
+You can write this function in a single line of code if you figure out
+how to subtract 'a' from the ASCII value of the input.  The convert
+function should return 0 for any character value outside 'a' - 'z'.
+<br><Br>
+
+Write a function called "blink" that takes as input the ASCII code for 
+a letter and outputs the LED blink pattern for that letter.
+Inside of the blink function, define a Morse code letter array 
+that stores the dot/dash patterns for all 26 letters.  For example, 
+	<pre>
+	uint8_t morseCode[26][5] = {
+        	{DOT, DASH, END},               // a
+        	{DASH, DOT, DOT, DOT, END},     // b
+        	{DASH, DOT, DASH, DOT, END},    // c 
+	</pre>
+
+The blink function should call the convert function to convert the ascii
+input letter to the blink function into an index into the morseCode array.
+You should use #define values for the symbols DOT, DASH and END and others.
+For example, the top of my program looks like the following.  You will need
+to include definitions for INTRA_LETTER_DELAY and INTRA_WORD_DELAY.
+
+<pre>
+#define TIME_UNIT               200
+#define DOT_DELAY               1*TIME_UNIT
+#define DASH_DELAY              3*TIME_UNIT
+
+#define INTER_LETTER_DELAY      1*TIME_UNIT
+
+#define DOT                     0
+#define DASH                    1
+#define END                     2
+</pre>
+
+Write a function called "main", yeah the top-level program, that
+waits for the upper button to be pressed (and released) and then 
+transmits the the Morse code blink sequences for the letters of
+a message contained in a character array.  If the button is pressed 
+while a character is being blinked out, the button press should be 
+ignored.  After your program has completed transmitted the Morse
+code sequence for the message, it should go back and wait for another 
+button press (and release) and then transmit the Morse code blink
+sequence for the letters of a message contained in the character array,
+etc....  
+<br><br>
+
+<b>Program requirements:</b>
+<ul>	<li>No global variables,
+	<li>Use an initialized string for the message in main. For example,
+	<font face="courier">char msg[9] ="sos help";</font>  Your message 
+	should only contain lower case letters and no numbers.  The compiler 
+	will null terminate the string for you.  In other words, the compiler
+	will add a <font face="courier">'\0'</font> character
+	to the end of the string for you,
+	<li>Write the following functions:
+	<ul>	<li>void microSecondDelay(uint16_t us);
+		<li>void milliSecondDelay(uint16_t ms);
+		<li>uint8_t convert(char letter);
+		<li>void blink(char letter);
+	</ul>
+</ul>
+
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.  
+Submit your main.c file on Canvas Lab#2 using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate 
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+</html>

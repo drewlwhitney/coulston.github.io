@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture02.html">&ltPrev</a></li>
+                        <li><a href="./lecture04.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>3</td></tr>
+<tr><td>Objectives:</td><td>C conditionals with signed, unsigned operands, 
+			   and logical operators.
+</table>
+
+
+<h1>C conditional statements</h1>
+
+<h2>If Then Else</h2>
+The following code segment shows the most general form of an if-then-else 
+statement.  Let's examine the structure and how that structure
+is executed by a computer one line at a time from top to bottom.
+
+<pre>
+    if (condition01) {
+	body01;
+    } else if (condition02) {
+	body02;
+    } else if (condition03) {
+	body03;
+    } else {
+	body04;
+    }
+</pre>
+
+The first thing that a computer does when it sees this if-then-else
+structure is to evaluate condition01.  All the conditions in the 
+if-then-else structure must be expression involving variables and 
+operators from a previous lecture.  A condition is evaluated by
+looking up the values for the variables and applying operations to 
+the operands until the condition is reduced to a single value.  
+<br><br>
+
+It is not unusual to write a condition as clauses joined together 
+with the conditional operators && and ||.  A clause is typically a
+magnitude comparision between values using the relational operators
+like &gt;=, &lt; and ==.  For example, the following condition
+has two clauses (x&gt;20) and (y&lt;=10) joined together with the AND 
+conditional operator &&.
+<pre>
+    ((x &gt; 20) && (y &lt;= 10))
+</pre>
+
+Given values for x and y, the condition is evaluated by first determining
+the truth of each of the clauses and then ANDing them together. 
+For example, let's examine the truth value of the condition above 
+if x = 20 and y = 10.
+<ul>	<li>the first clause (x &gt; 20) is FALSE because 20 is not 
+		greater than 25,
+	<li>the second clause (y &lt;= 10) is TRUE because 10 is
+		less and or equal to 10,
+	<li>the condition is FALSE because FALSE && TRUE is FALSE.
+</ul>
+
+Now, back to the orginal if-then-else statement that we are looking at.
+If condition01 is TRUE when evaluated, body01 is executed.  In this
+example, <b>body1</b> and <b>body2</b> are zero or more C statements.
+Note, a common short-hand is to omit the curly braces when the body 
+contains zero or one statements.<br><br>
+
+After the computer completes execution of body01, the computer exits the
+if-then-else structure and starts executing the first statement following
+the if-then-else.
+<br><br>
+
+If condition01 is FALSE, then the computer goes on to evaluate the truth
+of condition02.  If condition02 is TRUE, then the computer executes body02,
+and when done, exits the if-then-else and resumes execution with the first
+statement following the if-then-else.
+<br><br>
+
+If condition02 is FALSE, then the computer goes on to evaluate the truth
+of condition03.  If condition02 is TRUE, then the computer executes body03,
+and when done, exits the if-then-else and resumes execution with the first
+statement following the if-then-else.  This pattern of "else if" can continue
+on for as many (or few) cases as needed.
+<br><br>
+
+Only if all the conditions are FALSE, does the computer execute body04.
+As in the previous cases, when body04 has been executed, the computer exits
+the if-then-else structure and executes the following statement.
+<br><br>
+
+Let's look at a practical example to understand more clearly how an
+if-then-else statements work.
+
+<pre>
+    if (x > y + 5) {
+	a = 0;
+    } else if (x > y) {
+	a = 1;
+    } else if (x > y-5) {
+	a = 2;
+    } else {
+	a = 3;
+    } // end if
+</pre>
+
+When analyzing or designing complex if/then stuctures, I often find
+it helpful to draw a picture illustrating the relationship between the 
+variables in the conditional statements.   In the if/then structure
+given above, the two variables are x and y.  In the case of number magnitudes, 
+the reliable number line is a good choice.  In the figure below I have 
+drawn a number line in red showing the possible values of x.  As you
+move to the right on the number line, the values of x get larger and
+as you move left, the values of x get smaller.  Instead of marking the 
+number line at explicit values of x, like x=0 or x=10, I marked the 
+the number line at y (and y-5 and y+5).<br><br>
+
+According to the first condition in the if-then-else statement, if the 
+x &gt; y+5 then the a is assigned 0.  This is illustrated by the 
+open circle (denoting non-inclusive) above the mark for y+5 and its
+associated right number line arrow.
+<br><br>
+
+The next condition (x&gt;y) is only checked if the first condition was
+FALSE, implying that x &lt;= y+5.  If (x &gt; y) then a is assigned the 
+value 1.  This is illustrated by the line between the open circle above 
+y (because x &gt; y) and the closed circle above y+5 (because 
+x &lt;= y+5).
+<br><br>
+
+You can use a similar line of reasoning to form the other intervals
+above the x numbering line.
+
+
+<br><img src="./img/ifThen01.bmp"><br><br>
+
+You can use this figure to determine the a for the x,y values
+given in the table below.   For example, in the first row of the
+table, y=20.  So imagine that the mark "y" on the number line is
+20.  On the top row x=10, so this value is 10 less than y.  
+Consequently, the value of x falls to the left of the "y-5" mark
+and consequently a=3.
+<br><br>
+
+Right click on this web page and select "view page source" to see
+the hidden table containing the answers.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>y		<td>a	
+<tr><td>10	<td>20	 	<td>&nbsp
+<tr><td>15	<td>20	 	<td>&nbsp
+<tr><td>20	<td>20	 	<td>&nbsp
+<tr><td>25	<td>20	 	<td>&nbsp
+<tr><td>30	<td>20	 	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>y		<td>a		
+<tr><td>10	<td>20		<td>3	
+<tr><td>15	<td>20		<td>3
+<tr><td>20	<td>20		<td>2
+<tr><td>25	<td>20		<td>1
+<tr><td>30	<td>20		<td>0
+</table>
+-->
+
+Sometimes its not possible to show the relationship between the
+variables in the if/then conditions because the conditional statements
+do not comapre the two.  For example, our next if/then example has
+a conditional statement
+<pre>
+    ((x >= 25) && (z == '4'))
+</pre>
+
+This conditional statement consists of two clauses, "(x >=25)" and
+"(z == '4')" combined with && - a logical AND.  None of the clauses
+have both a x and z in them.  Consequently, it can be very difficult 
+to illustrate the relationship between x and z in a figure.
+
+
+<pre>
+    if ((x >= 25) && (z == '4')) {
+	b = 0;
+    } else if ((x < 15) || (z == '2')) {
+	b = 1;
+    } else if ((x != 25) && (z < '4')){
+	b = 2;
+    } else {
+	b = 3;
+    } // end if
+</pre>
+
+The analysis of this if/then structure requires you to test each
+value of x and z in each clauses, and combine the clauses according
+to the conditional logical operation given.  If a condition is false,
+then you need to move on to the next condition.
+<br><br>
+
+Let's work through the top row of the following table to determine the 
+value of b.  In the top row x=10 and z='0'.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>variable/value	<td>condition	<td>truth value
+<tr><td style="text-align:center" colspan="3">First condition</td></tr>
+<tr><td>x=10	<td>x>=25	<td>false
+<tr><td>z='0'	<td>z=='4'	<td>false
+<tr><td colspan="2">((x >= 25) && (z == '4'))	<td>false
+<tr><td style="text-align:center" colspan="3">Second condition</td></tr>
+<tr><td>x=10	<td>x<15	<td>true
+<tr><td>z='0'	<td>z=='2'	<td>false
+<tr><td colspan="2">((x < 15) || (z == '2'))	<td>true
+</table>
+Since the second condition is true b = 1.
+<br><Br>
+
+Complete the remaining rows in the table.  Afterwards, right click
+on the web page and select "view page source" to see the answers
+in the complete table.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>z		<td>b
+<tr><td>10	<td>'0' 	<td>&nbsp
+<tr><td>15	<td>'1' 	<td>&nbsp
+<tr><td>20	<td>'2' 	<td>&nbsp
+<tr><td>25	<td>'3' 	<td>&nbsp
+<tr><td>30	<td>'4' 	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>z		<td>b
+<tr><td>10	<td>'0'		<td>1
+<tr><td>15	<td>'1'		<td>2
+<tr><td>20	<td>'2'		<td>1
+<tr><td>25	<td>'3'		<td>3
+<tr><td>30	<td>'4'		<td>0
+</table>
+-->
+
+
+<h2>printf</h2>
+One of the practical differences between C and C++ is the way you
+send text to the terminal.  Instead of the familiar cout, C uses a
+built-in function called printf.  The simplest call to printf is where
+the argument to printf is a string of text surrounded
+by quotes.  The text inside the quotes is sent to the terminal, writing
+whatever message you need to send to the user.  For example, the 
+<font face="courier">
+    printf("Another sunny day in Colorado!\r\n");
+</font>
+
+Would generate the output:
+<pre>
+Another sunny day in Colorado!
+</pre>
+<br><br>
+
+Let's talk about the "\r\n" at the end of the string.  Characters
+preceeded with a backslash character "\" are said to be "escaped".  
+Eascape character are usually associated with terminal function like
+moving the cursor.  Before we delve more into specifics of some
+common escape characters.  Let's talk a little how normal ASCII characters
+displayed on a terminal.
+<br><br>
+
+Every printed character is sent and displated on the terminal at the
+current cursor location.  After a character is printed on the terminal,
+the current cursor location is shifted one position to the right.  
+When the cursor is at the far right edge of the terminal window, printing the
+next chracter at the end of the line will cause the current cursor
+location to jump one line down and go back to the far left edge of the 
+terminal.  This a wrap-around of text that you see with computer print outs
+of really long lines of code/text.  This is default movement of the 
+current cursor location is very limiting; we (programmers) would like 
+more control of the current cursor location and this is where escape
+characters come intto play.
+<br><br>
+
+Now back to the pair of escape characters "\r\n" at the end of the 
+<font face="courier">"Another sunny day in Colorado!\r\n"</font>
+The "\r" is a carriage return, causing the current cursor location
+to move all the way to the left <u>on the current line.</u>
+The "\n" is a new line character causing the current cursor location
+to move down one row on the terminal without changing the left/right 
+position of the current cursor location.  Hence the combination of the 
+two causes the current cursor location to move down one row and to the 
+left edge of the terminal.  You will almost always end your printf 
+statments with the pair "\r\n" so that the next printed line is neatly 
+justified below what was just printed.  
+<br><br>
+
+Two final notes.  First,  it does not matter which of "\r" or "\n" you 
+do first, but most programmers will use the order presented here. Second,
+there are lots of other eascape characters that I have note presented,
+including one to make a bell sound and another to make a horziontal tab.
+<br><br>
+
+There will be times when you will want printf to print the value of a
+variable.  In these cases you will have to modify the string to include 
+format specifiers where you want the variable to appear.  There are a
+variety of formatting specifiers, all consisting of a percentage sign "%",
+followed by a letter.  Different letters allow you to choose 
+how the variable is represented.  The following table lists a few of
+the format specifiers you may want to use this semester.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Format specifier	<td>representation
+<tr><td>%d		<td>Signed decimal - use for int8_t data types
+<tr><td>%u		<td>Unsigned decimal - good for uint8_t data types
+<tr><td>%h		<td>Hexadecimal
+<tr><td>%c		<td>Character 
+<tr><td>%s		<td>String - use for NULL terminated strings
+</table>
+
+
+Let's look at an example to make sense of all this.  Assume that you have 
+declaration <face="courier"uint8_t x = 23;</font>  followed by the 
+statement <font face="courier">printf("The value of x is %u\r\n",x);</font>.
+When this printf statement is executed.  The terminal would display
+<pre>The value of x is 23</pre>
+immediately after the printf statement was executed.  In the string "%d"
+is a place holder for the decimal value of the numerical value given by 
+the parameter following the string.  While "%d" represents the numerical
+value is decimal, "%x" represents the numerical value in hexadecimal.
+Thus, the statement
+<font face="courier">printf("The value of x is %x\r\n",x);</font> would
+cause the terminal to display
+<pre>The value of x is 17</pre> because 23<sub>10</sub> = 17<sub>16</sub>.
+<br><br>
+
+In a case when the string contains more than one formatting code, each 
+formatting code is assigned a value from the variables following the string 
+in a corresponding left to right order.  To illustrate, let's try another 
+example, again let x=23 when the statement
+<font face="courier">printf("%d_10 + 0x%x = %d_10\r\n",x,19,x+19);</font> 
+is executed.  The terminal output would display
+<pre>23_10 + 0x13 = 42_10</pre>
+<br><br>
+
+The formatting code "%s" can be used to print null terminated strings.
+To understand null termination of a string, you first must appreciate
+that a string is represented as an array of characters in the computer's
+memory.  When printing a string, the computer needs to know when to
+stop printing characters.  This could happen in one of two ways; first
+you could tell the computer how many characters are in the string, or
+second, you could have a special character that indicated the end of
+the string.  C uses the second method and calls teh special character
+denoting the end of the string "NULL".  NULL is just a byte with value
+0.  If you are storing a string in an array, you need to make sure to 
+reserve a space for the NULL character. 
+
+<h2>Switch/case</h2>
+You will normally use the switch/case structure to check if a variable
+is equal to one of many potential values.  Each value is called a case
+and has a body consisting of zero or more statements.  You almost always
+end a case with a with a "break" statement, allowing execution to jump 
+out of the switch statement without checking any of the other case 
+statements.  Also, there is a special case called "default" which is
+executed if no other case was executed.  This is handy way to check
+if you have an invalid or out of range input.  Let's trace the execution
+of the following code under the inputs given in the table following the
+code.
+
+<pre>
+   switch(grade) {
+      case 'A' :
+         printf("Excellent!\r\n" );
+         break;
+      case 'B' :
+      case 'C' :
+         printf("Well done\r\n" );
+         break;
+      case 'D' :
+         printf("You passed\r\n" );
+         break;
+      case 'F' :
+         printf("Better try again\r\n" );
+         break;
+      default :
+         printf("Invalid grade\r\n" );
+   }
+</pre>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>grade	<td>output 
+<tr><td>'D'	<td>&nbsp
+<tr><td>'B'	<td>&nbsp
+<tr><td>'a'	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>grade	<td>output 
+<tr><td>'D'	<td>You passed
+<tr><td>'B'	<td>Well done
+<tr><td>'a'	<td>Invalid grade
+</table>
+-->
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Use the folllwing if/then structure to complete the table below.
+<pre>
+    if ((x > 15) && (y > 10) && (z < 30)) {
+	a = 0;
+    } else if ((x <= 20) && ( y != 30) && (z >= 30)) {
+	a = 1;
+    } else if (((x >= 15) || (y != 15)) && (z < 40)) {
+	a = 2;
+    } else {
+	a = 3;
+    } // end if
+</pre>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>y		<td>z		<td>a
+<tr><td>10	<td>30		<td>50  	<td>&nbsp
+<tr><td>15	<td>25		<td>40  	<td>&nbsp
+<tr><td>20	<td>20		<td>30  	<td>&nbsp
+<tr><td>25	<td>15		<td>20  	<td>&nbsp
+<tr><td>30	<td>10		<td>10  	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>y		<td>z		<td>a
+<tr><td>10	<td>30		<td>50  	<td>3
+<tr><td>15	<td>25		<td>40  	<td>1
+<tr><td>20	<td>20		<td>30  	<td>1
+<tr><td>25	<td>15		<td>20  	<td>0
+<tr><td>30	<td>10		<td>10  	<td>2
+</table>
+-->
+
+
+
+<li>A common application for embedded systems is to periodically sample
+an audio source (like a microphone) and store/analyze the samples.  A
+continous-time audio waveform is shown in green in the figure below.
+The amplitude of the green waveform is proportional to the volume.  
+In this example, the magnitude of the amplitude is bound by 255 to 0 and 
+the waveform is centered around 128.  The amplitude of the waveform is
+proportional to its loudness.  The range of values and centering at 128
+is a result of the hardware used to amplify the 
+micophone and the analog to digital converter in the microcontroller.
+  In our case we will assume that whenever 
+the audio waveform goes above 192 or below 64, the sound is "loud".
+The block dots on the audio wave are the sampled values.  Note that
+the horziontal distance between consectutive dots is about the same.
+
+
+<br><img src="./img/soundIfThen.bmp"><br><br>
+
+Your task is to write a single if-then statement to determine if the 
+the current sample would be considered loud and to print a message
+if it is.  You can assume that the current sample is being held in 
+a variable called currentSample.
+
+<!--
+This one is pretty esy and relines on the OR conditional logic 
+operation to make it work.
+<pre>
+    if ((currentSample > 192) || (currentSample<64))
+	printf("The volumne is loud.\r\n");
+</pre>
+-->
+
+<li>Whenever the audio waveform crosses 128, we call that a
+"zero crossing".  The number of samples between a zero crossing
+can be used to determine the frequency of the audio waveform - 
+an important characteristic of a waveform.  Write an if-then structure 
+that analyzes two consectutive audio samples and determines if 
+a zero crossing happened and if so, what direction. The audio samples
+are stored in two variable, previousSample and currentSample.  So,
+for example, if previousSample = 140 and currentSample = 120 then
+we would have had a zero crossing with negative slope.  Your 
+algorithm should print "Positive zero crossing", 
+"Negative zero crossing", or "No crossing".  So in our example, the 
+algorithm should print "Negative zero crossing".
+
+<!--
+By ignoring the case when the sample equals 128, I greatly
+simplfied my code.
+<pre>
+    if ((previousSample < 128) && (currentSample > 128))
+	printf("Positive zero crossing.\r\n");
+    else if ((previousSample > 128) && (currentSample < 128))
+	printf("Negative zero crossing.\r\n");
+    else
+	printf("No crossing.\r\n");
+</pre>
+-->
+
+<li>Write code to determine if the audio waveform has reached a local
+minimum or maximum by using three samples called
+currentSample (current time),
+firstPreviousSample (at time - 1),
+secondPreviousSample (at time - 2).
+If the audio waveform is at a maximum print "local max", if the 
+the audio waveform is a minimum print "local min", else print
+"Not at min/max".
+
+<!--
+<pre>
+    if ((secondPreviousSample < firstPreviousSample) && (firstPreviousSample > currentSample))
+	printf("local max\r\n");
+    else if ((secondPreviousSample > firstPreviousSample) && (firstPreviousSample < currentSample))
+	printf("local min\r\n");
+    else 
+	printf("Not at min/max\r\n");
+</pre>
+-->
+
+
+<li>Carelessly structing if-then statements can generate vastley different
+results then the ones you intended.  Execute the following code snippets
+for the values of x given to see how structure effects the result.  For 
+each value of x given in the left column, execute the code snippet and
+determine the value after the code snippet is finished executing.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>&nbsp;<td>snippet 1	<td>snippet 2	<td>snippet 3
+<tr><td>&nbsp;
+<td><pre>
+    if (x &gt; 100) {
+	x = x - 10;
+    }
+
+    if (x &gt; 95) {
+	x = x -10;
+    }
+</pre>
+
+<td>
+<pre>
+    if (x &gt; 100) {
+	x = x - 10;
+    } else if (x &gt; 95) {
+	x = x -10;
+    }
+</pre>
+
+<td>
+<pre>
+    if (x &gt; 100) {
+	x = x - 10;
+    } else {
+	x = x -10;
+    }
+</pre>
+</td>
+
+<tr><td> x = 200	<td>&nbsp; 	<td>&nbsp; <td>&nbsp;
+<tr><td> x = 100	<td>&nbsp; 	<td>&nbsp; <td>&nbsp;
+<tr><td> x = 50		<td>&nbsp; 	<td>&nbsp; <td>&nbsp;
+</table>
+
+<!--
+<table>
+<tr><td> x = 200	<td>180 	<td>190	   <td>190
+<tr><td> x = 90		<td>90	 	<td>90
+<tr><td> x = 50		<td>50  	<td>50     <td>40
+</table>
+-->
+
+</ol>
+
+</body>
+</html>

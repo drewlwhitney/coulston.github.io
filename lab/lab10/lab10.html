@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #9 - Record Playback</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>                     </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab09/lab09.html">&lt;Prev</a></li>
+                        <li><a href="../lab11/lab11.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Lab 10 - Audio recording and playback
+</center>
+<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>10</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 10</h2>
+Some self guided <a href="./inlab10.html">activities.</a>
+
+<h2>Lab 10 assignment</h2>
+Create an embedded system that plays an audio recording stored on an SD
+Card.  You program should store either a pure sine wave or an audio
+recording from a microphone sampled at a user adjustable rate (default
+to 100&micro;s).
+
+<h2>Software</h2>
+At start-up your program should present a splash screen - this would
+be a great place for some ascii art. The splash screen should also contain
+connection instruction for the development board; for this assignment tell
+the user there are no jumpers to install! When you press "?" at the
+terminal you should be greeted with the following menu.
+
+<pre>
+-------------------------------------------------
+    Play length in blocks: 0
+    sdCardAddress: 0000:0000
+    sample rate: 100us
+-------------------------------------------------
+?: help menu
+o: k
+Z: Reset processor
+z: Clear the terminal
+-------------------------------------------------
+i: Initialize SD card
+-------------------------------------------------
+a/A: decrease/increase read address
+r: read a block of 512 bytes from SD card
+1: write perfect 26 value sine wave to 128 blocks
+-------------------------------------------------
+s: spool memory to a csv file
+-------------------------------------------------
++/-: Increase/Decrease the sample rate by 10 us
+P: Play from SD card to PWM -> LPF -> Audio
+W: Write microphone => SD card 
+-------------------------------------------------
+</pre>
+
+The header of the help menu should display the following status information
+about the record/playback system.
+<ul>	<li>Play length in blocks is set by the "1" or "W" functions.
+	Whenever either of these functions is run, you need to keep
+	track of the number of blocks written to the SD card in order 
+	to playback the correct number of blocks.  This does not need
+	to be a global variable.
+	<li>sdCardAddress is the address used by the "r" and "+" or "-"
+	functions.  I find these functions super useful when debugging
+	what I have written into memory.  The "1", "W" and "P" functions
+	should have their own address variable and NOT change this 
+	address.
+	<li>sample rate is the TMR0 interrupt frequency. Both the
+	record and playback utilize the TMR0 ISR.  If you change the
+	sample rate between recording and playback you will change the 
+	pitch of the sound recorded - this can be fun.  Display the
+	sample rate in microseconds by dividing the timer counts by
+	an appropriate constant.
+</ul>
+	
+The menu system has the following functions:
+
+<ul>
+<li><b>?</b><br>
+Prints out the ever useful help menu.  Display the current upper and
+lower audio thresholds as part of the menu.
+<br><br>
+
+<li><b>Z</b><br>
+Reset the processor so that we can see that splash screen.
+<br><br>
+
+<li><b>z</b><br>
+Clear the terminal using a bunch of new lines.
+<br><br>
+
+<li><b>i</b><br>
+Initialize the SD Card using the routines given in the inLab code.
+<br><Br>
+
+<li><b>a/A</b><br>
+decrement or increment the address used to read the memory.  This is
+also a cut-and-paste from the inlab code.
+<br><br>
+
+<li><b>r</b><br>
+This should read a block from the SD Card and display it to the terminal
+just as was done in the inLab code - just cut-and-paste
+<br><br>
+
+
+<li><b>1</b><br>
+In order to test next weeks program, it will be very helpful to have
+a known waveform stored in the SD Card.  Let's do future you a favor
+and take care of this now.  Copy the following sine wave 
+over and over again in the SD Card.  You need to copy the wave
+"smoothly" across block boundaries.  In other words, when your code runs
+out of room in one block at sin[index], the first value stored in the 
+next block should be sin[index+1], NOT sin[0].  Continue storing sine
+waves until the user presses any key.  After a keypress, tell the user
+how many blocks have been stored.
+
+<pre>
+const uint8_t   sin[SINE_WAVE_ARRAY_LENGTH] = {128,	159,	187,	213,	233,	248,	255,	255,	248,	233,	213,	187,	159,	128,	97,	69,	43,	23,	8,	1,	1,	8,	23,	43,	69,	97};
+</pre>
+
+<li><b>s</b><br>
+Spool block of data off the SD Card to the terminal.  Before you start 
+spooling, you will configure PuTTY to store anything that appears on
+the terminal into a file.  You will then spool blocks of the SD Card
+to the terminal.  Finally you will instruct PuTTY to close
+the file.  
+<br><br>
+
+
+<li><b>+/-</b><br>
+Change SAMPLE_RATE from a #define to a global variable sampleRate. 
+Initialize the sampleRate to generate an interrupt every 100&micro;s.
+Allow the '+' function the increase the sampleRate by 10&micro;s and
+the '-' function the decrease the sampleRate by 10&micro;s.  Do not
+allow the sampleRate to go below 20&micro;s. 
+<br><br>
+
+<li><b>P</b><br>
+Play back the audio samples stored in the SD Card.  To do this main
+sets a flag that causes the TMR0 ISR to pull audio samples from either
+the red or blue buffers.  This buffer value is then used as the PWM
+duty cycle (via EPWM1_LoadDutyValue).  This PWM output on RC2 is then
+sent to the LPF (make sure the jumper is installed) whoses output 
+is sent to the amplifier (make sure the jumper is installed).  If
+the speaker is installed, this should generate an audio output.
+<br><br>
+The ISR needs to keep track of where it is in the red or blue buffer
+and alert main (via a global variable) when the buffer is empty.  
+Main needs to load the red and blue buffers with data as the ISR needs
+them.  Main read the SD Card using the SDCARD_ReadBlock command provided
+to you in a previous lab.  The audio level of the voice recordings will 
+be pretty low, so make sure to listen to the recordings in a silent room.
+The audio output of the stored sinusoid is resonablly loud, so much so
+that you will want to make sure the jumper adjacent to the USB connector
+is installed because the speaker may draw enough current to brown-out the
+PIC causing the PIC to reset.
+<Br><br>
+
+
+<li><b>W</b><br>
+This will record the microphone values converted through the ADC into the
+SD Card at the sampling rate (default to 100 us).  When the user types 
+'W' in the terminal window, prompt with user with
+<font face="courier">Press any key to start recording audio and
+press  any key to stop recording.</font>.  
+This will allow the user to get all set-up without having to pay attention
+to which key they press in order to start the audio recording.  
+<br><br>
+
+Your program must use double buffering so that it can acquire new samples
+while storing old samples.  To do this you will use the TMR0 ISR to 
+collected converted values from the ADC and start a new conversion.
+In addition, the TMR0
+ISR is responsible for moving the sampled value into either the red
+or blue buffer (both global variables because of their size), and set 
+flags true to indicate when either buffer is full.  Main should be 
+monitoring these flags and writing the red or blue buffer to the SD
+Card when either is full.  While main is doing this, the ISR should be
+storing microphone samples to the other buffer.
+<br><Br>
+
+Consider trying 
+<a href="https://cse.unl.edu/~jfalkinburg/husker-scope/app/page/FunctionGenerator">Husker Scope</a>
+to record predictable waveforms.
+
+
+<h3>If you didn't get the previous lab working?</h3>
+If you did not get the previous lab working, you can
+still complete this lab by recording your audio in the 
+foreground instead of sampling them in myTMR0ISR interrupt.  
+Do this by:
+<ul>	<li>Replacing your record function with the following code
+	<li>Delete all the record code from your myTMR0ISR.
+	<li>Add TMR1 with a 1:1 prescaler, <u>Make sure to set
+	TMR1H = 0x00 and TMR0L = 0x00 in the Register configuration
+	of TMR1 when you use MCC!!!</u>
+</ul>
+
+This code will record audio onto your SD card.  Now you can focus on
+writing the the myTMR0ISR to playback the stored recording.
+
+Before main declare:
+<pre>
+#define BLOCK_SIZE              512
+
+typedef enum {
+    BEING_EMPTIED, EMPTY
+} myBufferState_t;
+
+typedef struct {
+    myBufferState_t state;
+    uint8_t buffer[BLOCK_SIZE];
+} sdCardBlock_t;
+
+sdCardBlock_t redBuffer, blueBuffer, silence;
+</pre>
+
+Then inside main use:
+
+<pre>
+
+                    //--------------------------------------------
+                    // R: Record microphone store on SD card
+                    //--------------------------------------------
+                case 'R':
+                    printf("Press any key to start recording of audio\r\n");
+                    while (EUSART1_DataReady == false);
+                    (void) EUSART1_Read();
+
+                    loopSDcardAddress = 0;
+                    //Added TMR1 with 1:1 prescaler and no interrupts to 
+                    // create the needed delays.
+
+                    uint16_t redIndex = 0;
+                    uint16_t blueIndex = 0;
+                    printf("Press any key to stop recording of audio\r\n");
+                    TMR1_WriteTimer(0x0000);
+                    while (EUSART1_DataReady == false) {
+
+                        for (redIndex = 0; redIndex < BLOCK_SIZE; redIndex++) {
+                            ADCON0bits.GO_NOT_DONE = 1;
+                            TMR1_WriteTimer(0x10000 - sampleRate + TMR1_ReadTimer());
+                            PIR1bits.TMR1IF = 0;
+                            while (!TMR1_HasOverflowOccured());
+                            redBuffer.buffer[redIndex] = ADRESH;
+                        }
+
+                        SDCARD_WriteBlock(loopSDcardAddress, redBuffer.buffer);
+                        while ((status = SDCARD_PollWriteComplete()) == WRITE_NOT_COMPLETE);
+                        loopSDcardAddress += BLOCK_SIZE;
+
+                        for (blueIndex = 0; blueIndex < BLOCK_SIZE; blueIndex++) {
+                            TMR1_WriteTimer(0x10000 - sampleRate + TMR1_ReadTimer());
+                            PIR1bits.TMR1IF = 0;
+                            while (!TMR1_HasOverflowOccured());
+                            blueBuffer.buffer[blueIndex] = ADRESH;
+                        }
+
+                        SDCARD_WriteBlock(loopSDcardAddress, blueBuffer.buffer);
+                        while ((status = SDCARD_PollWriteComplete()) == WRITE_NOT_COMPLETE);
+                        loopSDcardAddress += BLOCK_SIZE;
+                    }
+                    (void) EUSART1_Read();
+                    playLengthInBlocks = loopSDcardAddress >> LOG_BLOCK_SIZE;
+                    printf("Just wrote %d blocks to SD card, each page filled with audio data.\r\n", playLengthInBlocks);
+                    break;
+
+</pre>
+
+<h3>Volume hack</h3>
+When you get the playback and record system to function correctly,
+you will no doubt notice that the playback volume is very low.  This
+is due in part to the low corner frequency of the output low pass
+filter and the low gain of the output amplifier.  I provided you
+a means to increase the volume of the output by connecting the two
+pads on the solder jumper labeled "volume" shown in the image below.  
+To do this, grab a piece of solder, heat up a solder iron and add solder 
+to the two pads until you intentionally create a solder bridge between
+the two pads.
+
+<img src="./img/increaseVolume.jpg"><br><br>
+
+Note, that the down-side to this modification is that it will also
+increase the volume level of the already loud square-wave output.
+This may cause the development board to brown-out.
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.
+Submit your main.c file on Canvas using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+</html>

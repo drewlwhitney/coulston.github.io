@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab13.html">Lab 13</a></li>
+                    </ul>
+ 		     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Lab 13 - In-lab activities</center>
+
+<h2>Requirements</h2>
+Working in teams of two, read through the following lab activity and perform all the actions prescribed. You do not need to document bullet items. Make a record of your response to numbered items and turn them in a single copy as your teams solution on Canvas using the instructions posted there.
+
+Include the names of both team members at the top of your solutions. Use complete English sentences when answering questions. If the answer to a question is a table or other piece of art (like an oscilloscope trace or a figure), then include a sentence explaining the piece of art. Only include your answers, do not include the question-text unless it is absolutely needed.
+
+<h2>Objective</h2>
+Gain familiarity how a C program is transformed into assembly and
+ultimately downloaded to the PIC microcontroller.  While investigating
+this work flow, experiment with the PICkit 3 in-circuit debugging tool.
+
+<h2>External hardware</h2>
+This week's inlab will focus on software development using a previous
+inLab, so there is nothing really much to talk about
+here.  Let's move on.
+
+<h2>Internal Subsystem</h2>
+We will be examining the compiler not the microcontroller.
+So let's move on.
+
+<h2>Firmware Organization</h2>
+If you have the project file for inLab04, you are in luck and can just load
+it up and continue.  If you've deleted it, you must first rebuild it.
+Do this by following the firmware setup instructions in the "Firmware 
+Organization" section of 
+<a href="http://inside.mines.edu/~coulston/courses/EENG383/lab/lab04/inlab04.html">inLab 04</a>.
+<br><br>
+
+Download the inLab04 program and check that it runs properly by either playing 
+"Hot Crossed Buns" through the speaker, or probing GPIO pin RB5 with an
+oscilloscope and checking that the frequencies match the expected values.
+If you’re playing “Hot Crossed Buns” through your speaker,
+make sure that you have the proper jumpers installed.
+After you have verified that everything is in order, move on to the next
+steps.
+
+<h2>Firmware Investigations</h2>
+
+<h3>Source Code Analysis</h3>
+<ol start=1>
+<li>
+List all the functions called by main, and any function those
+functions might call.  You can do this by double clicking on
+"main" in the main.c file (on line 35).  When "main" is highlighted
+in blue, right mouse click and select "Show Call Graph".  I like to
+double click the Call Graph tab in the console window to maximize the
+call graph.  Right mouse click a function in the Call Graph view 
+and Expand/Hide callees.
+
+Organize this information into a tree
+with main sitting at top and any function called by main below
+"main" with a line connecting the two.  Keep going till you
+get to the leaf function (functions that call no other functions).
+<br><br>
+
+Include your call graph image as the solution to this questions.
+</ol>
+
+<h3>List file</h3>
+Many embedded systems compilers will generate useful intermediate 
+files while compiling your program and MpLab is no exception. 
+A list file is a common file type (across compilers) that contains
+information about the compiled code and supporting functions that
+help make your program run.  Let's examine the list file for this
+interrupt Hot-Crossed-Buns music player program you built during
+inLab 4.  
+<ul>
+<li>From MPLab: File &rarr; Open File &hellip;
+<li>In the Open pop-up, navigate into the inLab04.X directory, then
+<li>Navigate to: <font face="courier">\dist\default\production\</font>
+<li>Then open: inLab04.X.production.lst
+</ul>
+Scroll around this file and you will notice sections devoted to each
+of the functions used by the music player program.  It would be helpful
+to find the TMR1_WriteTimer function shown below.
+<br><br>
+
+<br><img src="./img/listFileFormat.bmp"><br><Br>
+
+In order to complete the following questions, you will need to 
+download <a href="./codeSize.xlsx">codeSize.xls</a>.  Small
+changes to the compiler will often result in different
+code generated.  To make your life easier, please use my list file
+<a href="inLab04.production.lst">inLab04.production.lst</a>.
+
+Open the codeSize excel file and the inLab04 list file, both
+linked above.  Use these files to fill in the missing information
+according to the following description.
+<ul>
+<li>In the "Start (hex address)" record the starting program address for 
+	the code in that function.  You can use any of the identical
+	address at the start of the assembly instructions.  In the 
+	image above, this is 0AA8.  Make sure to use 4 hex digits, 
+	padding with leading 0's if necessary.  This is necessary
+	so that the sort function you use later will work,
+<li>In the "End (hex address)" column record the ending program address for
+	the code in that function.  Use the address given on the line:
+	"__end_of_&lt;FunctionName&gt;:".  In the case of the image above,
+	the ending address is 0AC4. Again, express the address in 4-hex
+	digits by padding with leading 0's if necessary,
+<li>Use the "Total ram usage:" entry in the list file to determine the
+	entry in the corresponding column.  In the image above this would
+	be 2 bytes,
+
+<li>After filling the missing informat (shown in gray in the Excel file)
+order the rows by increasing starting address.  To do this, select all 
+the contents of the table by clicking in the triangle in the upper left
+corner of the spreadsheet (above the "1" and the left of the "A").
+Next select Data &rarr; Sort, in the Sort pop-up, make sure "My data
+has headers" is checked, then select "Start (hex address)" from the Sort
+by pull-down.  If you get a "Sort Warning" pop-up, select the 
+"Sort number and numbers stored as text seperatly" radio button then
+click OK,
+
+<li>In the "Code size" column compute the code size used by each function.  
+To do this you will
+need to convert the hexadecimal addresses in columns B and C into decimal
+using the "hex2dec" function, then compute the difference.  For example,
+in cell D2 you should enter "=HEX2DEC(C2)-HEX2DEC(B2)".  Drag and copy
+for all rows in the table.
+
+<li>In the Total row at the bottom of the table, compute the sum of the 
+code size in cell D32 and the sum of the RAM used in cell E32.  Use 
+the sum function.
+</ul>
+
+<ol start=2>
+<li>Turn in a copy of your completed table as the solution to this
+problem.  You can cut-and-paste the table into MS Word as follows.
+Start by selecting all the contents of the table by clicking in the 
+triangle in the upper left corner of the spreadsheet (above the "1" and 
+the left of the "A").  Then copy by your favorite means (mine is to use
+Ctrl-C), then paste into MS Word using your favorite means (mine is
+Ctrl-V).
+</ul>
+
+<li>What trend in the code size of the functions given in the table, 
+provides us a clue to how the compiler organizes the function in memory?
+To do this, sort the table by starting address.  Do this by selecting all 
+the contents of the table by clicking in the triangle in the upper left
+corner of the spreadsheet (above the "1" and the left of the "A").
+Next select Data &rarr; Sort, in the Sort pop-up, make sure "My data
+has headers" is checked, then select "Start (hex address)" from the Sort
+by pull-down, the click OK.
+
+</ol>
+
+<ol start=4>
+<li>The amount of program memory used can be found in several places.  
+Find and record these values in the table below.
+<br>
+Recompile the program using the Hammer/Broom icon at the top menu bar.
+Look in the Output console window at the bottom of the MPLab window and
+record the "Program space used".
+<br>In the lower third of the sub-window on the left edge of the 
+MPLab window, click on the "inLab04 Dashboard" tab.  Record the 
+"Program Used" information.
+<br>
+Finally record your calculations from the list file.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Source			<td>Hex bytes	<td>Decimal bytes
+<tr><td>Output console	<td>&nbsp;	<td>&nbsp;
+<tr><td>Dashboard	<td>&nbsp;	<td>&nbsp;
+<tr><td>List calculation<td>&nbsp;	<td>&nbsp;
+</table>
+
+
+<li>As you have seen in a previous question, the call graph does not
+show all the functions used by the inLab04 program.  For example, 
+__wmul was not called anywhere in this program.  These so-called
+"helper functions" are put into your code in order to perform useful
+functions for system functions that are part of your program.  printf
+is a very complex function that required many help functions.  Your
+task is to use the list file to build a call graph for printf.  Do this
+by finding all the daughter functions of printf; these are functions 
+called by printf.  Draw a box with printf in it, and below this draw
+a box for each daughter function with its name in it.  Then look through 
+the list file for each daughter function, and for each grand-daughter 
+function, list all the functions it calls.  Put each of the grand-daughter
+functions names in box below its mother function and connect the two 
+with a line.  Continue until all the boxes at the bottom (leafs of the
+call tree) are functions that do not call any other functions.
+</ol>
+
+<h3>Compiler code</h3>
+
+Now lets look at how the compiler converted the C statements in the
+inLab04 program into assembly instructions.  To do this, we will
+use one the in-circuit debugging capability of the PIC Kit3.  Start
+by connecting the PIC Kit 3 and USB cable between the PC and the 
+development board.  Next click on the "Debug Project" icon at the top
+of the MPLab window (the icon looks like a code listing at a 
+breakpoint with a small green arrow).  After the program is downloaded,
+you should see a window that looks like the following: note this
+image was captured for inLab02.
+
+<br><img src="./img/mplabWindow.jpg"><br><br>
+
+
+<ul>
+<li>Pause the running code by clicking on the orange pause button in simulator 
+controls, <li>Open the compiled code by selecting:
+Window &rarr; Debugging &rarr; Disassembly
+<li>Let's look at the assembly code associated with the 
+<font face="courier">noteIndex += 1;</font> instruction on line 
+167 by right mouse-clicking on that line in main and selecting 
+(MPLAB X) breakpoint &rarr; Toggle Line Breakpoint.  The line should 
+turn red with a small red square in the margin,
+<li>Run the program by selecting the green run button in the 
+simulator controls,
+<li>Open a terminal and connect to the COM port that your dev port is
+connected to,
+<li>Press "i" to select the next note in the song (and increase the
+noteIndex),
+<li>The message "Target Halted" should appear in the console window
+at the bottom of the screen.  The Disassembly window is context sensitive
+to the function that is being currently executed.  This means that when the
+program is paused in the ISR, the disassembly window will show the 
+code associated with the ISR,
+<li>Scroll around in the Disassembly window to find the line of code
+associated with "noteIndex += 1".  You may want to press
+F7 to tell the debugger to go to the next line of code, this will cause
+the line of code after to be highlighted green,
+<li>Use the Single Step (F7) and Run to Cursor function (right click on
+source code) to determine the information in the following table.
+</ul>
+
+<ol start=6>
+<li>Determine the assembly instructions for the following C statements.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>C code	<td>Hex address range	<td>Assembly instructions (one per line)
+<tr><td>noteIndex += 1;	<td>&nbsp;	<td>&nbsp;
+<tr><td>TEST_PIN_SetLow(); 	<td>&nbsp;	<td>&nbsp;
+</table>
+</ol>
+
+<h3>Custom Assembly code</h3>
+
+Create a new project around <a href="./code/inlab13.asm">inlab13.asm</a>
+using the normal process except when when prompted to select a 
+compiler (in step 6) choose mpasm &rarr; mpasm (v5.68) [&hellip;].
+<Br><Br>
+Compile and download the program.  Try pressing the upper button,
+you should be greeted with Hot Crossed Buns.
+
+<h3>Final Project</h3>
+Provide the Lab Instructor or Teaching Assistants with a detailed
+summary of your project.  If lab partners completing this assignment are 
+not be final project partners, choose one of your projects to present.
+As your answer to this question put together a "report" of your project 
+which contains the following items.
+
+<ol start=7>
+<li>Project mini-report
+<ul>	<li>Name of your project,
+	<li>Team members,
+	<li>Level 1 diagram,
+	<li>Provide the input, output and behavior of the overall system.
+	This should be a summary of your level 0 description,
+	<li>For each new devices that you are going to incorperate
+	into your design.
+	<ul>	<li>It name
+		<li>The technical documents as a PDF on the computer
+		<li>The protocol that the device will use to interface to
+		the development board.
+	</ul>
+	<li>Have the lab instructor or teaching assistant sign-off on
+	your presentation after explaining it to them.
+</ul>
+
+</ol>
+
+
+
+</html>

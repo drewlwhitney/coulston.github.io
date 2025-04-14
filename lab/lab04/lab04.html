@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Embedded System Design: Lab 2 - Buttons and LEDs</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab03/lab03.html">&lt;Prev</a></li>
+                        <li><a href="../lab05/lab05.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 383</h1>
+Lab 4 - Music Box with interrupts
+</center><br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>4</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+<h2>InLab 4</h2>
+Some self-guided <a href="./inlab04.html">activities</a>.
+
+
+<h2>Lab assignment</h2>
+Use interrupts and a terminal interface to play a song.
+<br><Br>
+
+
+<b>Program Requirements</b>
+Many of the program requirements in this week's lab are the same
+as last weeks. 
+<ul>
+<li>A whole note should take 1 second,
+<li>Have a 32<sup>nd</sup> rest between notes,
+<li>Store at least two octaves worth of notes (half periods of timer 1)
+	in an array called <font face="courier">scale</font>.  For example,
+	my code has the following (partial) declaration:<br>
+<font face="courier">uint16_t scale[NUM_OCTAVES*12] = {12864,12144,11472,10816,10208,9632,&hellip;</font><br>
+	Note, I used a #define to set NUM_OCTAVES to 2,
+<li>Use Timer 0 with a 1:256 prescaler to generate the note durations,
+<li>Your program will store several songs.  Have a #define for NUM_SONGS 
+which is the number of different songs.
+<li>Store your songs in the following arrays.
+<ul>	<li>The notes of the songs are stored in a 2D array.
+	The first index of the 2D array for the notes is the song.
+	The second index of the 2D array for the notes are the actual
+	notes of the song.  For example, 
+	my code, with Hot Crossed Buns as the first song, has the 
+	following (partial) declaration for the note array:<br>
+<font face="courier">uint16_t notes[NUM_SONGS][MAX_SONG_LENGTH] = {{B5, A5, G4, B5, A5,&hellip;}, &hellip; };</font><br>
+	The symbols in the notes array are #defined to indicies in the scale
+	array which contains the half period of that note.  For example,
+	since the half period of a G4 note is 10208 timer 1 counts (which
+	is index 4 in the scale array defined above), my code contains the
+	following #define at the top of the program:<Br>
+	<font face="courier">#define G4      4</font><br>
+
+	<li>The durations for the notes in the songs are stored in a 2D
+	array. The first index of the 2D array for the durations is the
+	song.  The second index of the 2D array is the actual duration 
+	for each note.  For example my code has the following (partial) 
+	declaration:<br>
+<font face="courier">uint16_t    duration[NUM_SONGS][MAX_SONG_LENGTH] = {{QUA, QUA, HAL, QUA,&hellip;}, &hellip; };</font><br>
+	The symbols in the duration array are #define to the number of 1:256
+	prescaled timer 0 counts each duration required.  For example, a quarter
+	note is 0.25 seconds long, corresponding to 15625 counts on a 1:256
+	prescaled timer 0.  So my code contains the following define:<br>
+	<font face="courier">#define QUA     15625</font>
+
+
+	<li>Store the number of notes in each song in an array songLength.
+	Each entry in the array is the number of notes in the song at that
+	index in the notes and duration array. A define for MAX_SONG_LENGTH
+	provides before the array definitions will provide an upper bound
+	on the length of any one song.
+
+	<li>Be careful setting SONG_LENGTH and NUM_SONGS too high - you may 
+	run out of memory.  You can see how much memory your program is using
+	in the Dashboard tab at the bottom main project navigator window.
+	</ul>
+<li>Set the speaker pin to logic 0 when you are not playing a note,
+
+<li>Use the TMR1 ISR to toggle the speaker pin when a
+global variable playNote is true.  The note frequency played
+is determined by a pair of global variable, songNumber and noteIndex.  
+The TMR1 ISR uses these variables to index the (global) notes array.
+
+<li>Use the TMR0 ISR to play the notes of the song for the
+correct duration when a global variable, playingSong, is true. The
+TMR0 ISR should "tell" the TMR1 ISR to play the next note in the sing 
+by incrementing the noteIndex global variable after each note duration 
+has expired.  Remember that after each note is played, it is followed 
+by a rest.  I used a static local variable in the TMR0 ISR to tell
+me if the TMR0 ISR had just finished playing a note or just finished
+waiting out the rest between notes.  You can set the global playNote 
+variable to false during the rest to stop the speaker from toggling.
+When the TMR0 ISR completed playing the song, it should set the noteIndex
+back to 0 and set the global playingSong variable to false.
+
+</ul>
+
+At start-up your program should present a splash screen - this would 
+be a great place for some 
+<a href="http://www.glassgiant.com/ascii/">ASCII art</a>.   The splash
+screen should also contain connection instruction for the development board
+(where to install jumper wires).  When you press "?" you should be 
+greeted with the following menu.
+
+<pre>
+------------------------------
+?: Help menu
+o: k
+Z: Reset processor
+z: Clear the terminal
+p: play song once
+r: Rhythm practice
+------------------------------
+</pre>
+<br>
+
+<ul>
+<li><b>?</b><br>
+Prints out the ever useful help menu.
+<br><br>
+
+<li><b>z</b><br>
+Clear the terminal using a bunch of new lines.
+<br><br>
+
+<li><b>Z</b><br>
+Reset the processor so that we can see that splash screen.
+<br><br>
+
+<li><b>p</b><br>
+When the <b>p</b> key is pressed, set the playingSong global variable
+true.  Since the song is being completely played in the background, you
+should be able to continue to use the terminal while the song is being
+played.
+<br><Br>
+
+<li><b>r</b><br>
+This program features tests the users ability to reproduce the note 
+durations 
+of a song.  To accomplish this, you will need three songs; a test song,
+a success song, and a failure song.  Start by playing the test song 
+for the user.  I would suggest a simple test song with three notes, 
+all with half notes.  When you finish playing the test song, prompt the user
+to press the upper button with the same duration as the test song.
+Each button press will play one note of the song while the 
+button is held down (like inLab03).  When the button is released, your
+program should increment to the next note (like inLab03).
+Your program needs to measure the 
+number of TMR0 counts between consecutive button presses and store it in 
+a variable, pressDuration.  <u>Do not concern yourself with TMR0 rollovers 
+when calculating pressDuration.</u> In order to stop the TMR0 ISR from changing
+TMR0 on its own, disable the timer 0 interrupt (after the code plays the
+test song) by setting the TMR0IE to 0.  You should compare pressDuration
+against the expected duration of that note (from the duration array).  
+Since it would be unreasonable to expect the user to be accurate to
+1 TMR0 count, create some interval around the expected duration which
+represents a valid note duration from the user.  In the following
+code snippet, I used a #define for DELTA set to about 0.15 seconds.
+Note I accounted for the REST delay heard by the user.
+The larger DELTA is the more forgiving your program will be of timing 
+miscues.
+<pre>
+if ( (pressDuration < (duration[songNumber][noteIndex-1] + REST - DELTA)) ||
+     (pressDuration > (duration[songNumber][noteIndex-1] + REST + DELTA))) 
+	success = false; 
+</pre>
+
+Your program should stop allowing user input at the first note duration 
+failure, immediately (or almost immediately) exiting out
+of the test mode.  If the user fails to reproduce the rhythm of the song,
+print a failure message and play a failure song.
+If the song is finished as a success, then print a success message and play
+a short success song.  The output from two runs of my program is shown 
+below.
+
+<pre>
+Listen to the beat pattern.
+Use the upper button to reproduce this pattern.
+You lose.
+Listen to the beat pattern.
+Use the upper button to reproduce this pattern.
+Winner!
+</pre>
+
+After alerting the user of the success or failure of their efforts,
+re-enable the TMR0 interrupt by setting TMR0IE.
+
+
+</ul>
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.
+Submit your main.c file on Canvas using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+</html>

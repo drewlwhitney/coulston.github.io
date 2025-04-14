@@ -1,0 +1,162 @@
+<html>
+<pre>
+//---------------------------------------------------------------
+// Use these functions to build an RTOS for the playback system
+// delayMS(x) - creates task to delay x mS
+// SignalEvent(messageName, messageValue) - send message 
+// GetMessageValue(messageName) - gets the messages value
+// WaitForEvent(messageName) - causes task to wait on message
+// CheckForEvent(messageName) - Equal 1 if there is a waiting message
+//---------------------------------------------------------------
+
+//---------------------------------------------------------------
+// messages that are used in this program
+// messageStartRecord		messageEndRecord
+// messageStartPlay		messageEndPlay
+// messageADIF			messageMicValid
+// messageDoneWritePage		messagePageFull		
+// messageNeedNewPage		messagePageValid
+// messageNeedNewNote		messageNoteValid
+//---------------------------------------------------------------
+
+// Globals
+uint8_t red[PAGE_SIZE], blue[PAGE_SIZE];
+uint8_t *storingBuffer, *fillingBuffer, *playingBuffer;
+uint32_t finalSdCardAddress;
+uint32_t sdCardAddress;
+
+//---------------------------------------------------------------
+// task:	ReadJoy
+// purp:	Reads the joystick every 100mS and
+//		starts recording on up 
+//		stops recording on down
+//		starts playback on left
+//		stops recording on right
+//---------------------------------------------------------------
+void taskReadJoy() {
+    for(;;) {
+	delayMS(100);
+	if (up_pin)	SignalEvent(<font color=red>messageStartRecord</font>, 1);
+	if (down_pin)	SignalEvent(<font color=red>messageEndRecord</font>, 1);
+	if (left_pin)	SignalEvent(<font color=red>messageStartPlay</font>, 1);
+	if (right_pin)	SignalEvent(<font color=red>messageEndPlay</font>, 1);
+}   }
+
+//---------------------------------------------------------------
+// task:	ReadMic
+// purp:	Reads the microphone every 1mS and signals 
+//		StoreMic with this new sample
+//---------------------------------------------------------------
+void taskReadMic() {
+    for(;;) {
+	WaitForEvent(<font color=red>messageStartRecord</font>);
+	while(!CheckForEvent(<font color=red>messageEndRecord</font>)) {
+	    ADCCONbits.GO = 1;
+	    WaitForEvent(<font color=red>messageADIF</font>);
+	    SignalEvent(<font color=red>messageMicValid, ADRESH</font>);
+	    delayMS(<font color=red>1</font>);
+}   }
+
+
+//---------------------------------------------------------------
+// task:	StoreMic
+// purp:	acquires samples from ReadMic, puts them into
+//		the red or blue buffer.  When a buffer is full
+//		writing is switched to the other buffer and the
+//		full buffer is stored in the SDCARD via the
+//		WritePage task.
+//---------------------------------------------------------------
+void taskStoreMic() {
+    uint32_t sdCardAddress;
+
+    for(;;) {
+	WaitForEvent(<font color=red>messageStartRecord</font>);
+	sdCardAddress=0;
+	fillingBuffer=red;
+	while(!CheckForEvent(<font color=red>messageEndRecord</font>)) {
+
+	    for(i=0; i &lt; PAGE_SIZE; i++) {
+		WaitForEvent(<font color=red>messageMicValid</font>);
+		fillingBuffer[i++]=ValueOfMessage(<font color=red>messageMicValid</font>);
+	    }
+            storingBuffer = fillingBuffer;
+	    SignalEvent(<font color=red>messagePageFull, storingBuffer</font>);
+	    if (fillingBuffer==red) fillingBuffer=blue; else fillingBuffer=red;
+	    sdCardAddress += PAGE_SIZE;
+	}
+	finalSdCardAddress=sdCardAddress;
+}   }	
+
+//---------------------------------------------------------------
+// task:	WritePage
+// purp:	Writes a full buffer to the SDCARD and signals
+//		the StoreMic task when complete. 
+//---------------------------------------------------------------
+void taskWritePage() {
+    uint8_t *buffer;
+    for(;;) {
+	WaitForEvent(<font color=red>messagePageFull</font>);
+	buffer = GetMessageValue(<font color=red>messagePageFull</font>);
+        SDCARD_WriteBlock(sdCardAddress, buffer);
+	SignalEvent(<font color=red>messageDoneWritePage</font>, 1)
+}   }
+
+//---------------------------------------------------------------
+// task:	PlayPage
+// purp:	Reads out pages from the SDCARD into one of two
+//		buffers and informs the PlayNote task when a 
+//		new CCPR1L value is ready.
+//---------------------------------------------------------------
+void taskPlayPage() {
+    uint32_t sdCardAddress=0;
+    uint8_t *buffer;
+
+    for(;;) {
+	WaitForEvent(<font color=red>messageStartPlay</font>);
+        sdCardAddress = 0;
+        // Get first page
+	SignalEvent(<font color=red>messageNeedNewPage</font>,sdCardAddress);
+	WaitForEvent(<font color=red>messagePageValid</font>);
+	buffer=ValueOfMessage(<font color=red>messagePageValid</font>);
+	sdCardAddress += PAGE_SIZE;
+	while(sdCardAddress < finalSdCardAddress) {
+	    SignalEvent(<font color=red>messageNeedNewPage</font>,sdCardAddress);
+	    sdCardAddress += PAGE_SIZE;
+	    for(i=0; i&lt;PAGE_SIZE; i++) {
+	        SignalEvent(<font color=red>messageNoteValid</font>,buffer[i]);
+		WaitForEvent(<font color=red>messageNeedNewNote</font>);
+	    }
+	    WaitForEvent(<font color=red>messagePageValid</font>);
+	    buffer=ValueOfMessage(<font color=red>messagePageValid</font>);
+}   }	}
+
+//---------------------------------------------------------------
+// task:	ReadPage
+// purp:	read the SDCARD and toggle buffers.
+//---------------------------------------------------------------
+void taskReadPage() {
+    uint32_t sdCardAddress=0;
+
+    for(;;) {
+	WaitForEvent(<font color=red>messageNeedNewPage</font>);
+	sdCardAddress=ValueOfMessage(<font color=red>messageNeedNewPage</font>);
+        SDCARD_ReadBlock(Address, fillingBuffer);
+        playingBuffer = fillingBuffer;
+	SignalEvent(<font color=red>messagePageValid</font>, playingBuffer);
+	if (fillingBuffer == red) fillingBuffer=blue; else fillingBuffer=red;
+}   }
+
+
+//---------------------------------------------------------------
+// task:	PlayNote
+// purp:	Play the PWM frequency for 1ms
+//---------------------------------------------------------------
+void taskPlayNote() {
+    for(;;) {
+	WaitForEvent(<font color=red>messageNoteValid</font>);
+	EPWM1_LoadDuty(ValueOfMessage(<font color=red>messageNoteValid</font>));
+	delayMS(1);
+	SignalEvent(<font color=red>messageNeedNewNote</font>);
+}   }
+</pre>
+</html>

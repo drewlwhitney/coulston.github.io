@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture12.html">&ltPrev</a></li>
+                        <li><a href="./lecture14.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>13</td></tr>
+<tr><td>Objective:</td>	<td>Configuration of the PWM subsystem to generate
+		PWM waveforms with an arbitrary period and duty cycle.
+<tr><td>Code:</td>	<td><a href="./code/pwm.c">pwm.c</a></td></tr>
+</table>
+
+<h1>PWM</h1>
+Pulse width modulated waveforms (PWM) are square waves with a constant
+period  that are composed of a time high and time low that can change.
+The ratio of the time high to the period, expressed as a percentage, is
+called the duty cycle.  The average value (measured in volts) of a PWM 
+waveform is the duty cycle multiplied by the amplitude (in volts).
+The waveform has a constant period, but the duty cycle increases from left
+to right.
+<br><img src="./img/pwmWave.bmp"><br><Br>
+
+PWM waveforms are especially useful to send "analog" control signals to devices 
+that accept digital inputs.  For example, if you drive an LED with a 
+PWM waveform you can adjust the perceived illumination level of
+the LED by increasing or decreasing the duty cycle of the PWM waveform.
+The change in the illumination level is typically something you would
+expect to get with an analog control signal, but is being delivered as a
+rapid sequence of digital (logic 0 and 1) signals sent to the LED.
+An important caveat is that the frequency of the PWM waveform must be
+higher than the lowest frequency n eye can detect the on/off flicker of
+an LED.  This is typically around 100Hz, a frequency easily obtainable
+by most microcontrollers.
+
+
+<h2>Hardware</h2>
+The 5 CCP subsystems can each be configured in a capture, compare or
+PWM mode.  Unlike the capture and compare functions, the PWM mode
+is driven by TMR2 or TMR4 or TMR6 which use an 8-bit counter as 
+opposed to the 16-bit counter used in TMR0, TMR1, TMR3 and TMR5.
+<br><br>
+
+The PWM subsystem relies on two other registers to build the PWM
+waveform, the PRx and CCPx registers.  The period of the PWM waveform
+is determined by how long it takes TMRx to count from 0 to that value
+contained in the PRx register.  When the TMRx count reaches the value in
+PRx, TMRx is reset back to 0 and starts once again counting up towards 
+the value in PRx.  While the TMRx count is less than the
+value contained in the CCPx register, the output of the pin associated
+with the PWM module is logic 1.  When the TMRx count is greater than
+CCPx, the pin output if logic 0.   This hardware configuration is
+illustrated in the figure below.
+
+
+<br><img src="./img/picTimerPWM.bmp"><br><br>
+
+
+A PWM waveform has two primary characteristics, the period and the
+duty cycle.  Lets look at the more complex of the two first, the
+period.
+
+<h2>PWM Period</h2>
+The PWM period is determine by the counting frequency of the TMRx and
+the value contained in PRx.  As mentioned previously, the PWM
+module only accepts TMR2, TMR4 or TMR6 as a source.  These timers
+are 8-bit and have prescalers of 1:1, 1:4 and 1:16. The TxCKPS
+bits of the TMRxCON register determine which prescaler is used
+according to the assignment in the table below.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Prescaler	<td>TxCONbits.TxCKPS	<td>Max period
+<tr><td>1:1		<td>0b00		<td>16 us
+<tr><td>1:4		<td>0b01		<td>64 us
+<tr><td>1:16		<td>0b10 or 0b11	<td>256 us
+</table>
+
+The maximum period of the PWM waveform would be when PRx equals
+255.  Since the timers start counting at 0, this makes 256 counts.
+In the calculation below the prescaler is set to 1:16 to determine
+the maximum period of TMRx (and by extension the PWM waveform).
+
+<pre>
+    1 second       10^6 us    16 clk  
+    ------------ * -------- * ------- * 256 counts = 256us
+    16*10^6 clks   1 second   1 count 
+</pre>
+
+As shown in the figure above, when TMRx equals PRx, a reset signal
+is sent to TMRx resetting it back to zero.  So, in order to create
+a maximum PWM period, PRx should be set to 255.  You should use the
+units factoring calculation above to determine the PRx value for
+other PWM period.<br><Br>
+
+<b>Question:</b><br>
+What prescaler and PRx value should you use to create
+a PWM period of if you wanted a PWM period of 100 us?<br>
+
+<b>Answer:</b><br>
+We always will default to using the smallest prescaler that achieves
+the needed period.  So for 100 us, the table above shows that we need 
+a 1:16 prescaler.  We 
+
+<pre>
+      1 second     10^6 us    16 clk   
+    ------------ * -------- * ------- * X = 100us
+    16*10^6 clks   1 second   1 count 
+
+X = 100 counts
+</pre>
+
+So PRx should be set equal to 100.
+
+<h3>PWM Duty Cycle</h3>
+The TMRx associated with a PWM module counts up from 0 to PRx.  The
+logic level of the PWM wave is determined by comparing the TMRx value
+against CCPx.  When TMRx is less than the value contained in CCPx,
+the associated pin equals logic 1.  When TMRx is greater or equal to
+PRx, the associated pin is reset.
+<br><br>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+
+<ol><li>
+Determine the values of the following registers to generate
+the PWM waveform on RC1 shown below.  Note, you are to use 
+TMR4 (just because) and CCP2 (so that you can output on RC1).
+<ul>	<li><font face="courier">T4CONbits.T4CKPS</font>
+	<li><font face="courier">PR4		</font>
+	<li><font face="courier">CCP2		</font>
+</ul>
+
+<br><img src="./img/pwmWaveform.jpg"><br>
+
+<!--
+The period of the waveform is 5.5 * 20us = 110us.  Consulting
+the maximum period table for timers, it looks like we need a 1:16
+prescaler.  In order to configure the prescaler for timer 4, you
+need to look up the bit-fields of the T4CON register found on page
+171 of the PIC18(L)F2X/4XK22 Data Sheet found on the class web page.
+According to this table, a value of 0b10 for the T4CKPS field will
+cause timer 4 to run with a 1:16 prescaler.
+<br><br>
+
+Now we can use dimensional analysis to determine the
+values in the PR4 and CCP2 registers.  Let's start with the PR4
+register by examining the number of 1:16 prescaled TMRx counts
+go by during 110 us.
+
+<pre>
+16*10^6 clk   1 second   16 cnt   
+----------- * -------- * ------ * 110 us =  110 cnt
+ 1 second     10^6 us    1 clk   
+</pre>
+
+Now, let's get the look at the duty cycle register, CCP2.  The waveform
+in the figure above spends 3.6 divisions at logic 1.  At 20us/division,
+this means that the waveform spends 3.6 divisions * (20us/division) =
+72 us at logic 1.
+
+<pre>
+16*10^6 clk   1 second   16 cnt   
+----------- * -------- * ------ * 72 us =  72 cnt
+ 1 second     10^6 us    1 clk   
+</pre>
+
+Now we can put this all together and answer the question:
+
+<ul>	<li><font face="courier">TMR4bits.T4CKPS = 0b10;</font>
+	<li><font face="courier">PR4 = 110;	</font>
+	<li><font face="courier">CCP2 = 72;	</font>
+</ul>
+
+-->
+
+<li>What is the resolution of the duty cycle?  In other words, if you 
+increment the CCPx register by 1, how much does this add to the duration 
+of the logic 1 pulse in a single period? State your solution in microseconds,
+perform the calculation for each of the three prescalers and show your work
+(units factoring) for full credit.
+
+<!--
+   1 second      10^6 uS    1 clk
+-------------- * -------- * ------- * 1 cnt = 0.0625 us
+16,000,000 clk   1 second   1 cnt
+
+   1 second      10^6 uS    4 clk
+-------------- * -------- * ------- * 1 cnt = 0.25 us
+16,000,000 clk   1 second   1 cnt
+
+   1 second      10^6 uS    16 clk
+-------------- * -------- * ------- * 1 cnt = 1 us
+16,000,000 clk   1 second   1 cnt
+-->
+
+
+</body>
+</html>

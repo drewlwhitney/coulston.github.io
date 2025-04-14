@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #15 - Accelerometer</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>                     </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab14/lab14.html">&lt;Prev</a></li>
+                        <li><a href="../lab15/lab15.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Lab 15 - Accelerometers
+</center>
+<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>15</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 15</h2>
+Some self guided <a href="./inlab15.html">activities.</a>
+
+<h2>Lab 15 assignment</h2>
+Your task is to use the software provided to you in this lab to perform two experiments;
+one from the list below and one of your creation.
+
+<h3>Defined Experiments</h3>
+<ul>
+<li><a href="./rateGyro.html">Rate Gyroscope</a>
+<li><a href="./stepCounter.html">Step Counter</a>
+<li><a href="./vibrationAnalysis.html">Vibration Analysis</a>
+<li><a href="./doorCounter.html">Door Counter</a>
+</ul>
+
+
+<h3>Your Experiment</h3>
+Design an experiment which 
+<ul>	<li>Must measure some physical phenomena
+	<li>Must require at least 512 samples
+	<li>Must require some non-trivial post-processing in Excel, Matlab or another programming language.
+</ul>
+
+
+
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.  You will turn in a 3-page
+document that contains the following on each page.  You should plan on attending lab in person
+so that you can answer any questions about your custom experiment, or demonstrate it.
+
+<br>
+<b>Page 1</b><br>
+Include a title page that contains the following:
+<pre>
+Final project for EENG 383
+          by
+    Jane Engineer	
+     Joe Student
+      &lt;Date&gt;
+</pre>
+<br><br>
+
+
+<b>Page 2</b><br>
+Your defined experiment.  This should be 1 page and include:
+<ul>	<li>Title of the defined experiment,
+	<li>Lab 15 Firmware configuration including FSR setting, DLPF setting, etc...
+	<li>Method used to collect data,
+	<li>Data presented on a graph with,
+	<ul>	<li>Title, use the name of your defined experiment, 
+		<li>Labeled vertical axis,
+		<li>Vertical axis should be in real-world units, not raw MPU6050 output,
+		<li>Labeled horizontal axis,
+		<li>Horizontal axis should be in time units, not raw sample number.
+	</ul>
+	
+</ul>
+
+<b>Page 3</b><br>
+Your choose-your-own experiment.  This should be 1 page and include:
+<ul>	<li>Title of your custom experiment,
+	<li>Objective of your experiment,
+	<li>Lab 15 Firmware configuration including FSR setting, DLPF setting, etc...
+	<li>Method used to collect data,
+	<li>An image showing data being collected (optional),
+	<li>Data presented on a graph with:
+	<ul>	<li>Title, use the name of your defined experiment,
+		<li>Labeled vertical axis,
+		<li>Vertical axis should be in real-world units, not raw MPU6050 output,
+		<li>Labeled horizontal axis,
+		<li>Horizontal axis should be in time units, not raw sample number.
+	</ul>
+	
+</ul>
+</html>

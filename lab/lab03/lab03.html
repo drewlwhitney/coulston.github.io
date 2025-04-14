@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Embedded System Design: Lab 3 - Music Box with NOPs</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab02/lab02.html">&lt;Prev</a></li>
+                        <li><a href="../lab04/lab04.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 383</h1>
+Lab 3 - Music Box with Timers
+</center><br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>3</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+<h2>InLab 3</h2>
+Some self-guided <a href="./inlab03.html">activities</a>.
+
+
+<h2>Lab 3 assignment</h2>
+You may work in teams of one or two.
+
+<h2>Lab assignment</h2>
+Build an embedded system which plays a song every time the upper button is
+pressed. 
+<br><Br>
+
+<b>Note</b>
+If you have an existing configuration (say from the inlab03) that you want to 
+copy over to a new project (say for your lab03), then:
+<ul>	<li>Copy the xxx.mc3 file (from your inlab03) into the main 
+	directory of the new project (lab03),
+	<li>In the project manager area of the new project (lab03) add the 
+	xxx.mc3 file into the Important Files folder (in the project navigator
+	window) by right clicking and selecting "Add Item to Important Files...",
+	<li>Open the Microchips code configurator,
+	<li>The inlab03 configuration will load,
+	<li>Edit the (inlab03) configuration as needed,
+	<li>Generate the MCC support files.
+</ul>
+
+<b>Program Requirements</b>
+<li>A whole note should take 1 second, half note 0.5 seconds, and so on,
+<li>Have a 32<sup>nd</sup> rest between notes,
+<li>Use Timer 1 with a 1:1: prescaler to generate the note frequencies,
+<li>Store at least two octaves worth of notes (half periods of timer 1)
+	in an array called <font face="courier">scale</font>.  For example,
+	my code has the following (partial) declaration:<br>
+<font face="courier">uint16_t scale[NUM_OCTAVES*12] = {12864,12144,11472,10816,10208,9632,&hellip;</font><br>
+	Note, I used a #define to set NUM_OCTAVES to 2,
+<li>Use Timer 0 with a 1:256 prescaler to generate the note durations,
+<li>Store your song in two arrays, one for notes and one for duration,
+<ul>	<li>The array storing the notes of the song should have the index
+	of the scale of each note.  For example, my code which plays Hot
+	Crossed Buns, has the following (partial) declaration:<br>
+<font face="courier">uint16_t notes[SONG_LENGTH] = {B5, A5, G4, B5, A5,&hellip;</font><br>
+	The symbols in the notes array "B5", "A5", etc. are #defined 
+	to indicies in the scale
+	array which contains the half period of that note.  For example,
+	since the half period of a G4 note is 10208 timer 1 counts (which
+	is index 4 in the scale array defined above), my code contains the
+	following #define at the top of the program:<Br>
+	<font face="courier">#define G4      4</font><br>
+	<li>The array storing the duration of the notes of the song,  For
+	example my code has the following (partial) declaration:<br>
+<font face="courier">uint16_t    duration[SONG_LENGTH] = {QUA, QUA, HAL, QUA,&hellip;</font><br>
+	The symbols in the duration array, "QUA", "HAL" are #define to 
+	the number of 1:256
+	prescaled timer 0 counts each duration required.  For example, a quarter
+	note is 0.25 seconds long, corresponding to 15625 counts on a 1:256
+	prescaled timer 0.  So my code contains the following define:<br>
+	<font face="courier">#define QUA     15625</font>
+	</ul>
+	<li>Set the speaker pin to logic 0 when you are not playing a note,
+	<li>Use the MCC functions to:
+	<ul>	<li>write the timers, 
+		<li>check if the timer has overflowed, 
+		<li>read the button, and 
+		<li>toggle speaker pin. 
+	</ul>
+	Do not use the TMR1_ReadTimer or TMR0_ReadTimer functions.
+</ul>
+
+
+<br><br>
+<b>Verification:</b><br>
+Play the notes of a song with at least 12 notes and that includes
+at least 2 different note durations.
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.
+Submit your main.c file on Canvas using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+</html>

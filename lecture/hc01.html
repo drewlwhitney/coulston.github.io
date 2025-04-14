@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture30.html">&ltPrev</a></li>
+                        <li><a href="./lecture32.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Date:</td>	<td>April 5</td></tr>
+<tr><td>Lecture:</td>	<td>31</td></tr>
+<tr><td>Code:</td>	<td><a href="./code/simpleOperations.asm">simpleOperations.asm</a></td></tr>
+<tr><td>Objective:</td>	<td>Assembly data types, declarations, arithmetic,
+				 and logic operations.
+</table>
+
+<h1>Operations</h1>
+When you write code to perform a computation, you are manipulating 
+one or more operands using an operation.  The operands are the data
+values being manipulated and the operation defines how the operands
+are manipulated.  In assembly language you are much closer to the
+machine and data types are limited to 8-bit unsigned integers
+or 16-bit unsigned integers.  
+
+In our C programs we combined operands and operators into expressions.
+Today we will go back and look at the C expressions presented in an
+earlier lecture and look at the assembly code that realizes these
+expressions.  However, before we get started lets examine how we will
+store and reference our variables.  
+
+<h2>Define Storage and Initial Values</h2>
+The CodeWarrior assembler provides a way to provide an alias to data
+items using the keyword <u>DS.B</u> stands for "Define Space for a Byte"
+The following line of assembly code reserves 1 byte of memory.  The
+address of this byte is associated with the string "varX" in the 
+following assembly program - this will prove to be very handy.
+
+<pre>
+varX:          DS.B    1             ; Define a byte in RAM for variable X
+</pre>
+
+It's not enough to have storage, you need to put some data into that 
+storage space.  Constants are specified in as operands by putting a
+"#" symbol in front of a number.  By default the Code Warrior assembler
+interprets numbers as decimal.  Let's store the constant 25 at the
+memory location given by varX. 
+
+<pre>
+    LDAA  #25
+    STAA  varX 
+</pre>
+
+The first line of code moves the constant 25 into the accumulator A.
+The mnemonic "LDAA" stands for Load Accumulator A. 
+The second line of code moves the contents of accumulator A into the 
+memory location given by varX.  The mnemonic "STAA" stands for Store
+Accumulator A. <br><Br>
+
+You to specify constants in hexadecimal 
+or binary using the prefix "$" or "%" prefixes respectively.  Test 
+your understanding by converting the HCS12 assembly formatted values in
+the "Constant" column into the base specified in each of the three columns.
+Represent your answers as HCS12 formatted values.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Constant	<td>Decimal	<td>Hexadecimal	<td>Binary
+<tr><td>#123		<td>&nbsp	<td>&nbsp	<td>&nbsp
+<tr><td>#$123		<td>&nbsp	<td>&nbsp	<td>&nbsp
+<tr><Td>#%10101010	<td>&nbsp	<td>&nbsp	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Constant	<td>Decimal	<td>Hexadecimal	<td>Binary
+<tr><td>#123		<td>#123	<td>#$7B	<td>#%0111 1011
+<tr><td>#$123		<td>#291	<td>#$123	<td>#%0001 0010 0011
+<tr><Td>#%10101010	<td>#170	<td>#$AA	<td>#%1010 1010
+</table>
+-->
+
+
+<h2>Assembly arithmetic operations</h2>
+The most familiar type of operations are those that you learned 
+early in elementary school, arithmetic operations.  Let's look at 
+a C-code example consisting of variable declarations and expressions
+and re-interpret them into HCS12 assembly language. You should notice that,
+<ul>	<li>comments start with a semicolon 
+	<li>mnemonics do not start in the first column
+	<li>operands are all vertically aligned 
+</ul>
+
+<pre>
+    ;-----------------------------------------------------------------------------------
+    ; Logical Operations
+    ;-----------------------------------------------------------------------------------
+    ; Initialize the variables
+    LDAA  #25
+    STAA  varX                       ; int8 x = 25;
+    LDAA  #15
+    STAA  varY                       ; int8 y = 15;
+    LDAA  #10
+    STAA  varZ                       ; int8 z = 10;
+    
+    ; comments will contain variable values after expression is executed
+    LDAA  varX                      
+    ADDA  varY                      
+    STAA  varZ                       ;z = x + y;		// z = 40
+    
+    LDAA  varX                      
+    SUBA  varY                      
+    STAA  varZ                       ;z = x - y;		// z = 10
+    
+    LDAA  varX                      
+    ADDA  varZ                      
+    STAA  varZ                       ;z += x;		    // z = 35
+       
+    LDAA  varX                          
+    STAA  varZ              
+    INC   varX                       ;z = x++;		// z = 25, x = 26 
+
+    ;// expressions which generate overflow
+    LDAA  varY                      
+    SUBA  varX                      
+    STAA  varZ                       ;z = y - x;		// z = 245 (15 - 26 = -11 rolls to 256 - 11 = 245)
+    
+    LDAA  varX                      
+    LDAB  varY
+    MUL                      
+    STAB  varZ                       ;z = x * y;		// z = 134 (26*15 = 390 mod 256 = 134) remember x=26!
+            
+    ;// expressions which invoke operator precedence
+    LDAA  varX                      
+    ADDA  varY                      
+    LDAB  #3
+    MUL
+    STAB  varZ                       ;z = 3*(x + y);	// z = 123 (3*(26+15) = 123)
+</pre>
+
+
+<h2>Assembly bitwise logical operations</h2>
+Bitwise logical operations perform the familiar AND, OR, XOR and NOT 
+operations on variable, by performing the logical operations on pairs 
+of bits in the same bit-position in each operand.  We often use bitwise
+logical operations to mask portions of a variable, hiding certain 
+bit-positions of the variable from the effects of an operation. 
+
+<pre>
+  ;-----------------------------------------------------------------------------------
+    ; Logical Operations
+    ;-----------------------------------------------------------------------------------
+    ; Initialize the variables
+    LDAA  #%10101100
+    STAA  varX                       ; int8 x = 0b10101100;
+    LDAA  #%00110101
+    STAA  varY                       ; int8 y = 0b00110101; 
+    CLR   varZ                       ; int8 z = 0;
+
+    ;// comments will contain variable values after expression is executed
+    LDAA  #$0F
+    ANDA  varX                      
+    STAA  varZ                       ;z = x & 0x0F;	// z = 0b0000 1100
+    
+    LDAA  #$F0                      
+    ANDA  varX                      
+    STAA  varZ                       ;z = x & 0xF0;	// z = 0b1010 0000
+    
+    LDAA  #$0F                      
+    ORAA  varX                      
+    STAA  varZ                       ;z = x | 0x0F;	// z = 0b1010 1111
+    
+    LDAA  #$F0                      
+    ORAA  varX                      
+    STAA  varZ                       ;z = x | 0xF0;	// z = 0b1111 1100
+    
+    LDAA  #$0F                      
+    EORA  varX                      
+    STAA  varZ                       ;z = x ^ 0x0F;	// z = 0b1010 0011
+    
+    LDAA  #$F0                      
+    EORA  varX                      
+    STAA  varZ                       ;z = x ^ 0xF0;	// z = 0b0101 1100
+    
+    LDAA  #%10101100                      
+    COMA                        
+    STAA  varZ                       ;z = ~0b10101100;	// z = 0b0101 0011
+
+    LDAA  varX                      
+    ANDA  varY                      
+    STAA  varZ                       ;z = x & y;		// z = 0b0010 0100
+    
+    LDAA  varX                      
+    ORAA  varY                      
+    STAA  varZ                       ;z = x | y;		// z = 0b1011 1101
+    
+    LDAA  varX                      
+    EORA  varY                      
+    STAA  varZ                       ;z = x ^ y;		// z = 0b1001 1001
+    
+    LDAA  varX                      
+    COMA
+    STAA  varZ                       ;z = ~x;		// z = 0b0101 0011
+
+    LDAA  varX                      
+    LSLA 
+    STAA  varZ                       ;z = x<<1;		// z = 0b0101 1000
+    
+    LDAA  varX                      
+    LSRA
+    LSRA
+    LSRA
+    STAA  varZ                       ;z = x>>3;		// z = 0b0001 0101
+</pre>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+
+<li>Write a set of assembler directives that allocates storage for
+the following C declarations.
+<pre>
+    int8    varX8,  varY8, varZ8;
+    int16  varX16, varY16, varZ16;
+    char   string[16];
+</pre>
+
+<!--
+<pre>
+varX8:    DS.B    1
+varY8:    DS.B    1
+varZ8:    DS.B    1
+varX16:   DS.B    2
+varY16:   DS.B    2
+varZ16:   DS.B    2
+string:   DS.B    16
+</pre>
+-->
+    
+
+<li>The mc9s12c32.inc file associated with every assembly project has
+many useful definitions and some nice coding techniques.  For example
+you can use the following line of code to clear the C0F field in the
+TFLG1 register.
+<pre>
+	BCLR	TFLG1, #mTFLG1_C0F
+</pre>
+What is the definition for TFLG1 and mTFLG1_C0F?  What do these definitions
+mean.  Hint, look at Test your understanding questions in the previous 
+lecture.  Why does the TFLG1 field not require a "#", but the mTFLG1_C0F
+value does?
+
+<!---
+<pre>
+TFLG1:              equ    $0000004E 
+mTFLG1_C0F:         equ    %00000001
+</pre>
+
+The value 0x4E is the address of the TFLG1 register and 1 is the bit
+position of the C0F field in the TFLG1 register.
+
+You should not put a "#" in front of TFLG1 because the value 0x4E needs
+to be interperted as an address and we want the value at address 0x4E.
+A "#" is put in front of mTFLG1_C0F
+because we want to use the value 1 not the contents at address 1.
+--->
+
+<li>Perform the C operation varZ16 = varX8 * varY8;  Use the 
+space allocation statements from question 1.
+<!--
+<pre>
+	LDAA	varX8
+	LDAB	varY8
+	MUL
+	STD	varZ16
+</pre>
+-->
+
+<li>The assembler can perform basic static mathematics on addresses.
+For example, in the following code chunk, the label "numArray" is
+a reference to the starting address of the 4 byte block reserved
+by the "DS.B" directive.  For the sake of argument, let this block of 
+RAM by located at address 0x0800.   You cannot change this value in 
+your program, its value is determined by the assembler and the value
+0x0800 is substituted anywhere the assembler sees "numArray".  Hence,
+the assembly instruction "STAA numArray" will store the value of the A 
+accumulator into address 0x0800.  When the assembler comes to the 
+assembly instruction "STAA numArray + 1" it will substitute 0x0800 for
+"numArray" and then perform the addition.  Hence accumulator A will be 
+stored to address 0x0801.
+
+<pre>
+numArray:	DS.B	4
+
+	LDAA	#111
+	STAA	numArray 
+	LDAA	#122
+	STAA	numArray + 1
+	LDAA	#133
+	STAA	numArray + 2
+	LDAA	#144
+	STAA	numArray + 3
+</pre>
+
+Use this technique to determine the 8-bit sum of the four elements in the
+numArray.  Use addition modolo 256.  In other words, ignore any carry-out
+generated by the addition.
+
+<!--
+<pre>
+	LDAA	numArray	; Load A with first array element
+	ADDA	numArray + 1
+	ADDA	numArray + 2
+	ADDA	numArray + 3
+</pre>
+-->
+
+<li>Write assembly code to perform the following C operations.  Use
+only shifts and adds.  You can perform this operation using both the
+A and B registers - no temporary variables are needed.
+<pre>
+	varZ = 0.25*varX + 1.5*varY;
+</pre>
+
+<!--
+<pre>
+	LDAA	varX
+	LSRA		; A = 0.50 * varX
+	LSRA		; A = 0.25 * varX
+
+	LDAB	varY
+	LSRB		; B = 0.50 * varY
+	ADDB	varY	; B = 0.50 * varY + varY = 1.5*varY
+
+	ABA
+	STAA	varZ
+</pre>
+-->
+
+<li>A linear feedback shift register (LFSR) is a general techanique that
+has been used with great success in generating pseudo-random number.
+A pseudo-random number generator starts with a seed valuye (any non-zero
+number) and generates a sequence of numbers that look like they have
+no relationship to one another.  To generate a sequence of pseudo-random
+16-bit numbers using an LFSR with current varX16.  To do this:
+<ul>
+<li>Step 1: xor the bits in positions 15,13,12,10 and 0 (start indexing your bits starting at position 0),  
+<li>Step 2: shift varX16 left one bit,
+<li>Step 3: put the xor bit into the LSB of varX16.
+</ul>
+
+I used the "BRCLR" instruction to check the bit values of the upper
+and lower bytes of varX16.
+
+<!--
+<pre>
+varOne:     DS.B	1
+varXOR:     DS.B	1
+varX16:	    DS.B	2
+varZ16:	    DS.B	2
+
+            LDD         #$FFFF
+            STD         varX16
+            
+            LDAA        #1
+            STAA        varOne
+            CLR         varXOR
+
+step1:      CLRB
+check15:    BRCLR       varX16,   $80, check13
+            EORB        varOne
+check13:    BRCLR       varX16,   $20, check12
+            EORB        varOne
+check12:    BRCLR       varX16,   $10, check10
+            EORB        varOne
+check10:    BRCLR       varX16,   $04, check00
+            EORB        varOne
+check00:    BRCLR       varX16+1, $01, step2
+            EORB        varOne
+
+            STAB        varXOR         
+
+step2:      LDD         varX16
+            LSLD                        ; Shift
+
+step3:      ORAB        varXOR
+            STD         varX16
+</pre>
+-->
+
+
+</body>
+</html>

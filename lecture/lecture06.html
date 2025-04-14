@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture05.html">&ltPrev</a></li>
+                        <li><a href="./lecture07.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>6</td></tr>
+<tr><td>Objectives:</td><td>Understand the syntatic structures
+needed to make a function call, passing input arguments and 
+returning values.
+</table>
+
+
+<h1>Functions</h1>
+Since the early days of programming, functions were a way programmers
+got a handle on code complexity.  A frequently performed task
+was removed from its various places in the program, put into its own
+code structure, called a function. At its most elemental, <u>a function
+encompass program functionality in a single callable format.</u>  When
+you define a function there are several things you need to consider:
+<ul>	<li>Input arguments
+	<li>Return values
+	<li>Internal code
+	<li>Local variables
+	<li>Function prototype
+</ul>
+
+<h2>Simple functions</h2>
+Lets start our discussion of functions by illustrating functions
+without input arguments and no return values.  This will allow us
+to focus on function prototypes and local variables.<br><br>
+
+Imagine that for some reason you were asked to write a function
+that printed "foo" 10 times and call this function from main.  The
+following code illustrates how you might accomplish this.
+
+<!--
+During the first lab, there was confusion about the difference
+between the function prototype, function call, and function
+declaration.  Emphasize this in future iterations of the course.
+
+-->
+
+<pre>
+void foo(void);		// This is a function prototype
+
+//--------------------
+//--------------------
+main() {
+    uint8_t i;		// this variable i is local to main and not related in anyway to the one in foo
+    for (i=0; i &lt 5; i++) 
+        foo();		// main is the caller, foo is the callee
+} // end main
+
+//--------------------
+//--------------------
+void foo(void) {
+    uint8_t i;		// this variable i is local to foo, different from the one in main
+    for (i=0; i &lt 5; i++) printf("foo ");
+    printf("\r\n");
+}
+</pre>
+
+The first thing you encounter in this program (when reading from the
+top to the bottom) is the function prototype for the function "foo".
+A function prototype allows the compiler a chance to understand what
+"foo" means when it encounters it later on.  Note that the function
+prototype is identical to the first line of the function definition
+except that one has a semicolon and the other a curly brace.<br><br>
+
+Inside main, we can execute the code inside the function by calling 
+it.  This means writing the name of the function followed by parenthesis.
+From an execution perspective you leave main and begin running the code
+in the function.  When the last line of code in the function executes
+(or a return is encountered, but more on that later), execution resumes
+in main on the line of code following the function call.<br><Br>
+
+After the body of main, the definition of the functions are provided.
+The first line of the function declaration "void foo(void)" contains
+information about three things; the return value, the name of the function
+and the input arguments of the function respectively.  The use of "void"
+means that, in this case, there are no return values and no input 
+arguments.  Hence this function has the same behavior every time it runs.
+<br><br>
+
+In this example, main is called the <u>caller</u> of the function foo, and
+foo is called the <u>callee</u>.  <br><br>
+
+<u>Variable scope</u> is a concept that often confuses new programmers, 
+so let's take a moment to discuss it.  You should have noticed that
+we have two separate declarations for the variable i, one in main and
+one in foo.  The scope of a variable are the program regions where it 
+can be read and written.  <u>The scope of a local variable is limited 
+to the function in which it's defined.</u>  A variable defined in a function
+cannot be access in any other function.  Thus, you can give your 
+local variables names without any consideration to the variable names
+that may exit in the caller function.<br><Br>
+
+The output behavior of this program is to print the word foo a lot
+of times in a particular pattern.  Each call to the foo function
+prints five foos in the for-loop, one next to another with a space
+between each.  After the for-loop exits, the foo function prints a
+carriage-return and line feed, moving the cursor to the beginning of
+the next line.  <Br>
+Main calls the foo function five times in its loop.  Consequently
+the word foo is printed 25 times as shown below.
+
+<pre>
+foo foo foo foo foo
+foo foo foo foo foo
+foo foo foo foo foo
+foo foo foo foo foo
+foo foo foo foo foo
+</pre>
+
+<h2>Input Arguments</h2>
+Lets extend the previous discussion to make the foo function more
+flexible by incorporating a input parameter which determines the
+number of times the foo function prints the word "foo".
+
+<pre>
+void foo(uint8_t loops);	// This is a function prototype
+
+//--------------------
+//--------------------
+main() {
+    uint8_t i;		// this variable i is local to main and not related in anyway to the one in foo
+    for (i=0; i &lt 5; i++) 
+        foo(i);		// main is the caller, foo is the callee
+} // end main
+
+//--------------------
+//--------------------
+void foo(uint8_t loops) {
+    uint8_t i;		// this variable i is local to foo, different from the one in main
+    for (i=0; i &lt loops; i++) printf("foo ");
+    printf("\r\n");
+}
+</pre>
+
+There are difference in this version of the program in the call,
+function definition and the function prototype.<br><br>
+
+The difference in the function prototype is trivial; a result of the 
+change in the definition, the two have to always be the same.  So, let's 
+start our detailed discussion with an examination of the function 
+definition for foo.<Br><br>
+
+By adding the
+statement <font face="courier">uint8_t loops</font> in the declaration of
+the foo function we are telling the compiler that we will be sending an
+<u>8-bit integer from the caller to and that inside the foo function 
+the value of this number is associated with the variable "loop".</u>
+Inside the function, the loop variable is used to determine the number
+of times "foo" is printed.  It is not a common practice, but you could
+change the value of loop inside foo, but do not expect this value to be
+sent back to the caller, it will not.  In other words if you modified
+the value of loop inside foo, the value of i in main would not be changed.
+In programming we say that this is a <u>call by value</u>.<br><br>
+
+New programmers who are coming to terms with functions are often under the
+mistaken notion that the variable name for the input parameter in the 
+function declaration ("loop" in our case) must be the same as the variable
+name used by the caller ("i" in our case).  So for example, it 
+would not surprise me it see <font face="courier">foo(loop);</font> 
+in main.  However, this is a misconception that I hope is dispelled
+with this example.  <u>There is absolutely no need to have the name
+of the input argument in the caller be the same as the name of the 
+variable name in the declaration of the callee.</u>  <br><br>
+
+Like its predecessor, the output behavior of this program is to print 
+the word "foo" a lot of times in a particular pattern.  Each call to the 
+foo function prints "foo" the number of times given by the input argument.
+Each "foo" is printed with a trailing space so that consecutive "foo"
+are distinguishable from one another with a space.  After printing 
+zero or more "foo"'s, the function prints a carriage-return and line-feed
+so that the next call to foo prints on a fresh new line.<br>
+
+main determines the number of "foo"'s printed using its for-loop.  It starts
+by calling foo with i=0, so the first line of output from this program
+is a blank line.  The next call to foo has i=1, so the foo function prints
+a single "foo".  This continues, with each call to foo being one larger
+than the last causing each line of output to contain one more "foo" than
+the previous line.  This generates a pattern of output as follows.
+
+<pre>
+
+foo 
+foo foo 
+foo foo foo 
+foo foo foo foo
+</pre>
+
+<h2>Return Values</h2>
+There are times where a function call is like asking a question and
+we would like an meaningful answer.  A return value provides a mechanism
+for this type of interaction.  Let's modify the previous definition of
+the foo function so that it answers the question, "how many characters
+were printed to the terminal?"  
+
+<pre>
+uint8_t foo(uint8_t loops);	// This is a function prototype
+
+//--------------------
+//--------------------
+main() {
+    uint8_t i;		// this variable i is local to main and not related in anyway to the one in foo
+    for (i=0; i &lt 5; i++) {
+        charsPrinted = foo(i);	// use the charsPrinted variable as you want
+    }
+} // end main
+
+//--------------------
+//--------------------
+uint8_t foo(uint8_t loops) {
+    uint8_t i;		// this variable i is local to foo, different from the one in main
+    uint8_t sum = 0;	// this will hold the number of characters printed
+    for (i=0; i &lt loops; i++) {
+	printf("foo ");
+	sum += 4;	// each time you print foo with a space is 4 characters
+    }
+    printf("\r\n");
+    return(sum);	// this is what sends the value back to the caller
+}
+</pre>
+
+There are difference in this version
+of the program in the call, function definition and the function 
+prototype.<br><br>
+
+The difference in the function prototype are trivial; a result of the 
+change in the definition, the two have to always be the same.  So, let's 
+start our detailed discussion with an examination of the function 
+definition for foo.<Br><br>
+
+By adding the statement <font face="courier">uint8_t</font> in front
+of the declaration of the foo function we are telling the compiler that 
+we will be returning an 8-bit integer to the caller using the 
+<font face="courier">return(sum);</font> statement inside the function.
+You need to make sure that the datatype of the variable inside the return
+statement is the same as the data type given in the function definition.
+In our case since sum has type uint8_t (declared inside the function), it 
+matches the return type given in the function declaration.  In order
+to keep track of the number of characters printed as they are being
+printed, I decided to add 4 to sum on every iteration of the for-loop.
+<br><br>
+
+In the caller, the call to foo can now be used just like a variable,
+that is in fact what it means to return a value.  So, I've assigned
+the return value from foo to the variable "charsPrinted".  While
+nothings is done with this value in this example, you can use charsPrinted
+like any other local variable in main.
+
+<h2>1D Arrays as input arguments</h2>
+Let's add a pair of related and important final items to our discussion 
+about functions
+and that is passing arrays to functions.  While conceptually passing
+an array to a function is not dissimilar to passing a regular uint8_t,
+the syntax is different.
+
+<pre>
+#define N	8
+uint8_t foo(uint8_t array[], uint8_t length);
+
+//--------------------
+//--------------------
+main() {
+    uint8_t i, array[N];
+    uint8_t average;
+
+    for (i=0; i &lt N; i++) array[i] = i;
+    average = foo(array, N)/N;
+
+} // end main
+
+//--------------------
+//--------------------
+uint8_t foo(uint8_t array[], uint8_t length) {
+    uint8_t i, sum = 0;
+    for (i=0; i &lt length; i++) {
+	sum += array[i];
+    }
+    return(sum);
+}
+</pre>
+
+Most of the syntax changes become familiar with use, but are quirky at
+first:
+<ul>
+<li>Use normal declaration notation for the array, which is matching
+square brackets containing the number of elements in the array.
+<li>Use empty square brackets in the funciton declaration and
+function prototype.
+<li>Use just the array name in the function call.
+</ul>
+
+Now a subtle point, you <u>could if you wanted change the values of
+the array inside the function and these changes would be communicated
+back to main.</u>  This is because we are calling the function with the
+array declared as a <u>call by reference</u>.
+
+<h2>2D Arrays as input arguments</h2>
+Working with 2D arrays requires a slightly different syntax than working
+with 1D arrays.  Lets look at the syntax differences with an example and
+then we can explore why these changes are necessary.
+
+<pre>
+#define N	8
+uint8_t foo(uint8_t array[N][N], uint8_t rows, uint8_t cols);
+
+//--------------------
+//--------------------
+main() {
+    uint8_t i, array[N][N];
+    uint8_t average;
+
+    for (i=0; i &lt N; i++) 
+        for (i=0; i &lt N; i++) 
+	    array[i][j] = i*N + j;
+    average = foo(array, N)/(N*N);
+
+} // end main
+
+//--------------------
+//--------------------
+uint8_t foo(uint8_t array[N][N], uint8_t rows, uint8_t cols) {
+    uint8_t i, sum = 0;
+    for (i=0; i &lt rows; i++) {
+        for (i=0; i &lt cols; i++) {
+	    sum += array[i][j];
+    }
+    return(sum);
+}
+</pre>
+
+Most of the syntax changes become familiar with use, but are quirky at
+first:
+<ul>
+<li>Use normal declaration notation for the array, which is matching
+square brackets containing the number of elements in the array.
+<li>Use square brackets with row and column dimensions in the funciton 
+declaration and function prototype.
+<li>Use just the array name in the function call.
+</ul>
+
+Now a subtle point, you <u>could if you wanted change the values of
+the array inside the function and these changes would be communicated
+back to main.</u>  This is because we are calling the function with the
+array declared as a <u>call by reference</u>.  This is directly related
+to the topic of pointers, something that we will take up later in the
+semester.<br><br>
+
+Now for an explanation of why we need to define the dimensions of a 2D
+array, but not a 1D array.  The reason is that compiler has to maps the
+indecies of the 2D array is into the linearly address space of the computer 
+memory.  Imagine that you had a 4X4 array of uint8_t called "samples"  The
+computer would actually store the 16 uint8_t in continuous memory locations.
+Lets call the starting memory location of the sample array 0x4000.  Each
+of the 16 element occupies 1 byte of memory so the sample array is store
+at memory locations 0x4000 to 0x400F.
+The first row of the sample array is stores in memory locations 0x4000 - 0x4003.
+The second row of the sample array is stores in memory locations 0x4004 - 0x4007.
+The third row of the sample array is stores in memory locations 0x4008 - 0x400B.
+The fourth row of the sample array is stores in memory locations 0x400C - 0x400F.
+When you the computer sees sample[2][1] it needs to convert this into address
+0x4009.  In general a reference to sample[row][column] references 
+address 0x4000 + row*4 + column.  It's at this point you can start to 
+appreciate why we need to provide the subroutine with the dimensions of the
+array, <u>so that it can convert the row and column references into an
+address.</u>  You would be correct in assuming that you only need to provide
+the number of columns per row to the subroutine, but we will use the 
+convention that we will provide both.
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Write a function which takes as input:
+<ul>	<li>an array of uint8_t's
+	<li>the length of the array</ul>
+and returns the integer average of the elements.
+The array will never have more than 255 elements.  Take care
+when accumulating the sum that it does not overflow.  
+<!--
+uint8_t average(uint8_t array[], uint8_t length) {
+    uint8_t i;
+    uint16_t sum = 0;
+
+    for (i=0; i<length; i++) 
+ 	sum += array[i]
+
+    return(sum/length);
+} // end average
+-->
+</li>
+
+
+<li>Write a function which takes as input:
+<ul>	<li>an array of uint8_t's 
+	<li>the length of the array 
+	<li>an integer threshold </ul>
+and returns the number of array entries greater than the threshold.
+The array will never have more than 255 entries.
+
+<!--
+uint8_t exceedThreshold(uint8_t array[], uint8_t length, uint8_t threshold) {
+    uint8_t count = 0;
+    uint8_t i;
+    for (i=0; i<length; i++) {
+        if (array[i] > threshold) count += 1;
+    return(count);
+} // end exceedThreshold
+-->
+
+
+<li>Write a function that returns the period of a sine wave stored 
+in an array.  The sine wave has an average value of 128. You are 
+to determine the period
+by looking for the for the first time the values in the array cross the 
+average value of 128.  For example, in the array below, this happens when we 
+go from array[4]=168 to array[5]=122.  Note that this is a negative
+transition, meaning that we decreased our way through 128.
+
+<pre>
+    uint8_t array[16] = {233, 242, 233, 207, 168, 122, 76, 37, 11, 2, 11, 37, 76, 122, 168, 207}
+</pre>
+
+We then look for the second time the array crosses 128.  In the array above 
+this occurs we we go from array[13]=122 to array[14]=168.  This is a positive
+transition, which should make sense because the sine wave is now increasing.
+Thus there are 9 indicies (index 13 minus index 4) in half the waveform.  
+Thus this waveform has a period of 2*9 = 18 indicies. <br><Br>
+
+The function takes as input:
+<ul>	<li>an array of uint8_t's 
+	<li>the length of the array </ul>
+and returns the period in terms of indicies.  The array will never have
+more than 127 entries.  If the period cannot be calculated, return 0.
+
+<!--
+uint8_t periodOfWave(uint8_t array[], uint8_t length) {
+    uint8_t firstIndex, secondIndex;
+    uint8_t index = 0;
+
+    if (array[0] < 128) {	// looking for first positive transition
+    	while ((index < length) && (array[index] < 128) index += 1;
+        firstIndex = index - 1;
+    	while ((index < length) && (array[index] > 128) index += 1;
+        secondIndex = index - 1;
+    } else {			// looking for first negative transition
+    	while ((index < length) && (array[index] > 128) index += 1;
+        firstIndex = index - 1;
+    	while ((index < length) && (array[index] < 128) index += 1;
+        secondIndex = index - 1;
+    } // end if
+
+    if (index < length) 
+        return(2*(secondIndex - firstIndex));
+    else
+        return(0);
+
+} // end periodOfWave
+-->
+
+<li>Given the function declaration below, answer the following
+questions.
+<pre>
+//----------------------------------------------
+// Computed the integer square root of the input.
+//----------------------------------------------
+uint8_t SQRT(uint8_t x) {
+	...
+} // end SQRT
+</pre>
+
+<ol type="a">
+<li>Make a call to SQRT with input 0xAB	
+<li>Make a call with SQRT with 8-bit var arg	
+<li>Add SQRT of arg to 8-bit variable sum	
+<li>Check if SQRT of 0xEF is greater than 0xDE 	
+</ol>
+
+<!--
+a. SQRT(0xAB);
+b. SQRT(arg);
+c. sum += SQRT(arg);
+d. if (SQRT(0xEF) > 0xDE) 
+-->
+
+<li>In the backcountry of Colorado, knowledge of the barometric
+pressure is a useful tool for the predication of thunderstorms that generate 
+lightening strikes which kill an average of 3 Coloradans a year and injure 15.
+Barometric pressure is the force per unit area of the atmosphere above a 
+point on the earth's surface.  We will measure air pressure Pascals; an
+increase in air pressure of 200 Pascals or more in an hour is a strong indicator 
+of downdrafts from a developing thunderstorm.  As a consequence, manufactures
+of GPS watches often include a barometric pressure sensor like the 
+Bosch Sensortec BMP280.  The BMP280 measures the absolute barometric
+pressure and returns it as a 16-bit values.  Since the amount of 
+atmosphere above a point on the earth's surface changes depending on your 
+altitude, barometric pressure depends both on the local weather
+and the altitude. 
+<br><br>
+
+For example, in the image below, an imaginary column of atmosphere is
+shown above four points on the earth's surface.  Each of the columns
+has a 1 square meter cross section.  The column's height extends through
+the atmosphere into outer space so that all the possible atmosphere is 
+accounted for.  If you went out and were able to measure the force (weight)
+of this column at these points you would collect the information shown in
+the table below.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Location	<td>Altitude	<td>Force of 1 m<sup>2</sup> air column (Newtons)
+<tr><td>San Diego	<td>0 m		<td>101,325 N
+<tr><td>Idaho Springs	<td>2,200 m	<td>78,062 N
+<tr><td>Mt. Evans	<td>4,400 m	<td>60,140 N
+<tr><td>Mt. Everest	<td>8,800 m	<td>35,695 N
+</table>
+
+
+<br><img src="./img/altitude.bmp"><br><br>
+
+In order to simplify interpreting barometric pressure,
+the effect of altitude is removed by adding an altitude correction factor
+to the absolute barometric pressure, yielding the 
+sea-level adjusted barometric pressure.  Note, all  pressures that you
+read in weather reports are sea-level adjusted barometric pressures.
+The altitude correction factor (<b>acf</b>)depends on the altitude, 
+<b>a</b> and is given by the equation:
+<center>
+acf = 101,325*(1 - e<sup>-0.00012*a</sup>)
+</center><br>
+
+For example, the altitude correct factor for Mt. Evans (an altitude of 
+4,400 m) is 60,140 Pa.  Thus if the BMP280 sensor reported an absolute
+pressure of 42,000 Pa, the sea-level adjusted barometric pressure
+would be 42,000 Pa + 60,140 Pa = 102,140 Pa.  Since 101,325 Pa is 
+considered to be standard pressure, the air pressure at the top of Mt.
+Evans would be above average making for a blue bird day.
+<br><br>
+
+Since all barometric pressures reported on the weather forecast or
+on a GPS watch are sea-level adjusted barometric pressures, a GPS watch
+must be able to calculate the altitude correction factor.  Conveniently,
+a GPS watch has access to its altitude through the GPS receiver.  
+Unfortunately, the microcontroller in your GPS watch cannot compute
+floating point numbers nor exponential functions.  Instead you are
+going to have to use some of the programming constructs presented 
+in this first unit to compute the altitude correction factor.
+<br><br>
+
+<ol>	<li>Use the acf equation to determine the afc at 1,000 meter
+	intervals starting from sea level to the highest peak in the 
+	world.
+	<li>Create an array of these values using the correct data
+	type.  You should assume all altitudes are positive.
+	<li>Write a function that takes in the alititude and returns
+	the closest acf stores in the array.
+</ol>
+
+
+
+</body>
+</html>

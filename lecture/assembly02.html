@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture31.html">&ltPrev</a></li>
+                        <li><a href="./lecture33.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>32</td></tr>
+<tr><td>Code:</td>	<td><a href="./code/pic03.asm">pic03.asm</a><br>
+			<a href="./code/array.asm">array.asm</a></td></tr>
+<tr><td>Objective:</td>	<td>Assembly data types, declarations, arithmetic,
+				 and logic operations.
+</table>
+
+<h2>Assembly conditionals</h2>
+
+The nice thing about conditional statements, structures like if/then,
+is that once you learn how to handle one conditional, you can use that
+structure as a building block for more complex conditionals.  Take
+for example the statement:
+<pre>
+	if (x8 > y8) then z8=0; else z8=1;
+</pre>
+
+The CPFSLT, CPFSEQ and CPFSGT assembly instructions in the PIC are 
+ideally suited to help.  The mnemonic stands for "Compare F with W
+and skip if &lt;condition&gt;".  Let's see how this works with an 
+example in the C code snippet above.<br><br>
+
+The idea is to put the expression to the right of the conditional
+statement into the W register and keep the operand to the right
+of the conditional in a file register.
+
+<pre>
+		MOVF	Y8, W		; move RHS into W
+		CPFSGT	X8		; Compare f with W, skip if f > W
+		GOTO	ELSE_CLAUSE	; this will be the else clause
+
+THEN_CLAUSE	MOVLW	0x00		; this is what we skipped to
+		MOVWF	Z8		; so put 0 into z8
+		GOTO	NEXT		; and move beyond the if/then
+
+ELSE_CLAUSE	MOVLW	0x01		; this will be the else clause
+		MOVWF	Z8
+
+NEXT		&lt;some stuff&gt;
+
+</pre>
+
+<h2>Loops</h2>
+Loops repeat the execution of a collection of statements (called the
+body) until some condition is met. Today we will examine two of the
+more useful looping structures in Assembly, the for and while loops.
+
+<h3>Count down for-loop</h3>
+It may come as a surprise that for-loops that count down would be
+the most straightforward to implement in the PIC assembly
+language.  Let's look at a side-by-side comparison of two identical
+programs.
+
+<table border=1>
+<tr><td>C-code</td>	<td>Assembly</td></tr>
+<tr> <td>
+<pre>
+    unit8_t i;
+    uint8_t sum = 0;
+
+    for (i=10; i>0; i--) {
+	sum += i;
+    } // end for
+</pre>
+</td><td>
+<pre>
+	CLRF	varS8		; uint8_t sum = 0;
+	MOVLW	10
+	MOVWF	varI8		; uint8_t i = 10
+
+loop	MOVF	varI8, W	; W <= varI8
+	ADDWF	varS8, F	; varS8 <= varS8 + varI8
+	DECFSZ	varI8
+	GOTO	loop
+next	NOP
+</pre>
+</td></tr></table>
+
+By this point in the semester, the C code should be farily
+straightforward.  The loop counter, i, starts at 10 and counts
+down each iteration through the for-loop until until it equals
+0 when the loop terminates.  The assembly program loads i with
+10 and clears the sum.  Each iteration through the loop it adds
+i and sum, putting the sum back into the sum variable.    The 
+next two instructions in the assembly program are the ones which
+perform the work of the for-loop.  The "DECFSZ" instructions
+is interpreted to mean "Decrement F skip if zero".  Let's break
+this down.
+<ul>	<li>"decrement" means subtract one.  The decrement is the
+	first operation performed by this instruction,
+	<li>"F" is the file register that will have its value
+	decremented.  It is the first argument of the assembly 
+	instruction.  In the case of our assembly language program,
+	file register at address varI8 will have its value decreased
+	by 1.  This decrement permanently changes the value of the 
+	file register at address varI8,
+	<li>"skip if zero" means that when the file register associated
+	with this instruction (varI8 in our case), reaches the value
+	zero, the instruction immediately following the DECFSZ instruction
+	should be skipped.  This means that when varI8 reaches 0 we should
+	skip the "GOTO loop" instruction and execute the instruction
+	at the label "next".  In this case I placed a NOP instruction
+	in this slot as a place-holder for the operation performed after
+	the loop terminates.
+</ul>
+
+<h3>Count up for-loop</h3>
+Count-up loops are similar to their count-down counterparts, but need
+more complex checking at the end of the loop.  Let's look at a 
+side-by-side comparison to better understand what I mean.
+
+<table border=1>
+<tr><td>C-code</td>	<td>Assembly</td></tr>
+<tr> <td>
+<pre>
+    unit8_t i;
+    uint8_t sum = 0;
+
+    for (i=3; i<22; i+=6) {
+	sum += i;
+    } // end for
+</pre>
+</td><td>
+<pre>
+	CLRF	varS8		; uint8_t sum = 0;
+	MOVLW	3
+	MOVWF	varI8		; uint8_t i = 3
+
+loop	MOVF	varI8, W	; W <= varI8
+	ADDWF	varS8, F	; varS8 <= varS8 + varI8
+
+	MOVLW	6
+	ADDWF	varI8, F	; varI8 <= varI8 + 6;
+
+	MOVLW	22		; W <= 22
+	CPFSLT	varI8		; Compare I8 with 22 skip if I8 < 22
+	GOTO	next
+	GOTO	loop
+
+next	NOP
+</pre>
+</td></tr></table>
+
+Compared to the count-down loop, this structure takes a lot more
+work.  First, we need to explicitly modify the loop variable.  In this
+case we need to add 6 to varI8 and store the result back in varI8.
+Second we need to carefully consider how to make the loop work correctly.
+The loop should contine when I8 < 22, so we will use the "CPFSLT" 
+instruction to skip to the "GOTO loop" and contine the loop.  This means
+that execute the "GOTO next" instruction when I8 is not less than 22
+which is what we want.
+
+
+<h3>While loop</h3>
+Assembly language while loops are very similar to their C-code
+counter parts.  Let's examine the following pair of while loops.
+
+<table border=1>
+<tr><td>C-code</td>	<td>Assembly</td></tr>
+<tr> <td>
+<pre>
+    uint8_t i = 0;
+    uint8_t sum = 0;
+
+    while(i < 10) {
+	sum += i;
+	i += 1;
+    }
+</pre>
+</td><td>
+<pre>
+	CLRF	varS8		; uint8_t sum = 0;
+	CLRF	varI8		; uint8_t i = 10
+
+loop	MOVLW	10		; move RHS into W
+	CPFSLT	varI8		; Compare f with W, skip if f > W
+	GOTO	next		; this will be the else clause
+
+	MOVF	varI8, W	; W <= varI8
+	ADDWF	varS8, F	; varS8 <= varS8 + varI8
+	GOTO	loop
+next	NOP
+</pre>
+</td></tr></table>
+
+The assembly while loop starts with an if/then statement, followed
+by the body of the for-loop, and ending with a GOTO to the start
+of the while loop. The conditional if/then statements covered at
+the beginning of this lecture do the heavy lifting and allow us
+to exit out of the loop when the conditional is no longer true.
+<br><br>
+
+There is a second form of the while loop that is made to check a 
+bit and branch when the bit equals 1 or 0.  For example, let's
+say that you are using timer 1 to create a delay.  Furthermore,
+let's assume that you have set the initial value of timer 1 (we will
+clear the and the TMR1IF flag of the PIR1 register as the first 
+instruction in our code snippet).  Now you want to
+wait until the TMR1IF flag is set; in C-code this would be equivalent
+to: <font face="courier">while (PIR1bits.TMR1IF == 0);</font>
+In the PIC assembly language this would look like:
+
+<pre>
+	BCF	PIR1, TMR1IF, ACCESS	; clears the TMRIF flag
+while0	BTFSS	PIR1, TMR1IF, ACCESS	; while loop
+	GOTO	while0
+</pre>
+
+The BTFSS stands for bit test F skip if set. Let's break this down so
+that we can understand what is going on:
+<ul>	<li>"bit test" means that we are going to test for the value
+	of a bit inside a file register.  The bit (0-7) is provided
+	as the second argument to the instruction.  In this case
+	"TMR1IF" is aliased to 0 in the "p18f26k22.inc" file 
+	discussed in the previous lecture's "Test your understanding"
+	section,
+	<li>"F" is the file register that will be testing and is the 
+	the first argument of the assembly instruction,
+	<li>"skip if set" means that when the bit in the file register 
+	associated with this instruction equals 1, the instruction 
+	immediately following the BTFSS instruction should be skipped. 
+	<li>The "ACCESS" reference means that the PIC will use the 
+	ACCESS memory model to locate the PIR1 register.
+</ul>
+
+We can now interpret the BTFSS instruction; when the the TMR1IF bit of the 
+PIR1 register is equal to 1 (set) then skip the "GOTO loop" instruction and
+continue with the instruction following the loop.
+
+<h2>Spaghetti code</h2>
+From the eponymously named 
+<a href="https://en.wikipedia.org/wiki/Spaghetti_code">Wikipedia page</a>
+<i>Spaghetti code is a pejorative phrase for source code that has a complex
+and tangled control structure, especially one using many GOTO statements&hellip;</i>
+The term is derived from the following visual metaphor.  Imagine
+while executing your code the computer drew a line between each 
+instruction what was executed without ever picking up the drawing 
+implement.  Now, focus on just the line draw while mentally removing
+the program.  If the lines looks like a random jumble of lines running
+everywhere, congratulations you have Spaghetti code.  GOTO statements 
+enable many bad coding practices/habits which contribute to Spaghetti 
+code. You should interpret the term "pejorative" used in the Wikipedia 
+entry to mean that Spaghetti code is a thing to be avoid.  Why?
+<ul>	<li>It is harder to maintain (wasted $$)
+	<li>It is harder to understand (hides bugs)
+	<li>Symptomatic of bad programming practices,
+</ul>
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Write a for loop that starts at 3, counts up by 5 and ends before
+reaching 105.
+
+<!--
+This should be a pretty straight-forward extension of the example
+presented in this lecture.  Note that the NOP is placeholding the
+body of the for-loop.
+
+<pre>
+	MOVLW	3
+	MOVWF	varI8		; uint8_t i = 3
+
+loop	NOP
+
+	MOVLW	5
+	ADDWF	varI8, F	; varI8 <= varI8 + 5;
+
+	MOVLW	105		; W <= 105
+	CPFSGT	varI8		; Compare I8 with 105 skip if I8 > 105
+	GOTO	next
+	GOTO	loop
+
+next	NOP
+</pre>
+-->
+
+<li>Write a for loop that counts up from 1 to 128 (inclusive) by powers
+ of 2.
+
+<!--
+This is a variation of the example count-up loop presented in this 
+lecture but the modification of the loop variable is changed to use 
+a shift left.  Note that the NOP is place-holding the body of the 
+loop.
+
+<pre>
+	MOVLW	1
+	MOVWF	varI8		; uint8_t i = 1
+
+loop	NOP
+
+	BCF	STATUS, C	; clear carry bit
+	RLCF	varI8, F	; rotate X8 left with carry bit into LSB into W
+
+	MOVLW	128		; W <= 128
+	CPFSGT	varI8		; Compare I8 with 128 skip if I8 > 128
+	GOTO	next
+	GOTO	loop
+
+next	NOP
+-->
+
+<li>Write a for loop that counts down from 88 to no less than 42 by 2's.
+That is counts down from 88 while the count is greater than or equal to 
+42.
+
+<!--
+This is a variation of the example count-up loop presented in this 
+lecture but the modification of the loop variable is changed to 
+decrement by 2.  Note that a DECFSZ will not work for two reasons,
+we need to decrement twice and we are not terminating at 0. 
+Note that the NOP is place-holding the body of the 
+loop.
+
+<pre>
+	MOVLW	42
+	MOVWF	varT8		; uint8_t temp = 42
+	MOVLW	88
+	MOVWF	varI8		; uint8_t i = 88
+
+loop	NOP
+
+	MOVLW	2
+	SUBWF	varI8
+
+	MOVF	varT8, W	; W <= 42
+	CPFSLT	varI8		; Compare I8 with 42 skip if I8 < 42
+	GOTO	loop
+
+next	NOP
+An important point is illustrated with this example.  The normal logic
+order ot the terminating condition is changed because we need to iterate the
+loop until varI8 is less than 42.  The logic given will skip the "GOTO loop"
+statement only when varI8 is less than 42.
+-->
+
+<li>Write a loop that counts up by one while a button is being held down.
+Assume that we are working with our active low button on RA2.  
+This push button is nominally logic 1 until it's pressed then it has 
+the value 0.
+
+<!--
+Our loop will look at this bit in LATA2 the GOTO loop while the button
+is logic 0.
+
+<pre>
+	CLRF	varC8;
+
+loop	INCF	varC8
+	BTFSS	LATA, 2, ACCESS
+	GOTO	loop
+</pre>
+-->
+
+<li>Write a loop that counts up by one everytime a button is pressed.
+Assume that we are working with our active low button on RA2.  
+This push button is nominally logic 1 until it's pressed then it has 
+the value 0.<br><br>
+
+<!--
+We will wait while the button is not pressed (equal to 1) in the 
+while1 loop.  When the button is pressed we will break out of this loop 
+and enter a second loop that wait while the button is bring pressed
+(equals to 0).  We will then increment the counter and do all this
+over again.
+
+<pre>
+	CLRF	varC8;
+
+loop	
+while1	BTFSC	LATA, 2, ACCESS
+	GOTO	while1
+
+while0	BTFSS	LATA, 2, ACCESS
+	GOTO	while0
+
+	INCF	varC8
+	GOTO	loop
+</pre>
+-->
+
+</ol>
+
+</body>
+</html>

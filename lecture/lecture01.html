@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+
+</head>
+
+
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture01.html">&ltPrev</a></li>
+                        <li><a href="./lecture02.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>1</td></tr>
+<tr><td>Next lecture	<td>Download and install MPLab X with XC8
+<tr><Td>Objective	<td>Embedded development process, numbering systems
+</table>
+
+<h1>Overview</h1>
+Embedded systems is about the study of embedding computers into dedicated
+applications. The goal this semester is to get you to a point where you
+can design these systems.
+A quick look around will reveal a tremendous number of 
+embedded processors in your environment.  The computational requirements 
+vary from the very simple to the very sophisticated.
+Consequently there are a range of processors available; their computational
+capability is often characterized by the word-size of the processor. The
+word-size is the maximum number of bits a processor operation can complete 
+in a single instruction.  Generally, 8-bit processors are reserved for 
+simple tasks, 16-bit for signal processing applications, and 32-bit 
+reserved for general purpose and high performance applications.  The 
+PIC processor has a word-size of 8-bit.
+<br><br>
+
+
+We will be working with the Microchops PIC 18F26K22 8-bit microcontroller.
+You will write assembly and C code on a PC using MPLab X and download the
+object code to the processor which resides on your development board.   I have
+decided to forego a textbook in favor of the orginal source technical
+documents for the PIC 18F26K22 Data Sheet and the XC8 compiler User's
+Guide.  The links for both documents are posted on the class main page.
+
+Do not bother to print these documents out as they consist of over a
+1000 pages, most of which you will not need.  However, please download
+and store a copy on your local drive as you may need to consult them
+during the term when the network is unavailable.
+
+<h1>Codes</h1>
+Microcontrollers encode all sorts of information using bits.
+It's important to realize that <u>bits have no meaning in themselves,
+we interpret them according to some set of rules.</u>  Throughout the
+term, we will primarily use the following codes.
+
+<ul>	<li>Decimal
+	<li>Unsigned binary
+	<li>Signed binary
+	<li>Hexadecimal
+	<li>ASCII - http://www.asciitable.com/
+</ul>
+
+
+To gain a better understanding of these codes, let's complete the
+following exercise.
+
+<h2>Conversions</h2>
+Perform the following conversions assuming a 4-bit word size.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Binary	<td>hex		<td>decimal	<td>representation
+<tr><td>0b1010	<td>&nbsp	<td>&nbsp	<td>unsigned
+<tr><td>0b1010	<td>&nbsp	<td>&nbsp	<td>signed
+<tr><td>&nbsp 	<td>0xC		<td>&nbsp	<td>unsigned
+<tr><td>&nbsp 	<td>0xC		<td>&nbsp	<td>signed
+<tr><td>&nbsp 	<td>&nbsp	<td>-3   	<td>signed
+<tr><td>&nbsp 	<td>&nbsp	<td>6 		<td>unsigned
+</table>
+
+The American Standard Code for Information Interchange (ASCII)
+represents character codes needed to present text on terminal
+devices like computer monitors.  There is no expectation that
+you will memorize the ASCII table, so find one you like, like 
+that in the URL posted in the list above, to perform the following
+conversion.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>ASCII	<td>hex		<td>decimal
+<tr><td>'3'	<td>&nbsp	<td>&nbsp
+<tr><td>&nbsp 	<td>0x20	<td>&nbsp
+<tr><td>&nbsp 	<td>&nbsp	<td>88
+</table>
+
+
+<h2>Data Types</h2>
+The C programming language allows you to represent values using
+data types with different numbers of bits.  A guiding principle
+in Embedded Programming is to <u>use the smallest data type 
+sufficient to meet the needs of the problem being solved.</u>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Representation	<td>Width<td>Min<td>Max   <td>Alias
+<tr><td>unsigned<td>8-bit	<td>0	<td>255	  <td>uint8_t
+<tr><td>signed 	<td>8-bit	<td>-128<td>127	  <td>int8_t
+<tr><td>unsigned<td>16-bit	<td>0	<td>2<sup>16</sup>-1 <td>uint16_t
+<tr><td>signed	<td>16-bit	<td>-2<sup>15</sup><td>2<sup>15</sup>-1<td>int16_t
+<tr><td>unsigned<td>32-bit	<td>0	<td>2<sup>32</sup>-1<td>uint32_t
+<tr><td>signed 	<td>32-bit	<td>-2<sup>31</sup><td>2<sup>31</sup>-1<td>int32_t
+
+</table>
+
+Take a look at Table 5.3 and 5.4 in the XC8 Compiler Manual for the
+official C designations for these data types.  We will stick with the
+alias' in the right-most columns.
+You will notice that we did not include floating
+point values in the above list.  <u>You are forbidden to use
+floating point types in this class.</u>  Every lab is structured
+so that there is no need for floating point.
+
+
+<h2>Radix</h2>
+The term "radix" is synonymous with "base" and denotes the number of 
+symbols used to represent quantities.  We will primarily work with
+three different radix in our course: binary, decimal and hexadecimal.
+The C programming language provides prefixes that allows you
+to describe constant values in different bases.  The following three
+lines of C-code describe three different variable declarations in
+these three different radix.
+
+<pre>
+    uint8_t binVar = 0b10101100;
+    uint8_t decVar = 172;
+    uint8_t hexVar = 0xAC;
+</pre>
+
+You must realize that the radix is only a convenience for humans; the
+PIC will store all three of binVar, decVar and hexVar in binary
+inside the machine's memory using identical binary representations
+because all three represent the same quantity.<br><br>
+
+While not strictly a radix, you can initialize variable using ASCII
+equivalent characters surrounded by single quotes.  For example, the 
+following is a legal variable declaration. 
+
+<pre>
+    char asciiVar = 'X';
+</pre>
+
+The result of this declaration would be to initialize asciiVar with
+the ascii code for the letter 'X' which is decimal 88.  I could have 
+legally made the declaration 
+<font face="courier">uint8_t asciiVar = 'X';</font>, but this 
+declaration would not have conveyed the intention of the
+declaration, that asciiVar is being used to store character information not
+a numerical value.
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this 
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Complete the following table assuming an 8-bit word size.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Binary		<td>Hex		<td>Decimal	<td>Representation
+<tr><td>0b10010011	<td>&nbsp	<td>&nbsp	<td>unsigned
+<tr><td>0b10010011	<td>&nbsp	<td>&nbsp	<td>signed
+<tr><td>&nbsp		<td>0x85	<td>&nbsp	<td>unsigned
+<tr><td>&nbsp		<td>0x85 	<td>&nbsp	<td>signed
+<tr><td>&nbsp		<td>&nbsp	<td>102		<td>unsigned
+<tr><td>&nbsp		<td>&nbsp	<td>-102	<td>signed
+</table>
+
+<!---
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Binary		<td>Hex		<td>Decimal	<td>Representation
+<tr><td>0b10010011	<td>0x93 	<td>147  	<td>unsigned
+<tr><td>0b10010011	<td>0x93 	<td>-109	<td>signed
+<tr><td>0b10000101	<td>0x85	<td>133  	<td>unsigned
+<tr><td>0b10000101	<td>0x85 	<td>-123 	<td>signed
+<tr><td>0b01100110	<td>0x66	<td>102		<td>unsigned
+<tr><td>0b10011010	<td>0x9A	<td>-102	<td>signed
+</table>
+--->
+
+<li>Determine the ASCII codes for each letter in "Blaster".  
+Represent the ASCII code in decimal.
+
+<!--
+B = 66
+l = 108
+a = 97
+s = 115
+t = 116
+e = 101
+r = 114
+-->
+
+<li>For each of the following, determine the best C data type for
+a variable which needs to describe an element of the Domain.  For 
+example, to describe the age of a person, you would first need to
+determine the range of ages for people.  A quick search reveals the
+oldest person was 122 years-old.  So the <u>smallest</u> data type
+which can accommodate this range is "unsigned char", which can
+represent values in the range 0-255.  We only use signed types when
+we need to represent negative values.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Variable domain				<td>Data type
+<tr><td>Age of a person	(years)			<td>uint8_t
+<tr><td>Numbered day of the year		<td>&nbsp
+<tr><td>Weight of a human (pounds)		<td>&nbsp
+<tr><td>Temperature in Golden Co (Celsius)	<td>&nbsp
+<tr><td>Number of gerbils in a pet store	<td>&nbsp
+<tr><td>Elevation of a location in Continental US (feet)	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Variable domain				<td>Data type
+<tr><td>Age of a person (years)			<td>uint8_t
+<tr><td>Numbered day of the year		<td>uint16_t
+<tr><td>Weight of a human in (pounds)		<td>uint16_t
+<tr><td>Temperature in Golden Co (Celsius)	<td>int8_t
+<tr><td>Number of gerbils in a pet store	<td>uint8_t
+<tr><td>Elevation of a location in continential US (feet)<td>int16_t
+</table>
+
+<ul>
+<li>Age of a person is always positive and less than 256 years old.
+<li>There are 365 days in a year.
+<li>A person may weigh more than 256 lbs, but no one weighs
+more than 65,536 lbs.
+<li>Temperature can be both positive and negative, but the temperature in 
+Golden is certianly greater than -128 Celsius and less than 127 Celsius.
+<li>It would be an unusual pet store that has more than 256 gerbils.
+<li> The highest point in CONUS is Mount Whitney, California @ 14,505 feet 
+The lowest point in the CONUS is Badwater Basin, Death Valley, California @ −279 feet.
+</ul>
+-->
+
+<li>
+Interpret the following 4-bit values for A as integers (unsigned) and 4-bit
+2's complement values (signed).
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>A	<td>unsigned	<td>signed
+<tr><td>0011	<td>&nbsp	<td>&nbsp	
+<tr><td>1010	<td>&nbsp	<td>&nbsp
+<tr><td>1111	<td>&nbsp	<td>&nbsp
+<tr><td>0110	<td>&nbsp	<td>&nbsp	
+<tr><td>1100	<td>&nbsp	<td>&nbsp
+<tr><td>0010	<td>&nbsp	<td>&nbsp	
+<tr><td>1010	<td>&nbsp	<td>&nbsp	
+<tr><td>1001	<td>&nbsp	<td>&nbsp
+<tr><td>0100	<td>&nbsp	<td>&nbsp	
+<tr><td>0111	<td>&nbsp	<td>&nbsp	
+<tr><td>0000	<td>&nbsp	<td>&nbsp
+<tr><td>1000	<td>&nbsp	<td>&nbsp	
+<tr><td>0101	<td>&nbsp	<td>&nbsp	
+<tr><td>1101	<td>&nbsp	<td>&nbsp
+<tr><td>1011	<td>&nbsp	<td>&nbsp	
+<tr><td>0001	<td>&nbsp	<td>&nbsp
+<tr><td>1110	<td>&nbsp	<td>&nbsp
+</table>
+
+<!--
+<tr><td>A	<td>unsigned	<td>signed
+<tr><td>0011	<td>3		<td>3	
+<tr><td>1010	<td>10		<td>-6
+<tr><td>1111	<td>15		<td>-1
+<tr><td>0110	<td>6		<td>6	
+<tr><td>1100	<td>12		<td>-4
+<tr><td>0010	<td>2		<td>2	
+<tr><td>1010	<td>10		<td>-6	
+<tr><td>1001	<td>9		<td>-7
+<tr><td>0100	<td>4		<td>4	
+<tr><td>0111	<td>7		<td>7	
+<tr><td>0000	<td>0		<td>0
+<tr><td>1000	<td>8		<td>-8	
+<tr><td>0101	<td>5		<td>5	
+<tr><td>1101	<td>13		<td>-3
+<tr><td>1011	<td>11		<td>-5	
+<tr><td>0001	<td>1		<td>1
+<tr><td>1110	<td>14		<td>-2
+</table>
+-->
+
+<li>Decode the following secret message by interperting the
+8-bit binary values as ascii characters.<br>
+
+0b01000100<br>
+0b01110010<br>
+0b01101001<br>
+0b01101110<br>
+0b01101011<br>
+0b00100000<br>
+0b01111001<br>
+0b01101111<br>
+0b01110101<br>
+0b01110010<br>
+0b00100000<br>
+0b01001111<br>
+0b01110110<br>
+0b01100001<br>
+0b01101100<br>
+0b01110100<br>
+0b01101001<br>
+0b01101110<br>
+0b01100101<br>
+0b00100001<br>
+</li>
+
+<!--
+0b01000100 = 68 = 'D'<br>
+0b01110010 = 114 = 'r'<br>
+0b01101001 = 105 = 'i'<br>
+0b01101110 = 110 = 'n'<br>
+0b01101011 = 107 = 'k'<br>
+0b00100000 = 32 = ' '<br>
+0b01111001 = 121 = 'y'<br>
+0b01101111 = 111 = 'o'<br>
+0b01110101 = 117 = 'u'<br>
+0b01110010 = 114 = 'r'<br>
+0b00100000 = 32 = ' '<br>
+0b01001111 = 79 = 'O'<br>
+0b01110110 = 118 = 'v'<br>
+0b01100001 = 97 = 'a'<br>
+0b01101100 = 108 = 'l'<br>
+0b01110100 = 116 = 't'<br>
+0b01101001 = 105 = 'i'<br>
+0b01101110 = 110 = 'n'<br>
+0b01100101 = 101 = 'e'<br>
+0b00100001 = 33 = '!'<br>
+
+The message is "Drink your Ovaltine!"
+-->
+
+</ol>
+
+
+</body>
+</html>

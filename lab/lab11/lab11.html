@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #11 - DDS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>                     </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab10/lab10.html">&lt;Prev</a></li>
+                        <li><a href="../lab14/lab14.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Lab 11 - Direct Digital Synthesis
+</center>
+<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>11</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 11</h2>
+Some self guided <a href="./inlab11.html">activities.</a>
+
+<h2>Lab 11 assignment</h2>
+
+<h2>Software</h2>
+The software will use an interrupt service routine associated 
+with timer 0 to generate a DDS sine wave that updates about 30us 
+from a 64 entry table.  You may modify this update rate 
+in order to make your math come out easier.  The phaseIncrement and
+phaseAccumulator should be stored in uint16_t.  You will have to
+determine their fixed point format using the information given.
+<br><br>
+
+<b>Calculation</b><br>
+With a 64-entry sine wave LUT and a uint16_t data type phaseAccumulaor,
+what fixed point format should the phaseIncrement and phaseAccumulator
+have?  I will refer to this value as I.F; 'I' for the number of integer 
+bits and 'F' for the number of fractional bits.
+<br><br>
+
+<b>Calculation</b><br>
+Write out a units factoring expression that describes
+the frequency of the output sine wave from the 64-entry LUT as a
+function of the phaseIncrement and the update rate.  Now set the 
+output sine wave frequency to 0.5 Hz and determine what update rate
+achieves this frequency with the smallest possible phaseIncrement
+(2<sup>-F</sup>, where F is the number of bits of fractional bits in 
+your fixed point format).  At this update rate, 1 LSB unit change 
+of the phaseIncrement corresponds to a 0.5 Hz change in the output 
+frequency. Just double the requested frequency and store it as the
+phaseIncrement - you can do this with a shift operation.
+<br><br>
+
+Your program needs to include a function that allows the user, through 
+the terminal interface, to type in a multi-digit decimal number,
+echoing the digits back to the terminal as they are typed, and, when
+the Enter key is pressed, convert the multi-digit value into a numerical
+value and return it as a uint16_t.  Your function should ignore non-digit
+characters that may be typed in.  Your function does not need
+to concern itself about overflow resulting from the user 
+entering a value larger than 65535.  One approach to this problem
+is to keep a running total of the number's value.  Every time a new
+digit is entered, multiply the running total by 10 and adding the 
+newly entered digit (minus ASCII '0') to the running total.  The 
+function  prototype for this function in my program is:
+<pre>
+uint16_t convert(void);
+</pre><br><br>
+
+Your program will be sweeping the frequency from a non-zero starting
+frequency (in Hz) and an ending frequency (in Hz).  To accomplish this
+the sweep should iterate through each phaseIncrement between the two 
+frequencies using a for-loop.  Hold each phaseIncrement for some duration
+of time that depends on the start and end frequencies as well as the 
+sweep period.   Make sure not to use TMR0 as the delay timer - it is
+already being used to generate interrupts every 30us or so.
+<br><br>
+
+<b>Calculation:</b><br>
+Write out a units factoring expression for the number of 1:1 prescaled timer 
+counts that will divide the sweep period into unit sized phaseIncrements.  
+The number of timer counts will depend on the start and end frequencies as 
+well as the sweep period.
+<br><br>
+
+
+At start-up your program should present a splash screen - this would
+be a great place for some ASCII art. The splash screen should also contain
+connection instruction for the developent board; for this assignment tell
+the user there are jumpers to install! When you press "?" at the
+terminal you should be greeted with the following menu.  
+
+
+<pre>
+-------------------------------------------------
+--	Fixed
+--		Frequency:	440Hz
+--		Amplitude:	5/16
+--	Sweep:
+--		Starting:	100Hz
+--		Ending:		1000Hz
+--		Duration:	1 second
+-------------------------------------------------
+?: help menu
+o: k
+Z: Reset processor
+z: Clear the terminal
+S/s: Start/stop fixed frequency sine wave
+f: enter Frequency
+A/a: increase/decrease Amplitude select amplitude
+W: sWeep sine wave 
+t: enter sTarting frequency
+e: enter Ending frequency
+d: enter Duration
+-------------------------------------------------
+</pre>
+
+Print all values  in decimal even through they may be
+represented in terms of different units inside your
+program such as timer counts.
+<br><br>
+
+<ul>
+<li><b>?</b><br>
+Prints out the ever useful help menu.  Display the current upper and
+lower audio thresholds as part of the menu.
+<br><br>
+
+<li><b>o</b><br>
+Returns "k" so that you know that the terminal is in working order.
+<br><br>
+
+<li><b>Z</b><br>
+Reset the processor so that we can see that splash screen.
+<br><br>
+
+<li><b>z</b><br>
+Clear the terminal using a bunch of new lines.
+<br><br>
+
+<li><b>S/s</b><br>
+Start or stop the generation of a 
+sine wave with a constant frequency given by the variable
+phaseIncrement (from "f" command), and an amplitude determined by 
+the "A/a" commands.
+The ISR generating the sine wave should use a global flag to enable
+or disable the generation of the sine wave - there are times when
+we want the sine wave output disabled.
+<br><br>
+
+<li><b>f</b><br>
+This command changes the phaseIncrement used to generate the sine wave
+inside the ISR
+ using the <b>convert</b> function discussed above.
+<br><br>
+
+<li><b>A/a</b><br>
+This command changes the amplitude of the sine wave generated 
+inside the ISR.  To do this, inside the ISR take the retried
+value from the sine wave LUT and store it in a local variable.
+The create 4 shifted right versions of this local variable, 
+creating local/2, local/4, local/8 and local/16.  then, depending
+on the bits of the amplitude variable add the fractional amplitudes
+into a total amplitude.  Send this amplitude to the PWM -> digital
+to analog converter.  For example:
+<pre>
+	// This is rough pseudo code and not intended to directly
+	// represent your final algorithmic implementation.
+
+	amplitude = 11;			// In binary  = 0b1011
+	local = sin[index];
+	localDiv2  = local >> 1;
+	localDiv4  = local >> 2;
+	localDiv8  = local >> 3;
+	localDiv16 = local >> 4;
+
+	// Since amplitude has bits set in position -1, -3, -4
+	total = localDiv2 + localDiv8 + localDiv16;
+	PWMduty4(total);
+</pre>
+Note, that this version of the amplitude does not allow a full-scale
+output, you will only get to with 15/16<sup>th</sup> of the maximal 
+output.
+<br><br>
+
+<li><b>W</b><br>
+Generate a sweeped frequency sine with a frequency that starts at
+startPhaseIncrement and ends and endPhaseIncrement over a time 
+period given by the sweep period.
+<br><br>
+
+<li><b>t</b><br>
+This command changes the startPhaseIncrement used to generate the 
+sweeped sine wave
+ using the <b>convert</b> function discussed above.
+<br><br>
+
+<li><b>e</b><br>
+This command changes the endPhaseIncrement used to generate the 
+sweeped sine wave
+ using the <b>convert</b> function discussed above.
+<br><br>
+
+<li><b>d</b><br>
+This command changes the sweepPeriod (measured in milliseconds) used to 
+generate the sweeped sine wave using the <b>convert</b> function discussed 
+above.  The number entered should be assumed to be in millisecond.
+<br><br>
+
+<h2>Working from Home</h2>
+You can test this assignment at home by playing the DDS output through
+a speaker then using a cell phone application that displays a frequency
+spectrum of the audio.  Just add the jumper across the LPF<sub>out</sub> /
+AMP<sub>in</sub> jumper, then connect your speaker to the screw terminals.
+I found a bunch of appropriate apps by searching for 
+"FFT Spectrum Analyzer".  You could probably also search for a guitar 
+tuner app and set your DDS output to correspond to a particular note.
+The cell phone apps should display a graph showing the power at each
+frequency, the biggest spike being the audio output of your development
+board.
+
+<h2>Turn-in</h2>
+You may work with a single partner (or alone) to complete this lab.
+Submit your main.c file on Canvas using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+</html>

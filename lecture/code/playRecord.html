@@ -1,0 +1,164 @@
+<html>
+<pre>
+//---------------------------------------------------------------
+// Use these functions to build an RTOS for the playback system
+// delayMS(x) - creates task to delay x mS
+// SignalEvent(messageName, messageValue) - send message 
+// GetMessageValue(messageName) - gets the messages value
+// WaitForEvent(messageName) - causes task to wait on message
+// CheckForEvent(messageName) - Equal 1 if there is a waiting message
+//---------------------------------------------------------------
+
+//---------------------------------------------------------------
+// messages that are used in this program
+// messageStartRecord		messageEndRecord
+// messageStartPlay		messageEndPlay
+// messageADIF                  messageMicValid
+// messageDoneWritePage         messagePageFull
+// messageNeedNewPage           messagePageValid
+// messageNeedNewNote		messageNoteValid
+//---------------------------------------------------------------
+
+// Globals
+uint8_t red[PAGE_SIZE], blue[PAGE_SIZE];
+uint8_t *storingBuffer, *fillingBuffer, *playingBuffer;
+uint32_t finalSdCardAddress;
+uint32_t sdCardAddress;
+
+//---------------------------------------------------------------
+// task:	ReadJoy
+// purp:	Reads the joystick every 100mS and
+//		starts recording on up 
+//		stops recording on down
+//		starts playback on left
+//		stops recording on right
+//---------------------------------------------------------------
+void taskReadJoy() {
+    for(;;) {
+	delayMS(10);
+	if (up_pin)	SignalEvent(________________________, 1);
+	if (down_pin)	SignalEvent(________________________, 1);
+	if (left_pin)	SignalEvent(________________________, 1);
+	if (right_pin)	SignalEvent(________________________, 1);
+}   }
+
+//---------------------------------------------------------------
+// task:	ReadMic
+// purp:	Reads the microphone every 1mS and signals 
+//		StoreMic with this new sample
+//---------------------------------------------------------------
+void taskReadMic() {
+    for(;;) {
+	WaitForEvent(________________________);
+	while(!CheckForEvent(________________________)) {
+	    ADCCONbits.GO = 1;
+	    WaitForEvent(________________________);
+	    SignalEvent(________________________);
+	    delayMS(________________________);
+}   }
+
+
+//---------------------------------------------------------------
+// task:	StoreMic
+// purp:	acquires samples from ReadMic, puts them into
+//		the red or blue buffer.  When a buffer is full
+//		writing is switched to the other buffer and the
+//		full buffer is stored in the SDCARD via the
+//		WritePage task.
+//---------------------------------------------------------------
+void taskStoreMic() {
+    uint32_t sdCardAddress;
+
+    for(;;) {
+	WaitForEvent(________________________);
+	sdCardAddress=0;
+	fillingBuffer=red;
+	while(!CheckForEvent(________________________)) {
+
+	    for(i=0; i &lt; PAGE_SIZE; i++) {
+		WaitForEvent(________________________);
+		fillingBuffer[i++]=ValueOfMessage(________________________);
+	    }
+            storingBuffer = fillingBuffer;
+	    SignalEvent(________________________);
+	    if (fillingBuffer==red) fillingBuffer=blue; else fillingBuffer=red;
+	    sdCardAddress += PAGE_SIZE;
+	}
+	finalSdCardAddress=sdCardAddress;
+}   }	
+
+//---------------------------------------------------------------
+// task:	WritePage
+// purp:	Writes a full buffer to the SDCARD and signals
+//		the StoreMic task when complete. 
+//---------------------------------------------------------------
+void taskWritePage() {
+    uint8_t *buffer;
+    for(;;) {
+	WaitForEvent(________________________);
+	buffer = GetMessageValue(________________________>);
+        SDCARD_WriteBlock(sdCardAddress, buffer);
+	SignalEvent(________________________)
+}   }
+
+//---------------------------------------------------------------
+// task:	PlayPage
+// purp:	Reads out pages from the SDCARD into one of two
+//		buffers and informs the PlayNote task when a 
+//		new CCPR1L value is ready.
+//---------------------------------------------------------------
+void taskPlayPage() {
+    uint32_t sdCardAddress=0;
+    uint8_t *buffer;
+
+    for(;;) {
+	WaitForEvent(________________________);
+        sdCardAddress = 0;
+        sdCardAddress = 0;
+        // Get first page
+	SignalEvent(________________________);
+	WaitForEvent(________________________);
+	buffer=ValueOfMessage(________________________);
+        sdCardAddress += PAGE_SIZE;
+	while(sdCardAddress &lt; finalSdCardAddress) {
+	    SignalEvent(________________________);
+	    sdCardAddress += PAGE_SIZE;
+	    for(i=0; i&lt;PAGE_SIZE; i++) {
+	        SignalEvent(________________________);
+		WaitForEvent(________________________);
+	    }
+	    WaitForEvent(________________________);
+	    buffer=ValueOfMessage(________________________);
+}   }	}
+
+//---------------------------------------------------------------
+// task:	ReadPage
+// purp:	read the SD Card and toggle buffers.
+//---------------------------------------------------------------
+void taskReadPage() {
+    uint32_t sdCardAddress=0;
+
+    for(;;) {
+	WaitForEvent(________________________);
+	sdCardAddress=ValueOfMessage(________________________);
+        SDCARD_ReadBlock(Address, fillingBuffer);
+        playingBuffer = fillingBuffer;
+	SignalEvent(________________________, playingBuffer);
+	if (fillingBuffer == red) fillingBuffer=blue; else fillingBuffer=red;
+}   }
+
+
+//---------------------------------------------------------------
+// task:	PlayNote
+// purp:	Play the PWM frequency for 1ms
+//---------------------------------------------------------------
+void taskPlayNote() {
+    for(;;) {
+	WaitForEvent(________________________);
+	EPWM1_LoadDuty(ValueOfMessage(________________________));
+	delayMS(1);
+	SignalEvent(________________________);
+}   }
+
+</pre>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture31.html">&ltPrev</a></li>
+                        <li><a href="./lecture33.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Date:</td>	<td>April 8</td></tr>
+<tr><td>Lecture:</td>	<td>32</td></tr>
+<tr><td>Code:</td>	<td><a href="./code/simpleCondition.asm">simpleCondition.asm</a></td></tr>
+<tr><td>Objective:</td>	<td>Assembly if/then statements
+</table>
+
+<h1>Assembly conditional statements</h1>
+We will use the term <u>code body</u> to mean zero or more assembly 
+instructions.  Often a code body is identified by a <u>label</u>, a
+symbolic name that starts in the leftmost column and is terminated
+with a colon.  The label is placed to the left of the first 
+assembly instruction in the body.  When used as an operand, a label
+is interpreted as the address of the first instruction to follow the
+label.  Normally, the processor executes
+one assembly instruction after another in sequential order.  We will 
+use the verb <u>jump</u> to refer to the situation when the processor
+executes an instruction other than the next instruction in sequence.  
+Labels are a very convenient way to tell the processor where you want 
+it to jump to.
+<br><br>
+
+Conditional statements allow the processor to execute one of potentially
+many different code bodies based on the value(s) of data items.  The
+conditional statements in the HCS12 need to identify the data item,
+the condition, and the target of the jump.
+
+
+
+<h2>Check if a bit in a memory location is set</h2>
+
+<pre>
+	; You can declare constants in your program using the "DC" directive
+varX:   DC.B    $F8           ; +248 unsigned    -8 signed
+
+	; The BRSET is a branch to label if selected bit is set
+	BRSET   varX, %00000001, ODD
+EVEN:	NOP
+	BRA     NEXT
+ODD:	NOP           
+NEXT:	NOP
+</pre>
+
+Notice that the BRSET command did not use the "#" symbol for an 
+immediate operand.  This is because the reference to "varX" in the
+assembly statement 
+<font face="courier">BRSET varX, %00000001, ODD</font> references
+the address of the memory location which contains $F8.  This is really
+easy to mess up in practice.  One clue that you've added an unnecessary
+"#" in front of a symbolic label is the warning:
+<pre>
+Warning: A12003: Value is truncated to one byte.
+Warning: A1415: Cutting constant: Value ... is not in range ...
+</pre>
+
+
+<h2>Classic If/Then</h2>
+An if/then statement has two main parts, the <u>conditional</u> 
+and the body.  It allows you to execute the code in the body based
+on the truth of the conditional statement.   Let's start with a
+the basic C statement:
+<font face="courier">if (Left > Right) D = 0x0B0B else D = 0x0A0A;</font>
+and write the associated assembly code. 
+
+<pre>
+Right:	    DC.B    $2A
+Left:	    DC.B    $3E
+
+ifThen:     LDAA    Left        ; Load A with left operand
+            CMPA    Right       ; memory has second operand
+            BHI     ifBody      ; Branch to ifBody if Left > Right
+
+elseBody:   LDD     #$0A0A      ; This is the body of the ELSE case
+            BRA     done        ; Jump over the IF case
+            
+ifBody:     LDD     #$0B0B      ; This is the body of the IF case
+
+done:	    NOP
+</pre>
+
+You should use this assembly template as the starting point to write
+any if/then.  
+<ul>
+<li>Store the value on the right side of the inequality in memory,
+<li>Store the value on the left side of the inequality in the A register,
+<li>Call the "CMPA &ltmemory&gt" instruction where &ltmemory&gt is
+	the address of the right side value,
+<li>Call a conditional branch instruction that reflects the inequality
+	between the left and right values,
+<li>Set the operand of the conditional branch to the label of the if
+	body.  The else body immediately follows the conditional branch
+	because it needs to execute when the if condition was not met.
+	The last statement of the else body is a "BRA" branch over the
+	if body.  The if body should be placed immediately after the 
+	else body.
+</ul>
+
+The "BHI" instruction is one of six conditional branch instructions (see
+the table below for the complete list (Note, BRA is not conditional)).  
+All conditional branch instructions will use the result of the preceding 
+"CMP" instruction to change the PC to the next instruction or to the 
+address given as the operand to the branch instruction.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Mnemonic <td>Function			<td>Condition	
+	<Td>Long 
+<tr><td>BHI	<td>Branch if higher		<td>A >  Memory    
+	<td>LBHI
+<tr><td>BHS	<td>Branch if higher or same	<td>A >= Memory  
+	<td>LBHS
+<tr><td>BLO	<td>Branch if lower		<td>A <  Memory 
+	<td>LBLO
+<tr><td>BLS	<td>Branch if lower or same	<td>A <= Memory
+	<td>LBLS
+<tr><td>BEQ	<td>Branch if equal		<td>A == Memory 
+	<td>LBEQ
+<tr><td>BNE	<td>Branch if not equal		<td>A != Memory 
+	<td>LBNE
+<tr><td>BRA	<td>Branch always 		<td>none
+	<td>LBRA
+</table>
+
+
+Most of the time you will use the branch instruction mnemonics,
+that start with the letter "B".  These branches can move the
+program counter up to +/-128 bytes from the branch instructions. 
+Sine the target of the jump is limited, these are often called short
+branches.  If your branch label is further away, you will need to use the 
+corresponding long branch instruction shown in the rightmost column.  Long 
+branches are able to move the PC +/- 32,768 bytes from the address of the 
+long branch.  The reason for having the two different types is that the 
+branches is that the short branch only requires two bytes for its machine
+code while the long branch requires four bytes.
+<br><br>
+
+In assembly language you will frequently come across cases where
+you need to transform the condition to more efficiently perform
+the conditional branch. Let's take the following C-code example:
+
+<pre>
+	if (varX8 > varY8 -5) 
+	    varZ8 = 22;
+	else
+	    varZ8 = 33;
+</pre>
+
+When you write the assembly code for this C snippet, it is
+more convenient to compute the value of "varY8-5" first and
+store the result in an accumulator.  In order to use the If/Then assembly
+template above we should make "varY8-5" is the left term
+in the inequality.  This would generate the following code which is 
+logically identical to the preceding C-code snippet.
+
+<pre>
+	if (varY8 -5 < varX8) 
+	    varZ8 = 22;
+	else
+	    varZ8 = 33;
+</pre>
+
+The assembly code for this second form  looks like:
+<pre>
+		LDAA	varY8		; A <- M[varY8]
+		LDAB	#5		; B <- 5
+		SBA			; A <- A - B = M[varY8] - 5
+		CMPA	varX8	
+		BLO	ifBody		; If  (M[varY8] - 5)  < varX8
+
+thenBody:	LDAA	#33
+		STAA	varZ8
+		BRA	done
+
+ifBody:		LDAA	#22
+		STAA	varZ8
+
+done:		NOP
+</pre>
+
+
+<h3>Complex conditions</h3>
+You may encounter cases where your assembly code needs an if/then 
+the more than one condition joined by relational operators.  Take
+the following example.
+
+<pre>
+	if ((varX8 > 25) ||  (varY8 != 0x34)) 
+		varZ8 = 0x11;
+</pre>
+
+The assembly code uses a couple of tricks to realize this 
+C-code snippet.
+
+<ul>	<li>Since both inequalities have constants on the right side,
+	we will flip them around to form the equivalent inequalities
+	(25 < varX8) and  (0x34 != varY8).
+	<li>Each inequality is checked on its own.  If the first 
+	inequality (25 < varX8) is false then the code drops through
+	to check the second inequality.
+	<li>There is no else body so if the second inequality 
+	(0x34 != varY8) is false, the code drops through to the 
+	BRA next instruction.
+	<li>The done label and the NOP are just placed there to give
+	the target of the BRA branch somewhere to go to.  In a real 
+	program the label "done" and the NOP instruction would be placed
+	the the label of the code block that follows the if/then.
+</ul>
+
+
+<pre>
+	LDAA	#25
+	CMPA	varX8
+	BLO	ifBody
+
+	LDAA	#$34
+	CMPA	varY8
+	BNE	ifBody
+
+then:	BRA	next
+
+ifBody:	LDAA	#$11
+	STAA	varZ8
+
+next:	NOP
+</pre>
+
+
+<h2>Case Switch</h2>
+Among all the C statements to implement, the case/switch is pretty
+straight forward because the logic checks for equality between the 
+variable in the switch and each of the cases.  Lets take the
+following C-code:
+
+<pre>
+   switch(char) {
+     case 'X':
+         register B = 0xAA;
+         break
+     case 'Y':
+         register B = 0xBB;
+         break
+     default:
+         register B = 0x00;
+         break;
+   }
+</pre>
+
+The assembly code uses a new constant base, ASCII.  In order to 
+spcify an ASCII constant, just surround the ASCII character with
+single quotes.
+
+<pre>
+Switch:     LDAA    #'Y'
+            STAA    Char
+            
+CaseX:      CMPA    #'X'
+            BNE     CaseY
+            LDAB    #$AA         
+            BRA     EndSwitch           
+
+CaseY:      CMPA    #'Y'
+            BNE     Default
+            LDAB    #$BB         
+            BRA     EndSwitch
+            
+Default:    LDAB    #$00         
+            BRA     EndSwitch            
+
+
+EndSwitch:
+
+</pre>
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<li>Write assembly code to perform the following:
+<pre>
+if (varX8 <= varY8 + 5) {
+	varZ8 = 0
+} else {
+	varZ8 = 1;
+} // end if
+</pre>
+
+
+<!---
+The solution requires that we flip the order of the condition 
+so that we perform the addition first and store the sum into an
+accumulator to comapre against varX8.  In other words we will
+write the assembly code for the following equivlent C code.
+<pre>
+if (varY8 + 5 >= varX8) {
+	varZ8 = 0
+} else {
+	varZ8 = 1;
+} // end if
+</pre>
+
+<pre>
+	LDAA	#5
+	ADDA	varY8		; A <- M[varY8] + 5
+	CMPA	varX8
+	BHS	clrZ8		; if (var8 <= varY + 5) varZ8 = 1;
+setZ8:	CLR	varZ8
+	INC	varZ8
+	BRA	next
+clrZ8:	CLR	varZ8
+
+next:
+</pre>
+-->
+
+<li>Write assembly code to perform the following:
+<pre>
+	if ((varX8 >= 25) && (varY8 == 0x34)) 
+		varZ8 = 0x11;
+	else
+		varZ8 = 0x22;
+</pre>
+
+<!--
+The trick in this solution is that I inverted the condition
+"varX8 >= 25" to "varX8 < 25" because I want to jump to the
+then clause when "varX8 < 25" is true because the first condition
+cannot be TRUE when one of the clauses is FALSE.  Hence, in my
+solution you will see the term BHI to check when the test 
+"25 > varX8" is true then we immediatly know to assign varZ8 the value
+0x22 without having to check if varY8 equals 0x34.   This technique
+of only evaluating as much of a complex condition as needed is called
+<u>short-circuit evaluation</u>.
+
+<pre>
+		LDAA	#25
+		CMPA	varX8
+		BHI	thenTerm
+
+		LDAA	#$34
+		CMPA	varY8
+		BNE	thenTerm
+
+ifTerm:		LDAA	#$33
+		STAA	varZ8
+		BRA	next
+
+thenTerm:	LDAA	#$22
+		STAA	varZ8
+
+next:		NOP
+</pre>
+-->
+
+</ul>
+
+</body>
+</html>

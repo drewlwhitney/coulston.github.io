@@ -1,0 +1,67 @@
+<h3>Inversense MPU6050</h3>
+The Inversense MPU6050  contains a 3-axis accelerometer and 3-axis
+gyroscope.  Meaning that this device can measure accelerations 
+along 3 perpendicular axis and can measure the rate of rotation
+along 3 perpendicular axis.
+
+<br><Br>
+
+
+To understand the bits being sent back and forth between the MPU-6050
+and the PIC, connect the oscilloscope to the GY-521 board  according 
+to the following table.
+
+&gt; There should be a picture here to help guide students &lt;
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe               <td>RC3 - SCL
+<tr><td>Ch1 ground clip         <td>Dev board ground loop
+<tr><td>Ch1 coupling            <td>DC
+<tr><td>Ch1 (scale)             <td>2V
+
+<tr><td>Ch2 probe               <td>RC4 - SDA
+<tr><td>Ch1 coupling            <td>DC
+<tr><td>Ch1 (scale)             <td>2V
+
+
+<tr><td>Horizontal (scale)      <td>200 &micro;s
+<tr><td>Trigger mode            <td>Normal
+<tr><td>Trigger source          <td>1
+<tr><td>Trigger slope           <td>&uarr;
+<tr><td>Trigger level           <td>1.65V
+</table>
+
+
+Make sure to:
+<ul>    <li>Align Ch 1 on the <u>third</u> lowest reticule to make room
+        for the I2C decode
+        <li>Align the horizontal position at the second left-most reticule,
+
+
+      <li>Convert serial stream<br>
+        [Serial] &rarr; <u>Mode</u> &rarr; I<sup>2</sup>C<br>
+        [Serial] &rarr; <u>Serial</u> &rarr; Serial S1: I2C &check;<br>
+        [Serial] &rarr; <u>Signals</u> &rarr; SCL &rarr; 1<br>
+        [Serial] &rarr; <u>Signals</u> &rarr; SDA &rarr; 2<br>
+
+        [Serial] &rarr; <u>Signals</u> &rarr; <u>Threshold</u> &rarr; (Trigger Level) &rarr; 1.65V (for both SCL and SDA)<br>
+        [Serial] &rarr; <u>Address Size</u> &rarr; <u>7 Bit</u><br>
+
+        <li>Clear all menus off the bottom of the screen<br>
+        [&uarr;Back]
+</ul>
+
+<ol start=20>
+
+<li>Use the "R" function to read the value at address 0x68.<br>
+Include a screen shot of this byte as the answer to this
+question.  
+
+<li>Use the "W" function to write 0x08 to the register at address 0x1b.<br>
+Include a screen shot of this byte as the answer to this
+question. 
+</ol>
+
+
+</html>

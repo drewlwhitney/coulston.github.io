@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+
+
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture34.html">&ltPrev</a></li>
+                        <li><a href="./lecture36.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>   <td>35</td></tr>
+<tr><td>Objective:      <td>Fairy Tale RTOS
+</table>
+
+<h3>Fairy Tale RTOS</h3>
+Operations:
+<ul>	<li>main: InitializeMultitasking(numTasks, numEvents);
+	<li>main: CreateTask(taskName, priority);
+	<li>main: CreateEvent(semaphoreName,initialValue);
+	<li>main: StartMultitasking();
+	<li>task: WaitForEvent(semaphoreName);
+	<li>task: SignalEvent(semaphoreName,value);
+	<li>task: Delay(millDelay);
+</ul>
+
+
+<br><img src="./img/fairy.gif"><br>
+Key:
+<ul>	<li>Ellipse = task
+	<li>Blue text = semaphore
+	<li>Red text = sharable variable
+	<li>Rectangle = ISR
+</ul>
+
+<a href="./code/fairyTale.c">Fairy Tale RTOS code</a>
+
+</html>

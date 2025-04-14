@@ -1,0 +1,611 @@
+<html>
+
+<h3>Lecture 19</h3>
+
+<ul>
+<li>Complete the following table
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Analog voltage	<td>Converted Value	<td>Resolution	<td>VRH	<td>VRL
+<tr><td>4.14 V	<td>212		<td>8-bit	<td>5 V	<td>0 V
+<tr><td>2.83 V	<td>212		<td>8-bit	<td>3 V	<td>2 V
+<tr><td>0.26 V	<td>212		<td>12-bit	<td>5 V	<td>0 V
+<tr><td>2.05 V	<td>212		<td>12-bit	<td>3 V	<td>2 V
+
+<tr><td>2.6 V	<td>133 	<td>8-bit	<td>5 V	<td>0 V
+<tr><td>2.6 V	<td>154		<td>8-bit	<td>3 V	<td>2 V
+<tr><td>2.6 V	<td>819 	<td>12-bit	<td>5 V	<td>0 V
+<tr><td>2.6 V	<td>2458	<td>12-bit	<td>3 V	<td>2 V
+
+<tr><td>0.244 V	<td>100		<td>11-bit 	<td>5 V	<td>0 V
+<tr><td>2.4 V	<td>205		<td>9-bit 	<td>3 V	<td>2 V
+
+<tr><td>2.79 V	<td>102		<td>8-bit	<td>7 V   <td>0 V
+<tr><td>2.79 V	<td>101		<td>8-bit	<td>4 V   <td>2 V
+</table>
+
+<li>Complete the following table
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Resolution	<td>VRH		<td>VRL	<td>Quantization Error
+<tr><td>12-bit		<td>5 V		<td>3 V		<td>240 uV
+<tr><td>11-bit		<td>12 V	<td>7 V		<td>1.22 mV
+<tr><td>14-bit		<td>6 V		<td>2 V		<td>120 uV
+<tr><td>10-bit		<td>5 V		<td>2 V		<td>1.46 mV
+</table>
+
+</ul>
+
+<h3>Lecture 20</h3>
+
+<ul>
+<li>A 10MHz 2v (peak to peak) sinusoidal input is applied to a 16-bit
+ADC that is sampling the input signal at 100MHz.  What is the largest change
+in the input between consecutive samples?  In other words, how much 
+does this input voltage change between two samples correspond to change 
+in the 16-bit output between those two input if the ADC is referenced 
+to 3.3v and GND.
+<br><br>
+
+<b>Solution</b><br>
+Assuming the sine wave is centered at 0v, has frequency 10MHz and an
+amplitude of +1v/-1v, the equation of the input waveform is given by:<br><br>
+
+v(t) = sin(2*&pi;*10<sup>7</sup>*t)<br><br>
+
+A 0v centered sine wave has the highest slope when it crosses 0V - see
+the blue waveform in the leftmost panel (Figure 1) in the Clock Jitter.
+The time difference between consectutive samples, when a signal is 
+sampled at 100MHz, is 1/100MHz = 10ns.  According to the sloped 
+argument, the maximum change in the input will occur when we sample
+at -5ns and then sample at 5ns.<br><br>
+
+From the equation of the input signal we have:
+<pre>
+v(5ns)  = sin(2*&pi;*10<sup>7</sup>*5ns) = sin(2*&pi;*5*10<sup>-2</sup>) = 0.31
+v(-5ns) = sin(2*&pi;*10<sup>7</sup>*-5ns) = sin(2*&pi;*-5*10<sup>-2</sup>) = -0.31
+
+v(5ns) - v(-5ns) = 0.31v - (-0.31v) = 0.62v
+</pre>
+Thus, the largest change in the sampled input voltages is 0.62v.  
+Converting this change of input voltages to digital outputs is
+straightforward using the ratiometric relationship.
+
+<pre>
+	3.3v   0.62v
+        ---- = ----		x = 12,313
+        2<sup>16</sup>     x
+</pre>
+
+<li>Clock jitter causes deviations in the sampling clock rate. 
+If our sampling clock deviated by &pm;10ps, how much difference
+could this make to the input values of a 10MHz 2v (peak to peak) 
+sinusoidal input sampled at 100MHz.  How much could the jitter
+effect the converted output from the ADC for a single sample?
+<br><br>
+
+<b>Solution</b><br>
+The input signal is described by the equation:<br>
+v(t) = sin(2*&pi;*10<sup>7</sup>*t)<br><br>
+
+From the preceeding problem, the maximum chage of the sinusoidal
+input signal will be when the signal crosses 0.  Since v(0) = 0,
+then we need to know what the jittered voltage v(10ps) equals
+using the equation for the signal.  This will give us the maximum
+difference the jitter can effect the input voltage.
+
+<pre>
+v(10<sup>-11</sup>) = sin(2*&pi;*10<sup>-4</sup>*t) = 628uv
+
+Now convert this voltage to ADC count output:
+
+	3.3v   628uv
+        ---- = ----		x = 12
+        2<sup>16</sup>     x
+</pre>
+This means that you could see upwards of 12 counts of error on the 
+ADC output due to the jitter.
+</ul>
+
+<h3>Lecture 21</h3>
+<ul>
+<li>An ADC is sampling a signal at 50kHz.  List the
+first 7 alias of 3.5kHz?
+<br>
+
+<b>Solutions</b><br>
+<pre>
+1st harmonic:          3.5kHz                  50kHz-3.5kHz =  46.5kHz
+2nd harmonic:    50kHz+3.5kHz= 53.5kHz        100kHz-3.5kHz =  96.5kHz
+3rd harmonic:   100kHz+3.5kHz=103.5kHz        150kHz-3.5kHz = 146.5kHz
+4th harmonic:   150kHz+3.5kHz=153.5kHz        200kHz-3.5kHz = 196.5kHz
+</pre>
+
+<li>An ADC is sampling a signal at 50kHz, what frequencies will alias 
+to 8kHz in the 42th harmonic?  
+<br>
+
+<b>Solutions</b><br>
+<pre>
+100th harmonic: 43*50kHz-5kHz    42*50kHz+5kHz
+</pre>
+
+<li>An ADC is sampling a signal at 100kHz, what 
+frequency, closest to 1,380kHz, alias to 15kHZ?<br>
+<b>Solutions</b><br>
+<pre>
+	Let's find the start of the harmonic that is closest to 1,380kHz.
+	1,380kHz / 100kHz = 13.8
+	100kHz * 14 = 1,400kHz is the closest start of a harmonic to 1,380kHz
+
+	Subtracting 15kHZ from this frequency gives us an alias of 
+	1,400kHz - 15kHz = 1.385kHz which is just 5kHz away from the 
+	target frequency of 1,380kHz.
+</pre>
+
+<li>If you input a 1v sin wave into a circuit
+that attenuated it by -68dB, what would the amplitude of the 
+output waveform be?<br>
+<b>Solutions</b><br>
+<pre>
+	-68 dB = 20 log(V<sub>out</sub>/1 V)
+	V<sub>out</sub> = 
+</pre>
+
+<li>If you reduced a signal by a factor of 1/256,
+how many dB would you need to attenuate it by?<br>
+<b>Solutions</b><br>
+<pre>
+	20 log(1/256) = 
+</pre>
+
+<li>Use the definition of attenuation to complete the following table.
+<table border=1>
+<tr><td>V<sub>out/</sub>V<sub>in</sub>	<td>dB
+<tr><td>1		<td>&nbsp
+<tr><td>1/10		<td>&nbsp
+<tr><td>1/100		<td>&nbsp
+<tr><td>1/1000		<td>&nbsp
+<tr><td>1/256		<td>&nbsp
+<tr><td>&nbsp   	<td>-3dB
+<tr><td>&nbsp		<td>-96.3dB
+</table>
+
+<b>Solutions</b><br>
+<table border=1>
+<tr><td>V<sub>out/</sub>V<sub>in</sub>	<td>dB
+<tr><td>1		<td> 20 log(1/1)    = 0 dB
+<tr><td>1/10		<td> 20 log(1/10)   = -20 dB
+<tr><td>1/100		<td> 20 log(1/100)  = -40 dB
+<tr><td>1/1000		<td> 20 log(1/1000) = -60 dB
+<tr><td>1/256		<td> 20 log(1/256)  = -48 dB
+<tr><td>1/sqrt(2)	<td>-3dB
+<tr><td>1/2<sup>16</sup><td>-96.3dB
+</table>
+
+<li>You're sampling an analog signal at 48kHz. List all the frequencies 
+in the first 3 harmonics that alias to  2kHz signals. 
+<br>
+
+<b>Solutions</b><br>
+<pre>
+1st harmonic:	2kHz			48khz-2khz = 46kHz
+2st harmonic:	48khz+2kHz=50kHz	96khz-2khz = 94kHz
+3st harmonic:	96khz+2kHz=98kHz	144khz-2khz = 142kHz
+</pre>
+
+
+<li>A first-order LPF has a cutoff frequency of 2kHz. Describe the 
+attenuation of a 80kHz input signal in decibels and as a ratio of 
+output voltage to input voltage. 
+<br>
+
+<b>Solutions</b><br>
+Since a decade is a multiplicative factor of 10, we need to find how
+may powers of 10 you have to multiply by in order to increase 2 to 80.
+In other words…
+<pre>
+2*10^x = 80, solving for X yields
+x = log_10(80/2) = 1.6
+</pre>
+
+So we know that a 80khz waveform is 1.6 decades above a 2khz waveform.
+Since the LPF attenuates -20db/decade, the 80khz waveform will be attenuated
+1.6*-20 = -32db  Decibels can be converted to the ratio of output/input
+using its definition...
+<pre>
+-32db = 20db log_10(V_out/V_in)
+V_out/Vin = 0.025 = 1/40
+</pre>
+</ul>
+
+<h3>Lecture 22</h3>
+
+<h3>Lecture 23</h3>
+<ul>
+<li>Sampling frequency:<br>
+Given:
+<ul>	<li>Signal of interest is 0-2kHz
+	<li>1st order filter
+	<li>10-bit ADC
+</ul>
+What is the minimum sampling rate?
+<br>
+<b>Solution</b><br>
+
+<pre>
+The antialias filter needs to reduced the lowest frequency alias to 1/2 LSB of its full scale value in order to make it undetectable to the ADC.  In the case of a 10-bit ADC this means that the filter needs to reduce the first alias to 20*log(2<sup>-11</sup>) = -66bB.  Since the corner frequency of the LPF is set to 2kHz, the first alias must be reduced -66dB.  For a first order filter with a total attenuation of -20dB/decade this is:
+
+	  -20dB        -66dB
+	---------- = ---------
+	1 decade     x decades
+
+x = 3.3 decades above 2kHz.  Now we have:
+	log<sub>10</sub> ((fs-2kHz)/2kHz) = 3.3
+Solving yields fs = 3988kHz or about 4MHz.
+</pre>
+
+<li>You want to know how much bandwidth your sampling system can accommodate.
+Your sampling system uses a16-bit ADC with a sampling frequency of 250kHz.
+You are using a 4th order low pass filter.  What is the maximum frequency 
+of the signal of interest?
+<br>
+<b>Solution</b><br>
+
+
+<pre>
+½ULP needs 20 log(2^-17) = -102dB of attenuation.
+A fourth order LPF has a roll off of -80dB/decade.
+
+-80dB         -102dB
+--------- =  --------- 	x = 1.275 decades
+1 decade     x decades
+
+The sampling frequency is 250kHz so now we have:
+1.275 decades = log_10(250kHz – x / x)	or
+18.8 = (250kHz – x)/x
+19.8x = 250Khz
+X = 12.6kHz
+
+Thus our sampling system can handle signals from 0Hz–12.6kHz.
+</pre>
+
+
+<li>You are to design a sampling system using the following specifications. 
+The signal of interest is from 0-2kHz, passes through a third order filter
+and sampled at 48kHz. How many bits of accuracy can you expect from the ADC?
+<br>
+<b>Solution</b><br>
+
+<pre>
+Determine the range of frequencies:	log(46/2) = 1.36 decades
+A third order LPF has a roll off of -60dB/decade.
+
+-60dB           x dB
+--------- =  ------------ 	x = -81.6dB
+1 decade     1.36 decades
+
+An important point to note is that this is the attenuation to get 
+noise below ½ULP.  
+
+-81.6dB = 20*log(V_o/V_i)	thus 
+V_o / V_i = 83*10^-6		
+Let V_i = 1v to normalize input. Then in order to represent V_o = 83*10^-6 
+we need log_2(83*10-6) = -13.55 bits.  This is ½ULP of our ADC.  Thus our 
+ADC needs -12.55 bit.  Since we do not have fractional bits and since we 
+want meaningful information out of the ADC, we can only expect 12-bits of 
+accuracy out of our ADC.
+</pre>
+
+<li>You are to design a low pass filter using the following specifications.  
+The signal of interest is from 0-2kHz and sampled using an 8-bit ADC.  The 
+sampling rate of your system is 48kHz.  What order filter do you need for 
+this application? 
+<br>
+<b>Solution</b><br>
+<pre>
+Determine the amount of attenuation:	20 log(2^-9) = -54dB
+Determine the range of frequencies:	log(46/2) = 1.36 decades
+
+-20dB * x      -54 dB
+--------- =  ------------ 	x = 1.98
+1 decade     1.36 decades
+
+Thus we need a second order filer
+</pre>
+</ul>
+
+<h3>Lecture 24</h3>
+
+<li>Create a table of the products of all the E6 values.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td> <td>10<td>15<td>22<td>33<td>47<td>68<td>100
+<tr><td>10<td>100<td>150<td>220<td>330<td>470<td>680<td>1000
+<tr><td>15<td>150<td>225<td>330<td>495<td>705<td>1020<td>1500
+<tr><td>22<td>220<td>330<td>484<td>726<td>1034<td>1496<td>2200
+<tr><td>33<td>330<td>495<td>726<td>1089<td>1551<td>2244<td>3300
+<tr><td>47<td>470<td>705<td>1034<td>1551<td>2209<td>3196<td>4700
+<tr><td>68<td>680<td>1020<td>1496<td>2244<td>3196<td>4624<td>6800
+<tr><td>100<td>1000<td>1500<td>2200<td>3300<td>4700<td>6800<td>10000
+</table>
+</ul>
+
+<h3>Lecture 25</h3>
+<h3>Lecture 26</h3>
+<h3>Lecture 27</h3>
+<h3>Lecture 28</h3>
+<ul>
+<li>Given an update rate of 10us, a 64-entry ROM, what
+phase increment would yield a 2kHz wave?
+
+<br><b>Solution</b><br>
+
+Start by observing that a 2kHz wave has a period of 500us.
+<pre>
+1 wave   1 update     X phase inc      1 wave      
+------ = ---------- * ----------- * ------------ 
+500us       10us      1 update      64 phase inc 
+</pre>
+
+Solving this equation gives us X = 1.28<br><Br>
+
+
+<li>Given an update rate of 25us, a phase increment of 0.35, and
+a ROM with 16 entries, what is the frequency of the output waveform?
+
+<br><b>Solution</b><br>
+<pre>
+1 update     10^6 us   0.35 phase inc      1 wave      
+---------- * ------- * -------------- * ------------ = 875 Hz
+  25us        1 sec       1 update      16 phase inc 
+</pre>
+
+
+<li>What is the 3.5 format numbering representation of decimal 3.6?
+
+<br><b>Solution</b><br>
+Since we have 5 fractional bits we will multiply and divide by 
+2<sup>5</sup> = 32.  3.6 * 32 = 115.2 which rounds to 115. 
+115 in decimal is equivlent to 01110011 in binary. Dividing
+01110011 by 32 yields 011.10011.  Represented as a 3.5 format
+number 3.6 is 01110011
+
+<li>Interpret 01001101 as a  4.4 format number.
+
+<br><b>Solution</b><br>
+01001101 when interpreted as a 4.4 format number with a decimal
+point looks like 0100.1101  The whole number portion is 0100 = 4.
+The fractional portion is 2<sup>-1</sup> + 2<sup>-2</sup> + 2<sup>-4</sup>
+= 0.8125.  Thus 01001101 interpreted as a 4.4 format number is 4.8125
+
+
+<li>Determine the representation of 5.4375 as a 3.5 format number. Also
+calculate the error of this representation. 
+
+<br><b>Solution</b><br>
+Since there are 5 bits to the right of the decimal point, we will multiply 5.4375 * 32 = 174 = 0b10101110 In order to represent our original value, we need to shift the decimal point left 5 bits yielding 101.01110 = 5.4375. The error of this representation is 5.4375 - 5.4375 = 0
+
+<li>Determine the representation of 5.4375 as a 4.4 format number. Also
+calculate the error of this representation. 
+
+<br><b>Solution</b><br>
+Since there are 4 bits to the right of the decimal point, we will multiply 5.4375 * 16 = 87 = 0b01010111 In order to represent our original value, we need to shift the decimal point left 4 bits yielding 0101.0111 = 5.4375. The error of this representation is 5.4375 - 5.4375 = 0
+
+<li>Determine the representation of 5.4375 as a 5.3 format number. Also
+calculate the error of this representation. 
+
+<br><b>Solution</b><br>
+Since there are 3 bits to the right of the decimal point, we will multiply 5.4375 * 8 = 43.5 rounded = 44 = 0b00101100 In order to represent our original value, we need to shift the decimal point left 3 bits yielding 0000101.100 = 5.5.  The error of this representation is 5.5 - 5.4375 = 0.0625
+
+<li>Determine the representation of 5.4375 as a 6.2 format number. Also
+calculate the error of this representation. 
+
+<br><b>Solution</b><br>
+Since there are 2 bits to the right of the decimal point, we will multiply 5.4375 * 4 = 21.75 rounded = 22 = 0b00010110 In order to represent our original value, we need to shift the decimal point left 2 bits yielding 0000101.10 = 5.5.  The error of this representation is 5.5 - 5.4375 = 0.0625
+
+<li>Determine the representation of 5.4375 as a 7.1 format number. Also
+calculate the error of this representation. 
+
+<br><b>Solution</b><br>
+Since there is 1 bit to the right of the decimal point, we will multiply 5.4375 * 2 = 10.875 rounded = 11 = 0b00001011 In order to represent our original value, we need to shift the decimal point left 1 bits yielding 00000101.1 = 5.5. The error of this representation is 5.5 - 5.4375 = 0.0625
+
+
+<li>Determine the representation of 5.4375 as a 8.0 format number. Also
+calculate the error of this representation.
+<br><b>Solution</b><br>
+Since there is 0 bit to the right of the decimal point, we will multiply 5.4375 * 1 = 5.4375 rounded = 5 = 0b00000101 In order to represent our original value, we need to shift the decimal point left 0 bits yielding 0000000101 = 5.  The error of this representation is 5 - 5.4375 = 0.4375
+
+
+<li>Compile the previous result into the following table, what is
+the general trend in error as a function of the format?
+
+<br><b>Solution</b><br>
+<table class="table table-bordered table-condensed">
+<tr><td>Format          <td>Binary      <td>Error
+<tr><td>3.5             <td>101.01110   <td>0.0
+<tr><td>4.4             <td>0101.0111   <td>0.0
+<tr><td>5.3             <td>00101.100   <td>0.0625
+<tr><td>6.2             <td>000101.10   <td>0.0625
+<tr><td>7.1             <td>0000101.1   <td>0.0625
+<tr><td>8.0             <td>00000101.   <td>0.4375
+</table>
+As the number of fractional bits increases, the error decreases.
+</ul>
+
+<h3>Lecture 29</h3>
+<ul>
+<li>Use the algorithm presented at the top of this lecture to 
+complete the following table.
+
+<br><b>Solution</b><br><br>
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=4">phaseIncrement = 0x13E4</td>
+<tr><td>Time (us)<td>phaseAccumulator	<td>index	<td>PWMDTY0
+<tr><td>10	<td>0x13E4		<td>0x01	<td>176
+<tr><td>20	<td>0x27C8		<td>0x02	<td>217
+<tr><td>30	<td>0x3BAC		<td>0x03	<td>245
+<tr><td>40	<td>0x4F90		<td>0x04	<td>254
+<tr><td>50	<td>0x6374		<td>0x06	<td>217
+</table>
+
+<li> Given a DDS system with an update rate of 10us, a 8 entry ROM,
+and a 3.5 format fixed point phase increment, what phase increment
+generates a frequency of 20kHz?
+
+
+<br><b>Solution</b><br><br>
+<b>Answer:</b><br>
+<pre>
+ 1 update   10^6 us   X phase inc      1 wave
+ -------- * ------- * ----------- * ------------  = 20,000Hz
+   10us      1s        1 update     8 phase inc
+
+Solving for X yields 1.6 
+As a 3.5 format number:
+    1.6*32 = 51.2 rounded = 51
+    51 = 0011 0011 = 0x33
+</pre>
+
+<li> Given a DDS system with an update rate of 10us, a 8 entry ROM,
+and a 3.5 format fixed point phase increment, what phase increment
+generates a frequency of 120kHz?
+
+
+<br><b>Solution</b><br><br>
+<b>Answer:</b><br>
+<pre>
+ 1 update   10^6 us   X phase inc      1 wave
+ -------- * ------- * ----------- * ------------  = 120,000Hz
+   10us      1s        1 update     8 phase inc
+
+Solving for X yields 9.6 
+This value cannot be represented as a 3.5 format number because
+3.5 format numbers are in the range [0 to 7.97]
+</pre>
+
+
+<li>Given a DDS system with an update rate of 10us and a 64 entry ROM,
+What is the lowest frequency waveform you can create with a
+6.2 format fixed point phase increment?
+
+<br><b>Solution</b><br><br>
+<b>Answer:</b><br>
+The key to this solution is using the fixed point format to make
+the smallest possible phase increment = 000000.01 = 0.25
+
+<pre>
+ 1 update   10^6 us   0.25 phase inc      1 wave
+ -------- * ------- * -------------- * -----------  = 391Hz
+    10us     1s          1 update      64 phase inc
+</pre>
+
+
+<li>Your engineering design team has tasked you with developing the DDS engine
+for a microcontroller platform that will be deployed in a radar application.
+The N-bit output of the DDS engine is sent to a N-bit DAC which converts
+this input into an output between 0v - 1v.  This application requires
+the DDS to generate a sinusoid over a broad range of frequencies that
+can be finely-adjusted.  Your team has decided on a microcontroller
+family having 3 different models with 8kB, 32kB and 128kB of RAM with
+a commensurate increasing unit cost.  The design of the DDS engine will
+play an important role in determining the memory footprint in the RAM
+and consequently which model to choose.  Your technical lead needs you
+to provide the following.
+
+<ol>
+<li>Investigate the trade-off between the length of the DDS lookup table
+(number of rows in the RAM) and the minimum step size on the output
+of the DAC (measured in volts).  To do this make a table (in excel)
+with two columns, number of rows in the RAM (between 2^4 and 2^16) and
+step size (in volts).  Remember that the maximum slope of a sinusoid is 1. 
+ 
+<li>Assume that you are working with a 16-bit word using a w.f formatted
+fixed point number.  Investigate the trade-off between the number of
+whole number bits and fractional bits and the frequency resolution of
+the DDS subsystem.  Since you are working with a 16-bit word, w + f = 16.
+</ol>
+
+<br><b>Solution</b><br><br>
+I have not solved this interesting problem, perhaps you could.  Extra
+credit is in the offering for a solid solution.
+</ul>
+
+<h3>Lecture 30</h3>
+<ul>
+<li>Modify the square root LUT so that it has 9 entries instead of 5.
+Do this by completing the following table.
+
+<br><b>Solution</b><br><br>
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>X	<td>SQRT(X)	<td>2.6 Fixed point
+<tr><td>0	<td>0		<td>0x00
+<tr><td>2	<td>1.41    	<td>0x5B
+<tr><td>4	<td>2.00	<td>0x80
+<tr><td>6	<td>2.45    	<td>0x9D
+<tr><td>8	<td>2.83	<td>0xB5
+<tr><td>10	<td>3.16    	<td>0xCA
+<tr><td>12	<td>3.46	<td>0xDE
+<tr><td>14	<td>3.74	<td>0xEF
+<tr><td>16	<td>4.00	<td>0xFF
+</table>
+
+
+<li>Use the 9-entry LUT from the previous problem in a new SQRT function.
+The input to this function is an unsigned 8-bit integer in the range 
+[0-15].  The output is a fixed point 2.6 format number.
+
+
+<br><b>Solution</b><br><br>
+uint8_t SQRT(uint8_t x) {
+
+    uint8_t lut[9] = {0x00, 0x5B, 0x80, 0x9D, 0xB5, 0xCA, 0xDE, 0xEF, 0xFF};
+    uint8_t index, delta, frac;
+
+    index = x >> 1; 
+    delta = lut[index+1] - lut[index];
+    frac = x & 0b00000001;
+    return(lut[index] + (frac*delta)>>1;
+} // end SQRT
+
+<pre>
+
+
+<li>Create a LUT for the arcsin function by completing the following table.
+
+<br><b>Solution</b><br><br>
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>x	<td>arcsin(x)	<td>1.7 Fixed point
+<tr><td>0.000	<td>0.00	<td>0x00
+<tr><td>0.125	<td>0.125   	<td>0x10
+<tr><td>0.250	<td>0.253	<td>0x31
+<tr><td>0.375	<td>0.384    	<td>0x31
+<tr><td>0.500	<td>0.524	<td>0x43
+<tr><td>0.625	<td>0.675    	<td>0x56
+<tr><td>0.750	<td>0.848	<td>0x6D
+<tr><td>0.875	<td>1.065	<td>0x88
+<tr><td>1.000	<td>1.571	<td>0xC9
+</table>
+
+<li>Write a function which compute the arcsin of an input represented in
+0.8 format number and returns the output represented as a 1.7 format number.
+
+<br><b>Solution</b><br><br>
+<pre>
+//--------------------------------------------------------------------------
+// Input:	x is sin of some angle	 		0.8 fixed point format 
+// Output:	The angle (in radians) whose sin is x 	1.7 fixed point format
+//--------------------------------------------------------------------------
+uint8_t arcsin(uint8_t x) {
+
+    uint8_t lut[9] = {0x00,0x10,0x20,0x31,0x43,0x56,0x6D,0x88,0xC9}; 
+    uint8_t index, delta, frac;
+
+    index = x>>5;
+    delta = lut[index+1]-lut[index];
+    frac = x & 0b00011111;
+    return(lut[index] + (frac*delta)>>5);
+</pre>
+</ul>
+
+<h3>Lecture 31</h3>
+<h3>Lecture 32</h3>
+
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture19.html">&ltPrev</a></li>
+                        <li><a href="./lecture21.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>20</td></tr>
+<tr><td>Objective:</td>	<td>To cover the particular attrivbutes of
+	the PIC microcontrollers ADC interface and enable students
+	to write code to acquire digitized data.</td></tr>
+</table>
+
+
+<h2>PIC ADC interface</h2>
+If you are using the ADC subsystem of the PIC you will need to feed
+your analog signals into one of the ANx pins.  Inside the ADC the
+successive approximation register (SAR) performs the actual conversion 
+of the analog value into the converted value.  Like many other 
+microcontrollers, the PIC has a single 10-bit SAR, so there 
+is a analog mux on the front-end of the SAR to select one of the analog
+signal to quantize.  When I say <u>10-bit SAR</u>, I am telling you how 
+many bits the SAR uses to quantize the analog input.  10-bit outputs
+from the SAR are stored in a pair of 8-bit registers, ADRESH:ADRESL
+The 10-bit value can be either left or right justifies inside the
+16 available bits.  We will typically left justify the ADC result so
+that we can access the 8 most significant bits by reading ADRESH; we
+will just ignore the least significant 2-bits in ADRESL.
+<br><Br>
+
+Every ADC conversion starts by the user program setting the 
+ADCON0bits.GO_nDONE bit.  This bit will stay at logic 1 until the
+conversion is complete when the bit will be cleared.  Putting 
+together these concepts yields the following code snippet that
+will convert 
+<pre>
+	ADCON0bits.GO_nDONE = 1;
+	while (ADCON0bits.GO_nDONE == 1);
+	x = ADRESH;
+</pre>
+
+<br><img src="./img/adc.bmp"><br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Field	<td>Function
+<tr><td>ADON	<td>Turns ADC subsystem on and off
+<tr><td>GO_nDONE<td>Starts a conversion and flags when its complete
+<tr><td>CHS	<td>Selects the channel/pin to be converted
+<tr><td>ADFM	<td>Select left or right result justify
+<tr><td>PVCFG	<td>Selects positive voltage reference for ADC
+<tr><td>NVCFG	<td>Selects negative voltage reference for ADC
+</table>
+
+<h3>Clock Jitter</h3>
+A common application for analog to digital converters is to sample
+a signal and store the digitized signal for further analysis or
+reproduction through a digital to analog converter.  In order to 
+do this, the input waveform is sampled at some period rate called
+the sampling rate.  In an ideal world, the input signal would be
+sampled at exactly the sampling rate, but in the real world there
+will be some clock jitter - small variations in the sampling rate.
+Clock jitter creates noise in the quantized amplitude of the input
+waveform.<br><br>
+
+In the figure below left, two input waveforms (blue at 10MHz and 
+green at 110MHz) are being sampled at 100Mhz (referenced by the
+black clock signal).  The figure below right shows when these two
+input waveforms are sampled when there is variation/jitter in the 
+rising edge of the sampling clock.   Now there is an interval of time
+when the input waveforms could be converted, resulting in different
+converted values.  The range of potential converted values is larger
+for the higher frequency waveform.
+
+<br><img src="./img/jitter.bmp"><br><br>
+<font size="1">
+Adapted from "Clock jitter analyzed in the time domain, Part 1" By 
+Thomas Neu.  Texas Instruments Incorperated notes on Data Acquisition.
+</font><br><br>
+
+The upshot of this is that if we are sampling a signal, then we 
+need to carefully consider the stability of our sampling rate
+a a part of our noise analysis.  We will dive into the topic of
+noise.
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ul>
+<li>A 10MHz 2v (peak to peak) sinusoidal input is applied to a 16-bit
+ADC that is sampling the input signal at 100MHz.  What is the largest change
+in the input between consecutive samples?  In other words, how much 
+does this input voltage change between two samples correspond to change 
+in the 16-bit output between those two input if the ADC is referenced 
+to 3.3v and GND.
+
+<!--
+Assuming the sine wave is centered at 0v, has frequency 10MHz and an
+amplitude of +1v/-1v, the equation of the input waveform is given by:<br><br>
+
+v(t) = sin(2*&pi;*10<sup>7</sup>*t)<br><br>
+
+A 0v centered sine wave has the highest slope when it crosses 0V - see
+the blue waveform in the leftmost panel (Figure 1) in the Clock Jitter.
+The time difference between consectutive samples, when a signal is 
+sampled at 100MHz, is 1/100MHz = 10ns.  According to the sloped 
+argument, the maximum change in the input will occur when we sample
+at -5ns and then sample at 5ns.<br><br>
+
+From the equation of the input signal we have:
+<pre>
+v(5ns)  = sin(2*&pi;*10<sup>7</sup>*5ns) = sin(2*&pi;*5*10<sup>-2</sup>) = 0.31
+v(-5ns) = sin(2*&pi;*10<sup>7</sup>*-5ns) = sin(2*&pi;*-5*10<sup>-2</sup>) = -0.31
+
+v(5ns) - v(-5ns) = 0.31v - (-0.31v) = 0.62V
+</pre>
+Thus, the largest change in the sampled input voltages is 0.62v.  
+Converting this change of input voltages to digital outputs is
+straightforward using the ratiometric relationship.
+
+<pre>
+	3.3v   0.62V
+        ---- = ----		x = 12,313
+        2<sup>16</sup>     x
+</pre>
+
+-->
+
+<li>Clock jitter causes deviations in the sampling clock rate. 
+If our sampling clock deviated by &pm;10ps, how much difference
+could this make to the input values of a 10MHz 2v (peak to peak) 
+sinusoidal input sampled at 100MHz.  How much could the jitter
+effect the converted output from the ADC for a single sample?
+
+<!--
+The input signal is described by the equation:<br>
+v(t) = sin(2*&pi;*10<sup>7</sup>*t)<br><br>
+
+From the preceeding problem, the maximum chage of the sinusoidal
+input signal will be when the signal crosses 0.  Since v(0) = 0,
+then we need to know what the jittered voltage v(10ps) equals
+using the equation for the signal.  This will give us the maximum
+difference the jitter can effect the input voltage.
+
+<pre>
+v(-5<sup>-11</sup>) = sin(2*&pi;*-5*10<sup>-4</sup>*t) = -314uV
+v(5<sup>-11</sup>) = sin(2*&pi;*5*10<sup>-4</sup>*t) = 314uV
+
+v(5ps) - v(-5ps) = 314V - (-314V) = 628uV
+
+Now convert this voltage to ADC count output:
+
+	3.3v   628uV
+        ---- = ----		x = 12
+        2<sup>16</sup>     x
+</pre>
+This means that you could see upwards of 12 counts of error on the 
+ADC output due to the jitter.
+-->
+
+
+</ul>
+
+
+</body>
+</html>

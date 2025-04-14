@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture26.html">&ltPrev</a></li>
+                        <li><a href="./lecture28.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>27</td></tr>
+<tr><Td>Objective:	<td>Understand how to use shift and add
+	to multiply a variable by integer and fractional 
+	constants.
+</table>
+
+
+<h1>Multiplication by constants</h1>
+When you add two numbers the result can have at most one more digit than
+the operands. For example, the 2-digit operands "50" when added to
+itself, 50 + 50 = 100 yields a 3-digit result.  This result generalizes
+as follows.  The sum of a pair of N-digit numbers generates a result
+with at most N+1 digits.  Trying to "squeeze" a N+1 digit sum into 
+a N-digit variable will generate an illegal result and a condition we
+call overflow.
+
+Multiplication is 
+fundamentally different, the product of two numbers generates a
+result that can have up to two times the number of digits as the
+operands. For example, the 2-digit operands "50" when multiplied
+by itself, 50 * 50 = 2500 yields a 4-digit result.  This result
+generalizes as follows.  The product of a pair of N-digit numbers 
+generates a result with at most 2*N digits. Trying to "squeeze" a 
+2*N digit product into a N-digit variable will generate an illegal 
+result and a condition we call overflow.
+<br><br>
+
+You can multiply a binary number by a power-of-2 by shifting it left
+one bit.  The mat
+
+<pre>
+Given a 4-bit binary number B = b3 b2 b1 b0.  Using the definition of 
+positional notation, these four bits are interpreted to have the value:
+b3*2^3 + b2*2^2 + b1*2^1 + b0*2^0
+
+Shifting B left one bit produces b3 b2 b1 b0 0.  Using the definition
+of positional notation, these five bits are interpreted to have the value:
+b3*2^4 + b2*2^3 + b1*2^2 + b0*2^1 + 0*2^0 = 2*(b3*2^3 + b2*2^2 + b1*2^1 + b0*2^0) = 2*B
+</pre>
+A similar argument can be made that shifting a binary number to the right
+divides it by 2.  The following table will come in handy during the next
+exercises.
+<br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>i	<td>2^i
+<tr><Td>3	<td>8
+<tr><Td>2	<td>4
+<tr><Td>1	<td>2
+<tr><Td>0	<td>1
+<tr><Td>-1	<td>0.5
+<tr><Td>-2	<td>0.25
+<tr><Td>-3	<td>0.125
+<tr><Td>-4	<td>0.0625
+<tr><Td>-5	<td>0.03125
+</table>
+
+What follows is a sequence of problems that motivate our discussion.  For 
+each of the following problems, you are to multiply an 8-bit integer,
+called x8, or a 16-bit integer, denoted x16, by a constant and put
+the result into a variable y8, y16, y24, or y32 depending on the
+size of the result.
+
+<ul>
+<li>Multiply x8 by 8 and put the result into a variable y16.<br>
+<font face="courier"> y16 = x8 << 3; </font>
+
+<li>Multiply x8 by 10 and put the result into a variable y16.<br>
+<font face="courier"> y16 = (x8 << 3) + (x8 << 1); </font>  
+This works because 10*x = (8 + 2)*x = 8*x + 2*x 
+
+<li>Multiply x8 by 21 and put the result into a variable y16.<br>
+<font face="courier"> y16 = (x8 << 4) + (x8 << 2) + x8; </font>  
+This works because 21*x = (16 + 4 + 1)*x = 16*x + 4*x + x 
+
+<li>Multiply x8 by 7 and put the result into a variable y16.<br>
+<font face="courier"> y16 = (x8 << 3) - x8; </font>  
+This works works because 7*x = (8 - 1)*x = 8*x - 1*x 
+
+<li>Multiply x8 by 8.5 and put the result into a variable y16.<br>
+<font face="courier"> y16 = (x8 << 3) + (x8 >> 1); </font>  
+This works works because 8.5x = (8 + 0.5)*x = 8*x + 0.5*x 
+
+<li>Multiply x8 by 0.65625 and put the result into a variable y8.<br>
+<font face="courier"> y8 = (x8 >> 1) + (x8 >> 3) + (x8 >> 5); </font>  
+This works works because 0.65625*x = (0.5 + 0.125 + 0.03125 )*x 
+
+<li>What is the smallest power of 2 such that when it is multiplied
+by 0.65625 yields an integer?
+<font face="courier"> 0.65625 * 32 = 21</font>
+In other words we have expressed 0.65625 as a ratio (21/32)where the 
+denominator is a power of two.  
+
+<li>Multiply x8 by 0.65625 and put the result into a variable y8.<br>
+<font face="courier"> y8 = (x8*21 ) >> 5; </font>  
+This works works because 0.65625*x = 21*x/32 
+
+<li>Multiply x8 by 0.6 and put the result into a variable y8. Your
+answer may use multiplication by a constant.
+<font face="courier"> y8 = (x8*154 ) >> 8; </font>  
+This works works because 0.6*x (almost) = 154*x/256.  There are two
+points to make.  First, you may have been annoyed that you could not produce
+an integer representation for 0.6 when multiplying by powers of 2.
+Most of the time this will be the case and you will just have to accept
+the fact that with any numerical computation you will have error. When
+working with 8-bit values, you should expect more than your fair share
+of error.  Second, overflow.  When computing this value you are working
+with intermediate values that occupy more than 8-bits.  Most of the
+time the compiler will protect you when you perform this computation 
+in one line of code as shown.  However you should exercise great care
+when developing these algorithms as overflow cases can creep up when
+you least expect and can be very difficult to debug.
+
+</ul>
+
+</body>
+</html>

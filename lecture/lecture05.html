@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture04.html">&ltPrev</a></li>
+                        <li><a href="./lecture06.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>5</td></tr>
+<tr><td>Objectives:</td><td> Understand the syntatic structures for
+uninitialized and initalized 1 and 2-D arrays and how to read and
+write arrays.
+</table>
+
+<h1>Arrays</h1>
+The array is convenient tool for arranging a related collection of 
+information in one place.
+
+<h2>Declaring arrays</h2>
+Like all variables, you need to declare array's in C.
+<ul>	<li>Data type of the elements
+	<li>The name of the array
+	<li>The length of the array
+	<li>Optional - initial values
+</ul>
+
+So really, the only thing that makes an array declaration different
+from an regular variable is that <u>array's have length</u>.  This 
+requires a new syntactical structure, the square bracket.
+
+<pre>
+    #define N 6
+
+    uint8_t array1[N];				// An uninitialized 
+    uint8_t array2[N] = {1, 2, 3, 4, 5, 6};	// An initialized array
+    uint8_t array3[N][N];				// An uninitialized 2D array
+    uint8_t array4[N][N] = { { 0,  1,  2,  3,  4,  5},
+			  {10, 11, 12, 13, 14, 15},
+			  {20, 21, 22, 23, 24, 25},
+			  {30, 31, 32, 33, 34, 35},
+			  {40, 41, 42, 43, 44, 45},
+			  {50, 51, 52, 53, 54, 55}};
+</pre>
+
+The first row of this declaration may be new to you, 
+<font face="courier">#define N 6</font>.  This is a way to declare a constant
+through your program.  This allows you to type in "N" everywhere you want
+to describe the size of the array.  This is particularly helpful in 
+complex programs where you might need to change the size of the array.
+If you define the size of the array using a 
+<font face="courier">#define</font> then you can simply modify this value,
+recompile your code, download it and you are done.  If you use the 
+constant "6", you would need to hunt down all occurrences and replace them
+with the new size. <br><Br>
+
+
+The first array declaration for <font face="courier">array1</font>
+creates an array of 6 elements, each element being a distinct uint8_t.
+This is an uninitialized array, you should assume that the values
+in the array are some random garbage junk values.  Do <u>not assume
+that uninitialized variables have a 0 value - they almost certainly
+will not!</u><br><br>
+
+The second array declaration for <font face="courier">array2</font>
+creates an array of 6 elements, each element being a distinct uint8_t.
+This is an initialized array, with each array element getting one
+of the 6 provided values starting with element 0.<br><br>
+
+The third 2D array declaration for <font face="courier">array3</font>
+creates a 2D array of 6x6 elements, each element being a distinct uint8_t.
+This is an uninitialized array, you should assume that the values
+in the array are some random garbage junk values.  Do <u>not assume
+that uninitialized variables have a 0 value - they almost certainly
+will not!</u><br><br>
+
+The fourth array declaration for <font face="courier">array4</font>
+creates an 2D array of 6x6 elements, each element being a distinct uint8_t.
+This is an initialized array, with each array element getting one
+of the 6 provided values starting with element 0,0.<br><br>
+
+Embedded C has static memory.  The important consequence of this statement
+is that the size of an array cannot be changed during the execution of your
+program; the size of an array is set when you compile your program.
+A programming language like MATLAB uses dynamic memory allowing
+you to increase the size of the array during the execution of a
+program.  What is not obvious is that MATLAB has a host of sophisticated
+memory management programs running concurrent with your MATLAB program to 
+enable dynamic memory.  These memory management programs would introduce
+a level of complexity that is out of scale with the capabilities of an
+8-bit microcontroller.
+
+
+<h2>Reading and writing array values</h2>
+Whenever you place a variable (or array element) on the right-hand
+side (RHS) of an assignment statement (equal sign), you are asking for a read
+of that variable. When a variable is on the LHS of an assignment statement
+(equal sign) you are asking to assign that variable a new value by writing
+a value to it.  In the example below, the variable array1[0] is being
+read in the first line of code and is being written-to in the second
+line of code.
+<pre>
+	x = array1[0];		// array1[0] is on the RHS - read array1[0]
+	array1[0] = 7;		// array1[0] is on the LHS - write array1[0]
+</pre>
+
+When you work with arrays you can only read or write one value at a time.  
+Hence when you read or write an array you need to provide the name of the 
+array along with the index that is being accessed.  Here are
+some examples using the declarations above.
+
+<pre>
+    uint8_t i, j;
+
+    array1[0] = 7;			// array1[0] now equals 7
+    array1[1] = array2[5];		// array1[1] now equals 5
+    array1[2] = array2[4]+array[5];	// array1[2] now equals 11
+    array1[3] += 7;			// array1[3] is still undefined
+    array1[4] = array4[2][3];		// array1[4] now equals 23
+
+    array3[0][0] = 7;			// array3[0][0] now equals 7
+    array3[1][1] = array[4];		// array3[1][1] now equals 5
+    array3[2][2] = array[2] + array[3];	// array3[2][2] now equals 7
+    array3[3][3] += 7;			// array3[3][3] is still undefined
+    array3[4][4] = array4[2][3];	// array3[4][4] now equals 23
+
+    // Determine the new values of array1 and array3 
+    for (i=0; i &lt N; i++) {
+	array1[i] =  10 + array2[i];
+	for (j=0; j &lt N; j++) {
+	    array3[i][j] =  10 + array4[i][j];
+	} // end for j
+    } // end for i
+</pre>
+
+When working with 2D arrays just remember that the first index is the
+row and the second the column.  With all arrays in C do not forget that
+<u>all indexing starts at 0!</u>
+After this code is executed array1 and array3 have the following values.
+<br><br>
+
+<pre>
+    uint8_t array1[N]    = {11, 12, 13, 14, 15, 16};
+    uint8_t array3[N][N] = { {10, 11, 12, 13, 14, 15},
+			  {20, 21, 22, 23, 24, 25},
+			  {30, 31, 32, 33, 34, 35},
+			  {40, 41, 42, 43, 44, 45},
+			  {50, 51, 52, 53, 54, 55},
+			  {60, 61, 62, 63, 64, 65}};
+</pre>
+
+It's important to note that while we did not do so, <u>there
+is nothing prohibiting you from changing the values of an initialized
+array.</u>  For example, you could have the following line of code
+somewhere after the declaration of array1,
+<font face="courier">array1[0] = 10;</font>.
+<br><br>
+
+On final warning about embedded C and arrays.  There is nothing prohibiting
+you from access indicies outside the declared length of the array.  For
+example, if you read <font face="courier">array2[10]</font> 
+(use the array declarations at the begining of this lecture), the PIC would
+not blink an eye and happily return a (garbage) value.  This can be extremely
+frustrating when trying to debug a misbehaving program, because the behavior
+of the program will change depending on garbage values are located.  Often
+the program will run fine when you first turn the system on because there
+is a reasonable chance that the volatile RAM locations will be 0.  However,
+when the processor is reset, subsequent runs with the same input may produce 
+erroneous values.  There are sometimes called Heisenbugs.
+
+<h3>Sorting arrays using bubble sort</h3>
+While our C compiler has a built in function <font face="courier">qsort</font>, 
+when dealing with small arrays, bubble sort 
+
+<pre>
+#define N	8
+
+void main(void) {
+    uint8_t array[N];
+    uint8_t i, j, temp;
+
+    for (i=0; i&lt;N-1; i++) {
+	for (j=0; j&lt;N-i-1; j++) {
+	    if (array[j] > array[j+1]) {
+		temp = array[j+1];
+		array[j+1] = array[j];
+		array[j] = temp;
+}   }	}   }
+</pre>
+
+
+<h3>Character Strings</h3>
+Strings are a convenient way to pack together characters and are 
+represented in the memory of the computer as a a NULL terminated 
+array of characters. To understand this definition let's focus
+on the array of characters using the following example.
+
+<pre>
+
+void main(void) {
+
+    char alphabet[4] = "abc";
+    char oneCharacter;
+    
+    oneCharacter = alphabet[0];
+    alphabet[1] = oneCharacter;
+    alphabet[2] = alphabet[0];
+
+} // end main
+</pre>
+
+Back in Lecture 1 we saw that the ASCII code was a way to assign
+numerical codes to typographic characters.  In that lecture we 
+were looking at single characters and as a consequent used single
+quotes.  For example ASCII 'a' is assigned decimal code 97,
+'b' is assigned 98 and 'c' 99.  While single ASCII characters 
+are set-off using single quotes, strings are surrounded by double
+quotes.  
+<br><br>
+
+In the C programming language, all strings are typed
+char, and the length of the string given by the number in brackets
+after the string's name.  Strings may be initialized by including 
+the initial string value in double quotes - the number of characters
+in the initial value must be at most, one less than the length of
+the string given in the square array brackets.
+<br><br>
+
+Consequently, the string alphabet in the code above is an array 
+which holds the numbers 97, 98, 99 (represented in binary of 
+course) and <u>interperted</u> as ASCII characters.  The first element of the
+array is, by convention, the first letter in the string.  Since the C 
+programming language starts indexing arrays at 0, alphabet[0] references 
+the character 'a'.  You should verify that when the code in the example
+above completes its execution, alphabet = "aaa".  Now we turn our attention 
+to what is meant by NULL terminated.
+
+<br><br>
+There are times when you will want a string to contain a non-printable
+character.  Non-printable characters often perform terminal control
+functions like tab and carriage return.  In order to specify a
+non-printable character you will need to "escape" it.  An ASCII escaped 
+character is the "\" symbol followed by a decimal number.  The compiler 
+will treat the digit as a decimal ASCII code of the character to put in
+the string.  For example the horizontal tab has ASCII code 9.  
+Consequently printing a string "Pugs\9are great!" will produce the
+text "Pugs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; are great!"<br><br>
+
+One non-printable character, NULL, has a special relationship with strings.
+The NULL has ASCII code 0 and signify the end of a string.  A string with a 
+NULL at the end
+is said to be NULL terminated.  Most compilers will automatically NULL 
+terminate your strings for you.  However, you need to be aware that this
+is happening and leave room for this non-printable character.  This
+explains why alphabet in the code snippet above was given 4 bytes of 
+storage.  So actually, alphabet is an array which holds the numbers 97, 
+98, 99, 0.
+<br><br>
+
+When working with strings you should pay attention to the output produced
+by the compiler in the console window <u>even if the compile is 
+"successful"</u>  For example, if you had defined 
+<font face="courier">char alphabet[3] = "abc";</font>, the compiler
+will throw a warning
+<font face="courier" color=blue>
+warning: (340) string not terminated by null character </font>
+While this may not seem a big deal, if your code relies on the NULL 
+terminator to tell it when it has reached the end of the strings, then
+this warning is a big deal.  For example, the standard C function
+<font face="courier">printf</font> will keep printing characters in
+a string until encounters a NULL.  From personal experience, leaving the 
+NULL off a sting passed to printf produces some very strange output.
+<br><br>
+
+Continuing on the theme of how things can go wrong, if you used the
+following declaration for the 
+<font face="courier">char alphabet[2] = "abc";</font>, the compiler
+will throw an error, 
+<font face="courier" color=blue>
+error: (240) too many initializers
+</font>
+This error is a result of allocating 2 bytes for the array, but asking
+for the initial value to be 3 bytes.
+<br><br>
+
+Finally, you are welcome to explicitly declare the NULL terminator 
+by escaping it.  For example, the following declaration is perfectly
+acceptable, <font face="courier">char alphabet[4] = "abc\0";</font>.  When 
+you do this, the compiler will recognize what you have done and not add 
+another NULL.  Your initial value for the string may contain fewer characters
+than the length of the string.  For example, the following declaration
+is perfectly acceptable,
+<font face="courier">char alphabet[8] = "abc\0";</font>.  Note, that 
+when you first reference the alphabet string, only the first 4 characters 
+of the string will have know values.  The first time that you reference
+the alphabet string, the values of 
+<font face="courier">alphabet[4]</font> through
+<font face="courier">alphabet[7]</font> are indeterminate - you should
+assume that they contain garbage values.
+<Br><Br>
+
+There are times when you will want to store an array of strings.  For
+example you might have the following options for a digital MP3 player.
+<pre>
+    char commandArray[3][5] = {"run", "stop", "play"};
+</pre>
+
+You need to remember to remember that the first index "[3]" tells you
+how many strings are in the array.  The second index, "[5]" tells you
+that each string contains at most 4 character with one byte reserved
+for the NULL terminator.
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Write the definition of an uninitialized array with 36 elements, each
+element is uint16_t type.
+<!--
+    uint16_t array[36];
+-->
+
+<li>Write an array declaration for an uninitialized array with 100 elements,
+each an uint8_t.  Then write a for-loop to initialize the array with the first
+array element equal to 100, and each subsequent array element one less than
+the previous.
+<!--
+    uint8_t array[100];
+    int 8 i;
+
+    for (i=0; i<100; i++)
+	array[i] = 100-i;
+-->
+
+<li>Assume that you have declared <font face="courier">array</font> as
+an uint8_t of length N where N is defined and less than 100. Your code has 
+loaded the array
+with values, now you want to compute the average of these values.  Write
+a for loop to compute the sum, then compute the average.  Be careful
+not to overflow the sum by choosing appropriate data types.
+
+<!--
+<pre>
+    uint16_t sum = 0;
+
+    for (i=0; i<N; i++) {
+	sum += array[i];
+    average = sum / N;
+</pre>
+-->
+
+<li> Evaluate each of the expressions on the following table based on
+the following variable declarations. 
+
+<pre>
+uint8_t note[10] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+uint8_t lut[5]   = {0x00, 0x80, 0xB5, 0xDE, 0xFF};
+uint8_t i = 3;
+uint8_t sum = 0;
+</pre>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Evaluate		<td>Value
+<tr><td>note[0]			<Td>&nbsp
+<tr><td>lut[2]			<Td>&nbsp
+<tr><td>note[i] 		<Td>&nbsp
+<tr><td>note[i-1]		<Td>&nbsp
+<tr><td>note[i+1]		<Td>&nbsp
+<tr><td>note[2*i+1]		<Td>&nbsp
+<tr><td>lut[i] + note[i-1]	<Td>&nbsp
+<tr><td>for(i=1; i<4; i++) sum+=note[i+2]	<td>&nbsp
+<tr><td>note[i+9]		<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Evaluate		<td>Value
+<tr><td>note[0]			<td>note[0] = 0x00
+<tr><td>lut[2]			<td>lut[2] = 0xB5
+<tr><td>note[i] 		<td>note[3] = 0x33
+<tr><td>note[i-1]		<td>note[2] = 0x22
+<tr><td>note[i+1]		<td>note[4] = 0x44
+<tr><td>note[2*i+1]		<td>note[7] = 0x77
+<tr><td>lut[i] + note[i-1]	<td>lut[3] + note[2] = 0xDE + 0x22
+<tr><td>for(i=1; i<4; i++) sum+=note[i+2]	<td>sum = 0x33 + 0x44 + 0x55 + 0x66
+<tr><td>note[i+9]		<td>Probably** lut[2] = 0xB5
+</table>
+** In order to access the 12th element of the note array, it’s a good bet that the compiler will add 12 to the base address of the note array.  This will generate an address beyond the note array.  Since the lut array is declared immediately following the note array, the compiler will probably pack the lut array immediately adjacent to the note array.  Hence the out of range address will more than likely land inside the lut array with an offset equal to illegal index minus the length of the note array or i+9–10 = 3+9-10 = 2.
+-->
+
+<li>Given the variable declarations below, determine the effect of each
+of the lettered operations on the hex array.  Only fill in array entries
+that have changed.
+
+<pre>
+uint8_t hex[10] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+uint8_t i = 4;
+
+A. hex[0] = 0xAB;
+B. hex[1] = hex[0];
+C. hex[2] = hex[i]
+D. hex[3] = hex[9] – hex[8]; 				
+E. for(i=1; i<10; i++) hex[i-1] = hex[i]
+F. for(i=0; i<9; i++) hex[i+1] = hex[i]
+G. for(i=8; i>0; i--) hex[i+1] = hex[i]		
+</pre>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>&nbsp	<td>A<td>B<td>C<td>D<td>E<td>F<td>G
+<tr><td>hex[0]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[1]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[2]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[3]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[4]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[5]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[6]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[7]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[8]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+<tr><td>hex[9]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp 
+</table>
+
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>&nbsp	<td>A<td>B<td>C<td>D<td>E<td>F<td>G
+<tr><td>hex[0]  <td>0xAB <td>&nbsp<td>&nbsp<td>&nbsp<td>0x11 <td>&nbsp<td>&nbsp 
+<tr><td>hex[1]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>0x22 <td>0x00 <td>0x00  
+<tr><td>hex[2]  <td>&nbsp<td>0x00 <td>&nbsp<td>&nbsp<td>0x33 <td>0x00 <td>0x11  
+<tr><td>hex[3]  <td>&nbsp<td>&nbsp<td>0x44 <td>&nbsp<td>0x44 <td>0x00 <td>0x22  
+<tr><td>hex[4]  <td>&nbsp<td>&nbsp<td>&nbsp<td>0x11p<td>0x55 <td>0x00 <td>0x33  
+<tr><td>hex[5]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>0x66 <td>0x00 <td>0x44  
+<tr><td>hex[6]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>0x77 <td>0x00 <td>0x55  
+<tr><td>hex[7]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>0x88 <td>0x00 <td>0x66  
+<tr><td>hex[8]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>0x99 <td>0x00 <td>0x77  
+<tr><td>hex[9]  <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>0x00 <td>0x88  
+</table>
+-->
+
+
+<li>Write a C code snippet that takes an 8-bit integer representing 
+an ASCII character between '0' and '9' and returns the decimal value.
+For example your code snippet should convert the ASCII code for '3',
+51, to 3.
+
+<!--
+<pre>
+    char number = '3';
+    char value;
+
+    value = number - '0';    
+</pre>
+
+This works because the ASCII numberical digits are assigned consectutive
+values starting at decimal 48 upto 57.  Consequently, subtracting '0' is
+the same as subtracting 48, and moves all the decimal values down by 48,
+placing them at their equivlent decimal value.  You could have just as
+easily used the expression "value = number - 48;" but I thing that by
+using the '0' you are telegraphing the meaning of the 48 more effectively.
+-->
+
+<li>Write a C code snippet that converts an uppercase letter into the 
+equivlent lower case letter.
+
+<!--
+<pre>
+    char upper = 'F';
+    char lower;
+
+    lower =  upper - 'A' + 'a';
+</pre>
+
+This works because the ASCII upper/lower case letters are assigned 
+consectutive values starting at decimal 65/97 upto 90/122 respectively.
+Consequently, subtracting 'A' is the same as subtracting 65, and moves 
+all the upper-case letters to a decimal value representing its offset 
+from 'A'.  Adding 'a' then adds this offset producing the equivlent
+lower case letter.  You could have just as easily used the expression 
+"lower = upper - 25", but I find the given code explicitly lays out 
+the conversion procdure. 
+-->
+
+<li>An ultrasonic range finder is a device which emits a very high frequency
+soundwave above the range of hearing (ultrasonic) and then listens for the 
+echo.  The flight-time of the ultrasonic sound wave, combined with the known 
+speed of sound, determines the distance between ultrasonic range finder and
+the object.  The PIC measures the flight time using a counter that increments
+every 0.5us.  In order to improve the accuracy of the range value,
+your program acquires 8 range measurements and computes an average.  However,
+when you look at the values (shown in the table below), you notice that 
+while most of the values are correct, a few are clearly incorrect.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Index	<td>Value
+<tr><td>0	<td>10047
+<tr><td>1	<td>10006
+<tr><td>2	<td>9975
+<tr><td>3	<td>56358
+<tr><td>4	<td>9998
+<tr><td>5	<td>9974
+<tr><td>6	<td>10032
+<tr><td>7	<td>57244
+</table>
+
+You need to figure out a strategy to remove these spurious values.  You
+may assume that a majority of the values in the array are correct.  The
+variation of the measured values should be at most 500 counts away from 
+the actual measurement.
+
+
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture28.html">&ltPrev</a></li>
+                        <li><a href="./lecture30.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>   <td>29</td></tr>
+<tr><td>Objective: 	<td>To provide operational understanding 
+	of how to adjust DDS parameters to generate waveforms with
+	varying frequencies given a table size and update rates.
+</table>
+
+
+<h2>Direct Digital Synthesis (DDS) algorithm</h2>
+The last lecture presented a schematic descrption of the DDS architecture
+using digital hardware.  The DDS hardware uses a phase accumulator that counts 
+up by the phase increment at the update rate.  The integer portion of the 
+phase accumulator is used to as the address to a ROM containing one period 
+of waveform you are trying to reproduce.  The output of the ROM is sent to 
+a digital to analog converter (DAC) to produce the analog waveform.  In our
+case, the ADC consisted of the PWM subsystem of the PIC coupled to a low
+pass filter (LPF), that converted a D% duty cycle waveform from the PWM
+subsystem into a 3.3V * D% analog output.<br><br>
+
+Fine frequency control over the output waveform is made possible by having
+fractional values for the phase accumulator and phase increment.  While 
+only the integer portion of the phase accumulator is used as the address to
+the ROM, the fractional portion of the phase accumulator allows fractional 
+portions of the phase increment to accumulate and eventually manifest 
+themselves in the integer portion.<br><br>
+
+To make this discussion concrete, let's examine the DDS system implemented
+in the following algorithm.  In this example, we are trying to reproduce 
+a sine wave using a 16 element ROM.  This ROM will require 4-bits of
+address to access all 16 elements.  For this example, we will use a 
+4.12 format number for both the phase increment and phase accumulator.
+We need the 4 integer bits of the fixed-point number because we need
+to access all 16 elements in the ROM.  I had a choice of 4 fractional 
+bits (to form an 8-bit variable), or 12-bits (to form a 16-bit variable).
+I choose 12-bits because I wanted very precise frequency control (more
+on this later). <br>
+<br>
+
+In order to access the array, we have to remove the fractional bits from
+the phase accumulator.  This is accomplished in the algorithm by shifting
+the phase accumulator right by 12-bits and storing the resulting value 
+in a temporary register.<br>
+
+<pre>
+    int8 sin[16] = {127,176,217,245,254,245,217,176,127,78,37,10,0,1,37,78};
+
+    // Since there are 16 entries in ROM, we will use 4.12 format
+    int16 phaseAccumulator, phaseIncrement, index;
+
+    phaseAccumulator = 0;
+    phaseIncrement = &lt;value&gt;
+
+    for(;;) {
+	delayTenMicroSeconds();
+	phaseAccumulator = phaseAccumulator + phaseIncrement;
+	index = phaseAccumulator &gt;&gt; 12;
+	PWM4_LoadDutyValue(sin[index]);		// Assume an 8-bit duty cycle
+    }
+</pre>
+
+The code shown in the algorithm is a mix of real-code and pseudo-code.
+The call to "delayTenMicroSeconds();" will be replaced with an interrupt
+call in future algorithms (the infinite loop will also be removed).  The 
+value of phaseIncrement is set by some actor who controls the frequency
+of the output waveform - usually main. Remember that the duty cycle of 
+a PWM waveorm is set by the 8-bit value in the CCPx register (from
+a previous lecture) or by using the built-in functions provided by 
+MCC.<br><br>
+
+To better understand what is happening with the code, try to complete
+the following tables which describe the values of the phaseAccumulator
+through time and the values of the ROM it selects.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=4">phaseIncrement = 0x0D40</td>
+<tr><td>Time (us)<td>phaseAccumulator	<td>index	<td>CCPx
+<tr><td>10	<td>0x0D40		<td>0x00	<td>&nbsp
+<tr><td>20	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>30	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>40	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>50	<td>&nbsp		<td>0x04	<td>&nbsp
+<tr><td>60	<td>0x4F80		<td>&nbsp	<td>&nbsp
+<tr><td>70	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>80	<td>&nbsp		<td>&nbsp	<td>217
+</table>
+
+To see the solution, right-mouse click and select "view page source".
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=4">phaseIncrement = 0x0D40</td>
+<tr><td>Time (us)<td>phaseAccumulator		<td>index	<td>CCPx
+<tr><td>10	<td>0x0D40			<td>0x00	<td>127
+<tr><td>20	<td>0x1A80			<td>0x01	<td>176
+<tr><td>30	<td>0x27C0			<td>0x02	<td>217
+<tr><td>40	<td>0x3500			<td>0x03	<td>245
+<tr><td>50	<td>0x4240			<td>0x04	<td>254
+<tr><td>60	<td>0x4F80			<td>0x04	<td>254
+<tr><td>70	<td>0x5CC0			<td>0x05	<td>245
+<tr><td>80	<td>0x6A00			<td>0x06	<td>217
+</table>
+-->
+
+<h2>DDS calculations</h2>
+
+Let's examine the phase increment in our algorithm above and its
+relationship to the frequencies produced by the system.  Note,
+in the algorithm that the update rate is set at 10us and the 
+ROM has 16 entries.
+<br><Br>
+
+<b>Question:</b><br>
+What phase increment will produce an output waveform with 440 Hz?
+Represent the phase increment in decimal and in 4.12 format.
+<br><Br>
+
+<b>Answer:</b><br>
+<pre>
+ 1 update   10^6 us   X phase inc      1 wave    
+ -------- * ------- * ----------- * -------------  = 440 Hz
+   10us       1s       1 update      16 phase inc  
+</pre>
+X = 0.0704<br>
+In 4.12 format, 0.0704*2<sup>12</sup> = 288.4 which rounds to 288.<br>
+288 in binary is 0000 0001 0010 0000, shifting the decimal point left by
+12 bits yields 0000.000100100000
+<br><Br>
+
+<b>Question:</b><br>
+What output waveform frequency will a phase increment of 0.1234 produce?
+<br><Br>
+
+<b>Answer:</b><br>
+<pre>
+ 1 update   10^6 us   0.1234 phase inc     1 wave    
+ -------- * ------- * ---------------- * ------------  = 771.25 Hz
+   10us       1s           1 update      16 phase inc  
+</pre>
+
+
+<h2>Frequency resolution</h2>
+Now let's examine some performance metrics associated with a DDS
+system.  One of the most important is the frequency resolution; 
+the smallest change possible with a DDS setup.  In order to answer
+this question we need to introduce the concept of consectutive 
+representations for fixed-point numbers.  Two fixed-point numbers
+will be said to have consectutive representations if one of them
+can be derived by adding binary 0000001 to the other.  For example,
+in a 4.4 format numbers 0010 1101 and 0010 1100 are consectutive 
+representations (since you can add binary 00000001 to the second number
+and arrive at the first number) while 0010 1101 and 0010 1110 
+are not consectutive representations.
+<br><Br>
+
+<b>Question:</b><br>
+Given a 4.12 format number what is the change in value between 
+consectutive representations in 4.12 format and in decimal?
+<br><br>
+
+<b>Answer:</b><br>
+Given two consectutive representations of 4.12 numbers, the difference
+between them will always be  0000.000000000001 or 2<sup>-12</sup>.
+This works out to 244*10<sup>-6</sup>. 
+<br><Br>
+
+<b>Question:</b><br>
+Given a 4.12 format number for the phaseIncrement and phaseAccumulator, a 
+10us update rate, and a 16 entry ROM, what is the frequency change between
+consectutive representations of the phaseIncrement?
+<br><br>
+
+<b>Answer:</b><br>
+From the previous question we know that the difference between consectutive
+4.12 numbers is 0000.000000000001 or 2<sup>-12</sup> = 244*10<sup>-6</sup>. 
+Using this difference as the phase increment in our DDS equations yields:
+
+<pre>
+ 1 update   10^6 us   244*10<sup>-6</sup>phase inc      1 wave    
+ -------- * ------- * ----------------- * -----------  = 1.53 Hz
+    10us     1s            1 update       16 phase inc  
+</pre>
+<br><br>
+
+This is a general result, there will always be 1.53Hz difference 
+between consectutive representation. This value is so important,
+it is given a name, <u>frequency resolution</u>.  To recap, the 
+frequency resolution of a DDS system is the frequency change between 
+consectutive representations of the phase increment.  The 
+frequency resolutions is affected by update rate, 
+fixed point format of the phase increment and ROM size.  Let's see
+how one of these factors affects the frequency resolution of our
+DDS algorithm.
+<Br><br>
+
+<b>Question:</b><br>
+Let's change the datatype of phaseIncrement and phaseAccumulator
+from int16 to int8.  What is the frequency resolution of the resulting
+algorithm?
+<br><br>
+
+<b>Answer:</b><br>
+Our phase increment will no longer be a 4.12 format number because these
+16-bits will not fit into an int8.  Since we need 4 integer bits to
+access the ROM, this leaves only 4 fractional bits.  Thus, the phase
+increment is a 4.4 format number.<br><br>
+
+The change in value between consectutive 4.4 representations is 
+0000.0001 = 2<sup>-4</sup> = 0.0625<br><br>
+
+Now we can use our DDS equation to determine the frequency resolution using 
+the phase increment between consectutive representations of the phase
+increment.<br>
+
+<pre>
+ 1 update   10^6 us   0.0625 phase inc      1 wave    
+ -------- * ------- * ---------------- * -----------  = 391 Hz
+    10us     1s            1 update      16 phase inc  
+</pre>
+
+
+<h2>DDS with interrupts</h2>
+
+
+<pre>
+uint8_t sin[16] = {127,176,217,245,254,245,217,176,127,78,37,10,0,1,37,78};
+
+// This need to be global because they are shared between ISR and main
+uint16_t phaseIncrement = 0x0123;
+
+//*****************************************************************
+//*****************************************************************
+void high_priority interrupt tmr0_isr(void) {
+ 
+    static uint16_t phaseAccumulator = 0;
+    uint16_t index;
+
+    phaseAccumulator = phaseAccumulator + phaseIncrement;
+    index = phaseAccumulator &gt;&gt; 12;
+    PWM4_LoadDutyValue(sin[index]);		// Assume an 8-bit duty cycle
+
+    TMR0_WriteTimer(TMR0_ReadTimer() + (0xFFFF - RATE));
+    INTCONbits.TMR0IF = 0;		// Clear the timer rollover flag
+
+} // end timer compare interrupt
+</pre>
+
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ul>
+<li>Use the algorithm presented at the top of this lecture to 
+complete the following table.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=4">phaseIncrement = 0x13E4</td>
+<tr><td>Time (us)<td>phaseAccumulator	<td>index	<td>PWMDTY0
+<tr><td>10	<td>0x13E4		<td>0x01	<td>176
+<tr><td>20	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>30	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>40	<td>&nbsp		<td>&nbsp	<td>&nbsp
+<tr><td>50	<td>&nbsp		<td>&nbsp	<td>&nbsp
+</table>
+
+<!---
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=4">phaseIncrement = 0x13E4</td>
+<tr><td>Time (us)<td>phaseAccumulator	<td>index	<td>PWMDTY0
+<tr><td>10	<td>0x13E4		<td>0x01	<td>176
+<tr><td>20	<td>0x27C8		<td>0x02	<td>217
+<tr><td>30	<td>0x3BAC		<td>0x03	<td>245
+<tr><td>40	<td>0x4F90		<td>0x04	<td>254
+<tr><td>50	<td>0x6374		<td>0x06	<td>217
+</table>
+-->
+
+<li> Given a DDS system with an update rate of 10us, a 8 entry ROM,
+and a 3.5 format fixed point phase increment, what phase increment
+generates a frequency of 20kHz?
+
+
+<!--
+<b>Answer:</b><br>
+<pre>
+ 1 update   10^6 us   X phase inc      1 wave
+ -------- * ------- * ----------- * ------------  = 20,000Hz
+   10us      1s        1 update     8 phase inc
+
+Solving for X yields 1.6 
+As a 3.5 format number:
+    1.6*32 = 51.2 rounded = 51
+    51 = 0011 0011 = 0x33
+</pre>
+-->
+
+<li> Given a DDS system with an update rate of 10us, a 8 entry ROM,
+and a 3.5 format fixed point phase increment, what phase increment
+generates a frequency of 120kHz?
+
+
+<!--
+<b>Answer:</b><br>
+<pre>
+ 1 update   10^6 us   X phase inc      1 wave
+ -------- * ------- * ----------- * ------------  = 120,000Hz
+   10us      1s        1 update     8 phase inc
+
+Solving for X yields 9.6 
+This value cannot be represented as a 3.5 format number because
+3.5 format numbers are in the range [0 to 7.97]
+</pre>
+-->
+
+
+<li>Given a DDS system with an update rate of 10us and a 64 entry ROM,
+What is the lowest frequency waveform you can create with a
+6.2 format fixed point phase increment?
+
+<!--
+<b>Answer:</b><br>
+The key to this solution is using the fixed point format to make
+the smallest possible phase increment = 000000.01 = 0.25
+
+<pre>
+ 1 update   10^6 us   0.25 phase inc      1 wave
+ -------- * ------- * -------------- * -----------  = 391Hz
+    10us     1s          1 update      64 phase inc
+</pre>
+-->
+
+
+<li>Your engineering design team has tasked you with developing the DDS engine
+for a microcontroller platform that will be deployed in a radar application.
+The N-bit output of the DDS engine is sent to a N-bit DAC which converts
+this input into an output between 0v - 1v.  This application requires
+the DDS to generate a sinusoid over a broad range of frequencies that
+can be finely-adjusted.  Your team has decided on a microcontroller
+family having 3 different models with 8kB, 32kB and 128kB of RAM with
+a commensurate increasing unit cost.  The design of the DDS engine will
+play an important role in determining the memory footprint in the RAM
+and consequently which model to choose.  Your technical lead needs you
+to provide the following.
+
+<ol>
+<li>Investigate the trade-off between the length of the DDS lookup table
+(number of rows in the RAM) and the minimum step size on the output
+of the DAC (measured in volts).  To do this make a table (in excel)
+with two columns, number of rows in the RAM (between 2^4 and 2^16) and
+step size (in volts).  Remember that the maximum slope of a sinusoid is 1. 
+ 
+<li>Assume that you are working with a 16-bit word using a w.f formatted
+fixed point number.  Investigate the trade-off between the number of
+whole number bits and fractional bits and the frequency resolution of
+the DDS subsystem.  Since you are working with a 16-bit word, w + f = 16.
+</ol>
+
+<!--
+I have not solved this interesting problem, perhaps you could.  Extra
+credit is in the offering for a solid solution.
+-->
+
+</html>

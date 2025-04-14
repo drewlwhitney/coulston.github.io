@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab11.html">Lab 11</a></li>
+                    </ul>
+ 		     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Lab 11 - In-lab activities</center>
+
+<h2>Requirements</h2>
+Working in teams of two, read through the following lab activity and perform all the actions prescribed. You do not need to document bullet items. Make a record of your response to numbered items and turn them in a single copy as your teams solution on Canvas using the instructions posted there.
+
+Include the names of both team members at the top of your solutions. Use complete English sentences when answering questions. If the answer to a question is a table or other piece of art (like an oscilloscope trace or a figure), then include a sentence explaining the piece of art. Only include your answers, do not include the question-text unless it is absolutely needed.
+
+<h2>Objective</h2>
+
+<h2>External hardware</h2>
+This week's lab will focus on generating sine waves using a digital
+to analog converter built from running a PWM waveform (from ECCP1)
+through a low pass filter.  This is the same technique that you have
+used in previous labs, so there is nothing really much to talk about
+here.  Let's move on.
+
+<h2>Internal Subsystem</h2>
+We will be using direct digital synthesis (DDS) to generate the 
+sine waves.  We will be using a tmr0 delay in our main DDS loop
+to time the changes to the phaseIncrement and consequently the 
+DC level of the sine wave.  In your assignment, you will need to
+move this loop inside a TMR0 interrupt.  Other than the ECCP1
+subsystem and its associate TMR2, there is little new that we 
+need to discuss in this section.
+
+<h2>Firmware Organization</h2>
+Let's go through a familiar configuration of the PIC using the 
+following steps.
+
+<ul>
+<li>In the INTERNAL OSCILLATOR area of the System Module window
+<ul>	<li>Oscillator Select:	Internal oscillator block
+	<li>System Clock Select: FOSC
+	<li>Internal Clock: 16MHz_HFINTOSC
+	<li>Software PLL Enabled: &check;
+</ul>
+The Current System clock should be 64MHz (4x PLL)
+
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR0.
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR1.
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR2.
+<li>In the Device Resources area of the project window, expand the EUSART
+option.  Double click EUSART1.
+<li>In the Device Resources area of the project window, expand the ECCP
+option.  Double click ECCP1
+
+
+<li>In the Project Resources area of the project window click on TMR0.
+<ul>	<li>Enable Timer:	&check;
+	<li>Enable Prescaler:	&square;
+	<li>Prescaler:		1:2	&lt;It doesn't matter&gt;
+	<li>Timer mode:		16-bit
+	<li>Clock Source:	FOSC/4
+	<li>Timer Period:	500 us
+	<li>Enable Timer Interrupt	&square;
+</ul>
+
+<li>In the Project Resources area of the project window click on TMR1.
+<ul>	<li>Enable Timer:	&check;
+	<li>Clock Source:	FOSC/4
+	<li>Prescaler:	1:8
+	<li>Enable Synchronization:	&check;
+	<li>Timer Period:	4.096 ms
+	<li>Period count:	0xE000
+</ul>
+
+<li>In the Project Resources area of the project window click on EUSART1.
+<ul>	<li>Enable EUSART:	&check;
+	<li>Enable Transmit:	&check;
+	<li>Enable Wake-up:	&square;
+	<li>Auto-Baud Detection:	&square;
+	<li>Enable Address Detect:	&square;
+	<li>Baud Rate:		9600
+	<li>Transmission Bits:	8-bit
+	<li>Reception Bits:	8-bit
+	<li>Clock Polarity:	async_noninverted_sync_fallingedge
+	<li>Enable Receive:	&check;
+	<li>Enable EUSART Interrupts:	&square;
+	<li>Redirect STDIO to USART	&check;
+</ul>
+
+<li>In the Project Resources area of the project window click on TMR2
+<ul>	<li>Enable Timer: &check;
+	<li>Prescaler: 1:4
+	<li>Timer Period: 16us 
+</ul>
+
+<li>In the Project Resources area of the project window click on ECCP1
+<ul>	<li>ECCP mode: Enhanced PWM
+	<li>Timer Select: Timer2
+	<li>Duty Cycle: 50% 
+</ul>
+
+<li>Click File &rarr; Save All
+<li>Leave the configuration file name as "MyConfig.mc3"
+<li>Click on the "Generate" button in the Project Resources area of the
+project manager window. Remember that anytime that you make a change to 
+the configuration you must re-generate the supporting files by clicking 
+on the generate button,
+<li>Click on the Project tab in the project manager window,
+expand the Source Files folder and double click main.c to open 
+it in the editor window,
+<li>Replace the contents of main.c with 
+<a href="./code/inlab11.c">inlab11.c</a>,
+<!--
+<li>Delete the TMR0_DefaultInterruptHandler function from tmr0.c (lines 158-161),
+<li>Comment out the following two lines (line numbers 142, 143) in tmr0.c, 
+<pre>
+	TMR0H = timer0ReloadVal >> 8;
+	TMR0L = (uint8_t) timer0ReloadVal;
+</pre>
+-->
+<li>Compile and download the code to the PIC,
+</ul>
+<br>
+
+<h2>Firmware Experiments</h2>
+This lab is all about the firmware, so let's dive in by taking a closer
+look at the DDS sine wave generated by the inlab code using an 
+oscilloscope configure as follows:
+
+Start by connecting a jumper between RC2 and LPF_in.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>LPF_out
+<tr><td>Ch1 ground clip		<td>Dev board ground loop
+<tr><td>Ch1 coupling 		<td>AC
+<tr><td>Ch1 (scale) 		<td>500mV
+<tr><td>Horizontal (scale) 	<td>1 ms
+<tr><td>Trigger mode		<td>Auto
+<tr><td>Trigger source		<td>1
+<tr><td>Trigger slope		<td>&uarr;
+<tr><td>Trigger level		<td>0V
+<tr><td>Trigger coupling 	<td>HF Reject
+</table>
+
+Make sure to:
+<ul>	<li>Align Ch 1 on the second lowest reticule,
+	<li>Align the horizontal position at the second left-most reticule,
+	<li>Clear all menus off the bottom of the screen<br>
+	[&uarr;Back]
+	<li>[Meas] &rarr; Clear Meas &rarr; Clear All
+	<li>[Meas] &rarr; Source &rarr; 1 
+	<li>[Meas] &rarr; Type &rarr; Freq &rarr; Add Measurement
+	<li>[&uarr; Back]
+</ul>
+
+
+<h3>Program operation</h3>
+Lets start by looking through the code and gathering some important
+information.
+<ol start=1>
+<li>Complete the following table by going through the program 
+and finding the data types of the following variables.  From
+this information determine the fixed point format for each of
+the variables.  If the variable is acting like a regular integer
+then its fixed point format is "N.0" where N is the number of
+whole number bits that are used.  Hint, look for the shift operation.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Variable 	<td>Data type	<td>Fixed piont format
+<tr><td>phaseIncrement	<td>uint_8	<td>&nbsp;
+<tr><td>phaseAccumulator<td>&nbsp;	<td>&nbsp;
+<tr><td>index		<td>&nbsp;	<td>4.0
+<tr><td>sin[]		<td>&nbsp;	<td>&nbsp;
+</table>
+</ol>
+
+<h3>Update Rate</h3>
+
+Now we are ready to understand the main DDS loop in the code, 
+reproduced for you below.
+<pre>
+00.	while (EUSART1_DataReady == false) {                    
+01.	    phaseAccumulator = phaseAccumulator + phaseIncrement;
+02.	    index = phaseAccumulator >> 4;                            
+03.	    EPWM1_LoadDutyValue(sin[index]);
+04.	    TMR0_WriteTimer(0xFFFF - RATE); 
+05.	    INTCONbits.TMR0IF = 0;
+06.	    while (TMR0_HasOverflowOccured() == false);
+07.	}
+</pre>
+
+<ol start=2>
+<li>Using the value for RATE given in the #define statement at the top
+of the program, calculate the delay generated by the code in lines 04 
+05 and 06. Make sure to show the dimensional analysis as part of your 
+answer.
+
+<li>Use the value of the delay found in the previous problem along with
+the smallest phaseIncrement (remember that a bit i positions to the right 
+of the fixed-point decimal point have value 2<sup>-i</sup>) to determine 
+the frequency resolution of this DDS configuration.
+</ol>
+
+Use the "+" and "-" commands to set the phaseIncrement to 3.  Use "s"
+to produce a sine wave and view it on the oscilloscope.  Measure the
+frequency of the sine wave using the oscilloscope as already setup.
+You may want to use the averaging function to get a cleaner waveform and
+improve the accuracy of your measurement.  
+<font face="courier">
+Acquire &rarr; AcqMode &rarr; Averaging &rarr; #Avgs: 128.
+</font>
+
+When you do this you will notice that the waveform updates occur much
+more slowly and morph whenever you change the frequency. However, you
+will be able to measure incredibly small amplitudes in this mode,
+
+<ol start=4>
+<li>Complete the following table by changing the phaseIncrement
+In the "Printed frequency
+on terminal" column put the value displayed on PuTTY when you press
+the "s" key.  In the "Frequency on scope" put the averaged frequency
+measured by the oscilloscope.  In the "Hz/phaseIncrement" column
+put the ratio of the oscilloscope measured frequency divided by
+the phaseIncrement.  Note that this column is the observed frequency 
+resolution of the DDS system because it will tell you how many Hz the 
+output waveform changes for a LSB change in the phaseIncrement.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>phaseIncrement	<td>Printed frequency on terminal	<td>Frequency on scope	<td>Hz/phaseIncrement
+<tr><td>3		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>5		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>7		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>9		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>13		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>17		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>23		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>27		<td>&nbsp;	<td>&nbsp;	<td>30-ish
+</table>
+</ol>
+
+<h3>Tune the update rate</h3>
+From the previous experiments you saw that the theoretical frequency
+resolution was close, but not an exact match for the observed 
+frequency resolution.  The discrepancy is a result of the added time
+required to perform the computations in the main DDS loop (lines
+01-05 in the code snippet above).  However, this bothers me less than
+the fact that <u>I want the observed frequency resolution to be related 
+to the phase increment by some power of 2.</u>  Huh?<br><br>
+
+In my program, I displayed the frequency of the waveform to the terminal
+user using the expression:
+<pre>
+printf("Generating a %d Hz sine wave\r\n",phaseIncrement<<5);
+</pre>
+
+I approximated the displayed frequency by multiplying the phaseIncrement
+by an approximation of the frequency resolution, 32 Hz.  Now, you know
+that the observed frequency resolution is 30-ish, you could do one of
+two things&hellip;<br><br>
+
+At first glance, the easy thing would be to change the print statement:
+<pre>
+printf("Generating a %d Hz sine wave\r\n",phaseIncrement*30);
+</pre>
+While this solution is quick and easy to implement, there is another 
+approach which will result in less work for the microcontroller.
+<br><br>
+
+<ol start=5>
+<li>Let's change the update rate (using the RATE constant) so that the 
+frequency resolution of our DDS system is <u>exactly 32Hz.</u>  
+Do this systematically by setting up a ratio of the actual RATE value
+over the observed update rate (reciprocal of the observed frequency 
+resolution) and making this ratio equal to the unknown RATE over the 
+target update period, reciprocal of 32 Hz).  Show your work in the
+form of a ratio.
+
+<li>After changing the update rate, calculate the percentage error of the terminal frequency value by
+computing: 
+<font face="courier">% error = 100*(terminal frequency - oscilloscope frequency)/oscilloscope frequency</font>
+</ol>
+In this week's lab, I found that I was able to get a frequency 
+resolution of 0.5 Hz.  You will have to use the units factoring to 
+determine a close value for the update rate and then tune the value
+(using this method) to get the frequency resolution spot on.   It's worth
+the effort because it makes converting between phaseIncrement and 
+frequency so much easier.
+
+<h3>Sweep calculation</h3>
+First off, make sure to turn off the averaging mode from the oscilloscope
+before going any further.  
+The code for the frequency sweep operates by incrementally increasing
+the phaseIncrement through some duration.  In your program, the core-loop
+of the frequency sweep function is cut-and-paste from the sine wave
+generator function.  Around this core-loop is a loop that holds each
+phaseIncrement for a delay given by timer 1.
+
+<ol start=7>
+<li>Use the values for START_PHASE, END_PHASE and the delay created
+by timer 1 to determine the amount of time that it takes for the 
+outer sweep loop to iterate through all the phaseIncrements.  State
+your answer using dimensional analysis.  You will need this equation
+to complete this week's lab.  If you are struggling to figure out
+how to do this, try finding answers to the following questions.
+<ul>	<li>How many times does the outer loop need to loop?
+	<li>How long does it take the inner loop to loop?
+</ul>
+
+<li>Carefully setup your oscilloscope to capture a whole frequency sweep.
+Do this by setting:
+<ul>	<li>the vertical adjust to 500mV per division and 
+	<li>the horizontal adjust to 100ms per division and
+	<li>the trigger level to around 100mV above "ground"
+	<li>set the trigger horizontal position on the second reticule.
+</ul>
+Include a screen shot of the sweep as your answer to this question.
+
+<li>Why is the amplitude across the frequency sweep changing?  Explain
+how, knowing the starting and ending frequencies, you could predict 
+the change in amplitude.  Hint, think about the hardware we are using 
+to transform our PWM signal into a smooth sine wave.
+
+<li>What is the measured duration of the frequency sweep from the
+oscilloscope?  Compute the percentage error of the theoretical value
+using the equation from earlier in this lab.
+</ol>
+
+<h3>Math time</h3>
+I found that performing the computation to make a  frequency sweep to 
+be the most challenging aspect of this week's lab.  Part of that 
+difficulty was the multiplication and division, and printing of 
+32-bit values.  I hope that these questions point you in the right
+direction so that you don't get caught-up fighting with the compiler
+like I did.
+<br><br>
+
+For the take-home part of the lab, you will need to change the delay
+inside the frequency sweep (TMR1) in order to control the time that the 
+sweep takes.  In order to calculate the delay for the frequency sweep you will 
+need to perform a computation similar to the one given in the "m" command.
+The computation results in the number of
+timer counts need for each phaseIncrement of the sweep; a 
+uint16_t typed variable that is called d16 in the inlab program.
+You need to be careful with your code so as to prevent 
+unnecessary overflow.  To this end, I have calculated d16
+in two different ways.  A paranoid version (that works) where
+each uint16_t variable is cast as a uint32_t prior to
+performing any computation.  The second version is more casual
+and reflects what one might initially be tempted to do when
+writing this program.  You will compare the results of these
+two computation styles and compare them to an authority to
+determine which does a better job.  By a better job, I mean
+overflows less frequently.
+<br><br>
+
+In order to determine the correctness of your calculations, you
+will need an authority.  In our case, you will use the Windows
+calculator as the authority that generates the true, valid solution
+to our set of calculations.  Launch the windows calculator by having
+windows search for it.  Press the Windows key on your keyboard,
+type "calc", wait a moment for the search bar to return its top
+reference as Calculator, then hit &lt;Enter&gt;.  When the Calculator
+launches, click on the 3 short horizontal bars near the upper left 
+corner of the Calculator window and select "Programmer".  Click on 
+one of the bases, "Hex" for example, to enter numbers in that base.  
+As you enter digits, your value will be converted into the other three 
+bases.  
+<br><br>
+
+<ol start=11>
+<li>Complete the following table by programming in the values
+for the a16, b16 variables in the assignment statements in
+the case 'm' of your inlab program (around lines 168, 169)
+and recording the output in the corresponding rows below.
+Compare the results by performing the calculation using the 
+windows calculator.  If the result generated results in an
+overflow, then indicate this in the entry.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>a16	<td>b16 	<td>d16 - paranoid<td>d16-casual<td>Authority
+<tr><td>2000	<td>1000	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>2000	<td>200		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>1000	<td>200		<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>2000	<td>100		<td>&nbsp;	<td>&nbsp;	<td>10,000
+<tr><td>2000	<td>10		<td>34,464 (overflow) <td>&nbsp; <td>&nbsp;
+<tr><td>100	<td>200		<td>&nbsp;	 <td>&nbsp; 	<td>&nbsp;
+</table>
+
+</ol>
+
+
+
+<h3>Build a sine LUT</h3>
+You are going to need to build a 64 sine-LUT for this week's lab
+ While you could do this
+with a calculator, I think that using the following procedure in Excel
+will save you a lot of time.  I'll walk you through the process in
+the following steps:
+
+<ul>	<li>Enter "Index" in cell E5
+	<li>Enter "Theta" in cell F5
+	<li>Enter "sin" in cell G5
+	<li>Enter "255(sin+1)" in cell H5
+	<li>Enter "Text" in cell I5
+	<li>Enter "uint8_t sin[64]" in cell B2
+	<li>Enter "0" in cell E6
+	<li>Enter "=E6+1" in cell E7
+	<li>Click on cell E7, aim the cursor at the small green square in 
+		the lower right corner of the cell, click and hold, drag
+		the cursor down to cell E69.  This is called duplicating
+		cell E7 down to cell E69.
+	<li>Enter "0" in cell F6
+	<li>Enter "=F6 + 2*PI()/64" in cell F7
+	<li>Duplicate cell F7 down to cell F69 
+	<li>Enter "=sin(F6)" in cell cell G6
+	<li>Duplicate cell G6 down to cell G69
+	
+	<li>Enter "=ROUND(255*(G6+1)/2,0)" in cell H6
+	<li>Duplicate cell H6 down to cell H69
+	<li>Enter =H6&"," into cell I6
+	<li>Duplicate cell I6 down to cell I69
+	<li>Select the values in cells I6 down to I69
+	<li>type CTRL-c or right mouse and select copy
+	<li>Right mouse click on cell C2
+	<li>Select Paste Special&hellip;
+	<li>In the Paste Special pop-up, select the Values and Transpose
+		radio buttons
+	<li>If all the values are pasted into the single C2 cell,
+		then select Data &rarr; Text to Columns and delimit 
+		on spaces
+	<li>Select the values in B2 to the end of the array
+	<li>Copy using CTRL-c
+	<li>Paste into main.c in MPlab X
+	<li>Make sure that none of your array values is larger than
+	255, otherwise you'll get a bad glitch in the middle of your
+	sine wave.
+</ul>
+
+</html>

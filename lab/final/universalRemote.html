@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #12 - DDS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>                     </ul>
+                    <ul class="nav pull-right">
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Alternative Final Project 
+</center>
+<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Milestone #1</td>        <td>March 16</td></tr>
+<tr><td>Milestone #2</td>        <td>March 23</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Under development
+</table>
+
+
+<h2>Proposal</h2>
+Remote controls are ubiquitous in the moder household, controlling
+a variety of household electronics.  For a variety of reasons it may
+be necessary to clone the functions produced by a remote control.
+Such devices are called Universal Remote controls because they can 
+be taught the button presses of a donor remote and reproduce these button
+presses on the Universal Remote.
+<br><Br>
+
+<b>Remote Control Basics</b><Br>
+The signal output of the remote control decoder is nominally logic 1,
+meaning that when there is no IR activity the IR remote control decoder
+module outputs logic 1. When a button on a remote control is pressed,
+the remote control sends out a sequence of bits consisting of:
+<ul>	<li>one start bit,
+	<li>a set of data bits and,
+	<li>half a stop bit.
+</ul>
+The bits consists of two "half bits", a logic 0 pulse and a logic 1 pulse.
+The duration of the two half bits determines the identity of the complete
+bit. For example,the start bit has a logic 0 pulse around 8 ms (called
+startLow in Figure 1) and a logic 1 pulse duration of about 4 ms (called
+start High in Figure 1). The start and stop bit are put into the
+remote control data packet to frame the data bits.  The individual data
+bits likewise consist of two half bits.
+<br><br>
+
+<br><img src="./img_urc/bitPacket.bmp"><br>
+<b>Figure 1: Left, a typical IR waveform. The 32 data bits, labeled
+D1 &hellip; D32, are detailed at right.  Right, the names of the 
+two half bits for a 0-bit (dataZero) and 1-bit (dataOne).</b>
+<br><br>
+
+On many remote controls, all the data bits have the same logic 0 half-bit
+duration (dataZeroLow and dataOneLow in Figure 1), of about 800 &micro;s. 
+It's the duration of the logic 1 half-bit that determines the value of the 
+data bit.  A data bit with value 0 will have a high half-bit duration of 
+around 800 &micro;s, labeled "dataZeroHigh" in Figue 1. A data bit with 
+value 1 will have a high half-bit duration of around 1,600 &micro;s, 
+labeled "dataOneHigh" in Figure 1. 
+<br><br>
+
+If you are using this as your final project starting point, then you
+should make the following assumptions about your IR data packet.  Most
+IR waveforms for TVs are similar to that shown in Figure 1.  Part of 
+your project will involve verifying this structure.  You will do this
+by writing code to "draw" the IR waveform.
+
+<ul><li>The IR waveform look like the "IR data
+packet" shown in the image below.  The names for the start, data, and stop
+intervals are provided,
+<li>The IR data packet has 32 or fewer data bits. You need to verify this
+with your chosen remote and get a different one is this is not the case.
+<li>There are only two different types of data bits.  The data bits
+D1, D2 &hellip; D32 drawn as single blocks in the IR data packet when
+each consist of two half bits shown in detail at right,
+<li>The dataZeroLow and dataOneLow durations are the same,
+<li>There is at least 25ms pause between IR data packets,
+<li>Choose a prescaler for the timer will not roll over when measuring
+any single duration in the IR data packet.
+</ul>
+
+Note that the number of low intervals is one more than
+the number of high intervals because there is no stopHigh bit.
+
+
+
+The goal of this project is to build a Universal Remote control using
+the IR decoder and IR transmitter on the PIC development board that
+produces waveforms similar to those shown in Figure 1.
+
+
+
+<h2>Level-0</h2>
+Figure 2 shows the Level-0 diagram of the Universal Remote control (URC).  
+This figure shows that the donor remote control IR waveforms is the main
+input and the system that we will develop will generate the cloned
+IR waveform.
+
+
+<br><img src="./img_urc/level0.bmp"><br>
+<b>Figure 2: Level 0 diagram of the Universal Remote control.</b>
+<br><br>
+
+This version of the URC a prototype to demonstrate the proof of concept.  
+As a result, where-as a final product would have function specific buttons 
+for tasks, our URC will use a Putty terminal to configure the function of
+the URC.
+
+<pre>
+-------------------------------------------------
+Start: 		Lo: startLow &micro;S	Hi: startHigh  &micro;S
+Data 1:		Lo: dataOneLow &micro;S	Hi: dataOneHigh &micro;S
+Data 0:		Lo: dataZeroLow &micro;S	Hi: dataZeroHigh &micro;S
+Stop:		Lo: stopLow &micro;S
+Half bits:	xx half bits per button
+-------------------------------------------------
+?: help menu
+o: k
+Z: reset processor
+z: clear the terminal
+
+c: count number of half bits
+t: determine Time periods for all the bits
+d: decode logic 1 periods
+r: Report bit width values
+                
+l: cLone 4 donor remote buttons
+1-4: Transmit IR packet
+-------------------------------------------------
+
+</pre>
+
+The top of the menu shows the status of the donor remote control as
+determined by the "c" and "t" commands (more on them later). The name
+"startLow" is a reference to duration (in &micro;s) of the first IR
+waveform half-bit shown in Figure 1 and will be replaced by a numerical
+value corresponding to the duration of this half bit.
+
+<table>
+<tr>
+
+
+
+<dl>
+
+<dt>?</dt>
+<dd>Prints out the ever useful help menu. </dd>
+
+<dt>o</dt>
+<dd>Just to check that everything is working ok.</dd>
+
+<dt>Z</dt>
+<dd>Reset the processor so that we can see that splash screen. </dd>
+
+<dt>z</dt>
+<dd>Clear the terminal using a bunch of new lines. </dd>
+
+<dt>c - count</dt>
+<dd>Determine the number of positive and negative edges in the IR
+waveform for a single donor remote control button press.  
+</dd>
+
+<dt>t - train (Implement to increase technical difficulty)</dt>
+<dd> This function determines the duration of all the different bits in 
+the IR data packet.  It will do this by using the number of edges 
+determined by the "c" function to correctly gather the correct number of 
+pulse durations.  Our code may print out the duration of the time low 
+half-bits, followed by the time high half-bits.  Then our code will 
+determine the 7 different durations in the IR data packet (startLow, 
+startHigh, dataOneLow, dataZeroLow, dataOneHigh, dataZeroHigh, stopLow).
+</dd>
+
+<dt>d - decode (Implement to increase technical difficulty)</dt>
+<dd>
+Using the 7 values found using the "t" function, decode the data
+bits of the IR data packet as a 32-bit integer with the most significant
+bit being D1.  This function will prompt the user to press a remote
+control button and then output a single 32-bit value (in hex).  
+</dd>
+
+<dt>l - learn</dt>
+<dd>
+With all the characteristics of the IR data packet understood by our
+algorithm, this function will clone some remote control buttons.  Our algorithm
+will prompt the user to press a remote control button.  Our algorithm will then
+decode this button into its 32-bit code and store this 32-bit code in an array.
+This donor remote control button will be reproduced using the "1" command
+discussed next.  This process will be repeated by our algorithm for three more 
+donor remote control buttons.  Each successive donor remote control button
+is reproduced by an incremented command as discussed next.
+</dd>
+
+<dt>1, 2, 3, 4</dt>
+<dd>
+Pressing the numbers 1, 2, 3 or 4 should produce an IR waveform that
+corresponds to the code and durations for that cloned donor remote control
+button.
+</dd>
+</dl>
+
+
+<h2>Level-1</h2>
+Figure 3 shows the level 1 diagram.  This representation of the URC
+shows the GP1UW70 IR decoder converting the donor remote IR waveform
+into an electrical signal.  This signal is sent to the RC4 pin on the
+PIC, but we plan to jumper RC4 and another pin (you will have to 
+determine which) so that we can use one of the PICs built-in 
+subsystem to help decode the duration of the half-bits in the 
+incoming waveform.
+
+<br><img src="./img_urc/level1.bmp"><br>
+<b>Figure 3: Level 1 diagram of the Universal Remote control.</b>
+<br><br>
+
+The built-in 2N222 BJT will amplify the PIC PWM signal into a
+transmitted IR waveform.  The FT230X chip performs familiar duties;
+providing a USB to serial bridge and voltage regulation of the 5V
+USB power.
+
+<h2>Technical Difficulty</h2>
+There are a variety of design decisions that you will have to make
+on your way to completing this project.  Many of these decisions 
+will effect the technical complexity of the project.  I've listed
+some of these below:<br><Br>
+
+<b>How have you captured the IR waveform?</b>
+<ul>	<li>Low: In main polling the IR pin
+	<li>Using a TMR ISR to periodically sample the IR pin
+	<li>Using an interrupt on change on the IR pin
+	<li>High: Using a capture interrupt on the IR pin
+</ul>
+
+<b>How are you going to represent the IR waveform?</b>
+<ul>	<li>Low: Array of TMR counts for each bit
+	<li>High: Compute period of each bit type then store
+	each donor button as 32-bit value
+</ul>
+
+<b>How are you going to generate the IR waveform?</b>
+<ul>	<li>Low: In main by polling TMR flags of IR PWM pin
+	<li>Using an interrupt to change the IR PWM pin
+	<li>High: Using a compare interrupt to change the IR PWM pin
+</ul>
+
+<b>Will you incorporate advanced functionality?</b>
+<ul>	<li>Low: Just learn four button presses
+	<li>Medium: Play back a sequence of donor remote button presses
+	<li>High:???
+</ul>
+
+
+<h2>Milestone #1</h2>
+The first milestone will focus on learning the characteristics of the
+specific donor remote that we are using.  
+<br><Br>
+
+The first test reports important 
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=2>Test name: Donor remote half bit periods</td><tr>
+<tr><td>Modules:<td>IR decoder and PIC</td></tr>
+<tr><td>Setup:<td>PIC function to measure and report all the half bit 
+durations of an IR waveform.  The durations will be reported in timer 
+counts.  We will then post process the timer counts using an Excel 
+spreadsheet.</td></tr>
+<tr><td>Input:<td>Donor remote button press</td></tr>
+<tr><td>Expected output:<td>Durations for all 7 half bits of the
+donor remote measured in timer counts and duration.  The average
+of the four half bits of the data 0 and data 1 bits will be averaged
+in an excel spread sheet and rounded to 1 or 2 significant digits.
+Different half period bit durations that are withing about 10% of one 
+another will be assumed to be equal.  This information will then be
+put into the table below.
+
+<table border=1>
+<tr><td>Bit		<td>Timer Counts	<td>Duration
+<tr><td>startLow	<td>32,000		<td>8000 &micro;s
+<tr><td>startHigh  	<td>32,000		<td>8000 &micro;s
+<tr><td>dataOneLow 	<td>3,200		<td>800 &micro;s
+<tr><td>dataOneHigh	<td>3,200		<td>800 &micro;s
+<tr><td>dataZeroLow	<td>3,200		<td>800 &micro;s
+<tr><td>dataZeroHigh 	<td>3,200		<td>2400 &micro;s
+<tr><td>stopLow 	<td>16,000		<td>4000 &micro;s
+</table>
+
+The values provided in this table, based on those in the "Remote Control 
+Basics" section.
+</td></tr>
+</table>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=2>Count the number of edges in donor IR waveform.</td><tr>
+<tr><td>Modules:<td>IR decoder and PIC</td></tr>
+<tr><td>Setup:<td>PIC function will prompt the user to press a button on
+the donor remote and then report the number of positive and negative
+edges in the IR waveform.  This function is needed because different
+IR remote controls may have a different number of bits.  </td></tr>
+<tr><td>Input:<td>Donor remote button press</td></tr>
+<tr><td>Expected output:<td>The count of the number of positive and
+negative edges should be the same.  If there are 32 data bits, then 
+there should 66 positive and negative edges.
+</td></tr>
+</table>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=2>Test name: Donor remote button codes</td><tr>
+<tr><td>Modules:<td>IR decoder and PIC</td></tr>
+<tr><td>Setup:<td>PIC function to decode the logic high half bits
+of the data bits into 0 or 1 depending on their duration.  The
+durations will be hard-coded into the program based on the results
+of the earlier test.  
+
+</td></tr>
+<tr><td>Input:<td>Donor remote button press</td></tr>
+<tr><td>Expected output:<td>Repeatable code outputs for the different
+donor remote control buttons.
+
+<table border=1>
+<tr><td>Donor button	<td>32-bit code
+<tr><td>Power		<td>0xF234ABCD
+<tr><td>Up		<td>0xF234ABCD
+<tr><td>Down	 	<td>0xF234ABCD
+<tr><td>Left		<td>0xF234ABCD
+<tr><td>Right		<td>0xF234ABCD
+</table>
+
+We will closely examine the codes, looking for patterns.  For example, the 
+RC5 standard breaks the 32 data bits into different fields.  Some remotes
+break the data packet into two halves and make all the bits in the second
+half the negation of the first 16-bits. This enables a level of error
+detection on the receiver's end.
+</td></tr>
+</table>
+
+
+<h2>Milestone #2</h2>
+
+You are responsible for these.
+
+</html

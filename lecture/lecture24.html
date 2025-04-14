@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture23.html">&ltPrev</a></li>
+                        <li><a href="./lecture25.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>24</td></tr>
+<tr><td>Objective:	<td>Design of a real LPF with standard components.
+</table>
+
+
+<h1>Analog to Digital Conversion</h1>
+
+<h2>Passive Low Pass Filter</h2>
+A passive low pass filter can be built from a resistor and capacitor
+arranged in the configuration shown below.
+
+<br><img src="./img/passiveLPF.jpg"><br><br>
+
+This is a first order filter with the following characteristics.
+
+<ul>	<li>Corner frequency: f<sub>c</sub> = 1/(2*pi*R*C) 
+	<li>DC Gain: 1
+	<li>Roll-off slope: -20dB/decade
+</ul>
+
+
+<h2>Active Low Pass Filter</h2>
+The main drawback of a passive filter is that it loads the signal
+source with its impedance.  An active filter decreases this burden
+and in most cases produces better results.  
+Designing an active low pass filter can be a little overwhelming as
+their are a variety of topologies (arrangements of electronics circuit
+elements), filter types (Butterworth, Chebyshev, and Bessel to 
+name a few), and op-amps.  A complete study of these alternatives would 
+be a course in itself, so you will have to be satisfied with this brief 
+overview.<br>
+
+Probablly the most common active filter is shown below, 
+a 2<sup>ond</sup> order Sallen-Key filter.
+Note that is has a pair RC elements, each serving the
+role of a single first order low-pass filter.
+
+<br><img src="./img/lpfEagle.jpg"><br><Br>
+
+This filter does not have overwhelming performance, but makes up for
+that in its predictiable performance given in the following list.
+
+<ul>	<li>Corner frequency: f<sub>c</sub> = 1/(2*pi*SQRT(R<sub>1</sub>R<sub>2</sub> C<sub>1</sub> C<sub>2</sub>)) 
+	<li>DC Gain: 1
+	<li>Roll-off slope: -40dB/decade
+</ul>
+
+Frequently designers will set 
+R<sub>1</sub> = R<sub>2</sub> and C<sub>1</sub> = C<sub>2</sub> with the
+effect of simplifying the design.  Furthermore, if possible the resistance
+should be set between 1k and 10k&#8486;.  This produces the following Bode
+plot.
+
+<br><img src="./img/secondOrder.jpg"><br><br>
+
+The choice of op-amps is not terriably important for modest applications
+with signals of interest below 1MHz.
+
+<h2>E-series resistors</h2>
+International standard IEC 60063 defines the preferred values for 
+resistors and capacitors in a decade.  "In a decade" means values
+with the same power of ten when written in scientific notation.
+The number of distinct values in any decade if defines the number 
+after the "E" with 6,12,24,... being the standard for electronics.
+The intervals between values in a decade are separated geometrically,
+meaning that to get the next value in the E-6 series you multiply by
+a value, not add to that values.  The E-6 series divides a decade into
+6 parts, so the multiplicative constant is 10<sup>1/6</sup> because after
+multiplying a value x by this constant 6 times you will get 10*x This is
+the next decade.  A well equipped lab will have an E-6 series from
+10&#8486; up to 10 M&#8486;
+
+
+Note each value in the E-12 column is a factor of 
+10<sup>1/12</sup> times larger than the preceeding value.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>E-6 value	<td>E-12 value
+<tr><td>10	<td>10
+<tr><td>&nbsp	<td>12
+<tr><td>15	<td>15
+<tr><td>&nbsp	<td>18
+<tr><td>22	<td>22
+<tr><td>&nbsp	<td>27
+<tr><td>33	<td>33
+<tr><td>&nbsp	<td>39
+<tr><td>47	<td>47
+<tr><td>&nbsp	<td>56
+<tr><td>68	<td>68
+<tr><td>&nbsp	<td>82
+</table>
+
+When confronted with the task 
+of selecting a resistor and capacitors to build a low pass filter
+you should choose one of these standard values while keeping the
+resistor in the 1k - 1000k interval and a ceramic capacitor in the 
+10pF - 1uF decades.  These values will not load the driving circuit,
+are available in temperature tolerant packages, and are readily 
+available.  Finally, in many applications it is not imparative that
+you get the corner frequency exactly correct; close is often good 
+enough.
+<br><br>
+
+<b>Problem:</b><br>
+Design a first order low pass filter with a corner frequency of 
+1000 Hz.  Use only E-6 series components.
+<br><Br>
+
+<b>Solution:</b><br>
+<pre>
+f<sub>c</sub> = 1/(2*pi*RC) = 1000Hz
+R*C = 1.6*10^-4  = 160*10^-6
+</pre>
+
+Now we need to find an RC product close to 160.  From the Test your
+understanding problem at the end of the lecture we have several choices
+<ul>	<li>10*15 = 150
+	<li>22*68 = 1496
+	<li>33*47 = 1551
+</ul>
+I'll choose 33*47 which is as close as we can get to 160?  Remember that
+we should be able to get these values in any decade between 10 and 
+10,000,000.  So all I need to do is get close any factor of 10 to 160.
+So lets choose a 3.3k&#8486; resistor.  Then 
+
+<pre>
+R*C = 160*10^-6 with R = 3.3k&#8486; 
+yields C = 48nF
+</pre>
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ul>
+
+<li>Create a table of the products of all the E6 values.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>  <td>10<td>15<td>22<td>33<td>47<td>68<td>100
+<tr><td>10<td>  <td>  <td>  <td>  <td>  <td>  <td>
+<tr><td>15<td>  <td>  <td>  <td>  <td>  <td>  <td>
+<tr><td>22<td>  <td>  <td>  <td>  <td>  <td>  <td>
+<tr><td>33<td>  <td>  <td>  <td>  <td>  <td>  <td>
+<tr><td>47<td>  <td>  <td>  <td>  <td>  <td>  <td>
+<tr><td>68<td>  <td>  <td>  <td>  <td>  <td>  <td>
+<tr><td>100<td> <td>  <td>  <td>  <td>  <td>  <td>
+</table>
+
+
+<!--
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td> <td>10<td>15<td>22<td>33<td>47<td>68<td>100
+<tr><td>10<td>100<td>150<td>220<td>330<td>470<td>680<td>1000
+<tr><td>15<td>150<td>225<td>330<td>495<td>705<td>1020<td>1500
+<tr><td>22<td>220<td>330<td>484<td>726<td>1034<td>1496<td>2200
+<tr><td>33<td>330<td>495<td>726<td>1089<td>1551<td>2244<td>3300
+<tr><td>47<td>470<td>705<td>1034<td>1551<td>2209<td>3196<td>4700
+<tr><td>68<td>680<td>1020<td>1496<td>2244<td>3196<td>4624<td>6800
+<tr><td>100<td>1000<td>1500<td>2200<td>3300<td>4700<td>6800<td>10000
+</table>
+-->
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture24.html">&ltPrev</a></li>
+                        <li><a href="./lecture26.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>25</td></tr>
+<tr><Td>Objective:</td>	<td>Explain upcoming lab and how to use the MCC 
+interface to EEPROM in order to read and write data.
+<tr><td>Technical Docs</td>
+<td><a href="http://ww1.microchip.com/downloads/en/DeviceDoc/21203M.pdf">24LC256</a></td>
+</table>
+
+
+<h1>Using an I2C device</h1>
+This next week's lab will require you to store microphone samples into
+an electrically eraseable read only memory (EEPROM).  The general flow
+of data from the microphone into the EEPROM is shown in the image below.
+
+<br><img src="../lab/lab09/img/system.bmp"><br><br>
+
+As shown in this figure, the EEPROM is connected to the PIC through a
+pair of signals over an I2C bus.  In order to complete this lab you will
+need to understand the EEPROM and the I2C bus.  We will start with the
+EEPROM.
+
+
+<h2>24LC256 EEPROM</h2>
+The 24LC256 is a serial EEPROM manufacture by Microchips.  It is a
+a non-volatile memory that can store 256k bits, or 32k bytes.  The
+"256" in "24LC256" is a reference to the number of of k bits.  The term 
+"non-volatile" is synonymous with EEPROM and means that the memory does not 
+loose its contents when you remove power from the chip.  The term "serial"
+means that communication with the EEPROM occurs 1 bit at a time.  In our
+case, the serial communication takes place over a I2C bus.
+
+The 24LC256 EEPROM is physically organized into groups of 64 bytes,
+each called a page.  Each byte of data in the EEPROM has a distinct address, 
+starting at 0x0000 up to 0x8000.  You are able to read and write up to 64 bytes
+at a time.   Page address are multiples of 64<sub>10</sub> or 0x40.
+A write operation moves new data into the EEPROM, overwriting
+whatever data was there before.  A read operation is a non-destructive
+copy of data out of the EEPROM - the existing data in the EEPROM is
+not changed. 
+<br><br>
+
+You can read and write data in units as small as a single byte and as
+large as a page.  In order to complete a read or write operation the
+EEPROM maintains an address register.  Every read or write operation
+automatically increments the address register.  If needed, you can 
+overwrite the value in the address register.
+<br><br>
+
+
+<h2>Write operations</h2>
+Writing data to the EEPROM is a two step operation.  First the data
+you are writing is put into a volatile memory.  Next, the data in
+the volatile memory is transferred into the non-volatile storage.
+In order to understand how your firmware will accomplish this, you
+will need to be familiar with the following image which shows 
+what information the 24LC256 EEPROM expects when the PIC writes
+a page of data.
+<br><img src="./img/24lc256packet.bmp"><br><br>
+
+Let's work through Figure 6-2 from beginning (left) to end (right) of
+a page write operation.
+<ul>	<li>The PIC first must establish a connection
+	with the EEPROM by transmitting the 7-bit address of the EEPROM.
+	As shown in Figure 6-2, the device address of the EEPROM is
+	0b1010000 (you will see in the lab that A2, A1, A0 are 0,0,0).
+	<li>After the EEPROM sees its device address it asserts an 
+	acknowledge (ACK) bit, which tells the PIC that the EEPROM is 
+	able to receive a write operation.
+	<li>Next the PIC transmit the 15-bit starting address that 
+	the PIC wants to start writing to.
+	<li>Next the PIC sends up to 64 bytes of data to store in the
+	EEPROM.  The EEPROM stores these bytes into its volatile 
+	memory.
+	<li>The PIC asserts a STOP condition to tell the EEPROM to
+	commit the contents of its volatile memory to its non-volatile
+	memory at the 15-bit address.
+	<li>While the EEPROM is writing to its non-volatile memory,
+	the EEPROM will not acknowledge attempts by the PIC to write.
+</ul>
+
+
+The Microchips Code Configurator provides the I2C2_MasterWrite function
+providing a simple interface to this complex process.
+
+<pre>
+I2C2_MasterWrite(buffer, BUFFER_SIZE, EEPROM_I2C_ADDR, &I2C_Wflag);
+</pre>
+
+The I2C2 function uses interrupts to transfer BUFFER_SIZE bytes from
+buffer to the volatile buffer inside the EEPROM.  Once this 
+transfer is complete, you can poll the I2C_Wflag to determine when the
+EEPROM has completed the write to its non-volatile memory. 
+<br><br>
+
+
+The arguments are as follows:
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>parameter declaration	<td>Purpose
+<tr><td>uint8_t buffer[]	<td>Hold the data to be sent to the 
+	I2C device with the first piece of data sent being at array
+	index 0 and the last piece of data sent being at the last array
+	index. With reference to Figure 6-2 above, the buffer[0] would
+	hold "Address High Byte" and buffer[65] would hold "Data Byte 63".
+	Note that the buffer array would need to hold 66 bytes (64 data
+	bytes plus 2 address bytes), hence the array ends with index 65.
+<tr><td>BUFFER_SIZE  <td>This parameter tells the function
+	how many bytes from the buffer to send across the I2C bus. 
+	For a complete page this would be 66 bytes, 2 butes for the 
+	Address High/Low Bytes and 64 bytes for the data.
+<tr><td>#define EEPROM_I2C_ADDR	<td>This is the 7-bit address of the
+	I2C device that you are trying to communicate with.  Since 
+	you are calling the "I2C2_MasterWrite" function the 
+	R/<font style="text-decoration: overline;">W</font> bit is set
+	to 0.  This function takes care of sending the "Control Byte"
+	shown in Figure 6-2, hence the control byte <u>should not</u> be 
+	included in the buffer.
+<tr><td>I2C2_MESSAGE_STATUS     I2C_Wflag;
+	<td>The "&" symbol in the parameter "&I2C_Wflag" means that the
+	write function gets a pointer variable to I2C_Wflag.  This gives
+	the write function the ability to updates the I2C_Wflag variable
+	<u>after</u> the function call has exited.  Remember that the bulk
+	of the work performed by the write function is done in the
+	interrupt service routine which takes many milliseconds to 
+	complete.   This feature provides your code with the status of 
+	the data write.
+	<br><br>
+  	The data type "I2C2_MESSAGE_STATUS" is an enumerated type, meaning
+	that it can take on a value in the left-most column below.
+	Each of these values tells you about the state of the data 
+	transmission.  I've only presented the three states of the 
+	I2C2_MESSAGE_STATUS that you will encounter in your lab.
+
+	<table class="table table-striped table-bordered table-condensed">
+	<tr><td>flag value	<td>Meaning</td></tr>
+    	<tr><td>I2C2_MESSAGE_PENDING,	
+	<td> If you are using the I2C_Wflag variable, you should initialize
+	it to I2C2_MESSAGE_PENDING. As long as the flag equals this value,
+	the write function has not encountered any complications or has not
+	completed transmitting the contents of the buffer.
+
+	<tr><td>I2C2_MESSAGE_COMPLETE	
+	<td>This means that the I2C2_MasterWrite function has transferred
+	the buffer into the EEPROM's non-volatile memory.  At this point,
+	the EEPROM will being the long process of committing this 
+	data into its non-volatile memory.
+
+    	<tr><td>I2C2_DATA_NO_ACK	
+	<td>When the control byte is sent, a slave with the stated
+	DEVICE_ADDRESS should pull the SDA line low during the ACK
+	time slice (after the 8th bit).  If the SDA line is not pulled
+	low, the flag status will change to "I2C2_DATA_NO_ACK".  You can
+	interpret this as the device is not on the bus or the slave device
+	is s not finished performing some previous operation.
+	</table>
+</table>
+
+In order to make the I2C2_MasterWrite function work in an environment
+where you are trying to store multiple pages, you need to introduce
+some wait loops to allow the EEPROM to commit pages into its non-viola tile
+memory.  This is done in the following example of a page write to the
+EEPROM.
+
+<pre>
+#define EEPROM_I2C_ADDR     0b1010000       // 7-bit address for 24LC256
+#define BLOCK_SIZE          64              // 0x40
+
+void main() {
+
+    I2C2_MESSAGE_STATUS      I2C_Wflag;
+    uint8_t                  pData[BLOCK_SIZE+2];
+
+    pData[0] = pageAddress>>8;
+    pData[1] =  (uint8_t) pageAddress;
+
+    I2C_Wflag = I2C2_MESSAGE_PENDING;                    
+    I2C2_MasterWrite(pData, BLOCK_SIZE+2, EEPROM_I2C_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING); 
+
+    do {
+	I2C_Wflag = I2C2_MESSAGE_PENDING;
+	I2C2_MasterWrite(pData, 0, EEPROM_I2C_ADDR, &I2C_Wflag); 
+	while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    } while(I2C_Wflag == I2C2_DATA_NO_ACK);
+} // end main
+</pre>
+
+There are three time intervals that you will measure in the associated
+lab.  These are:
+<ul>	<li>The time required to call the I2C2_MasterWrite function,
+	<li>The time required to transfer pData over the I2C bus,
+	<li>The time required for the 24LC256 to commit the data
+	to its non-volatile memory.
+</ul>
+
+You set and clear pins in your program and use an oscilloscope to 
+look at the pulses on the associated pin to measure the times required
+for these three operations.
+
+<h3>Read operation</h3>
+Compared to writing data, reading data is less complex and requires
+less time.  This is because there is no overhead associated with
+writing to the non-volatile memory.  The process of reading 
+is summarized by the I2C bus activity presented in Figure 8-2 and 8-3
+of the 24LC256 technical documents and reproduced below.
+
+<br><img src="./img/24lc256Readpacket.bmp"><br><Br>
+
+Let's walk through this sequence to understand it better.
+A PIC will read one page from an address in the EEPROM as follows:
+<ul>
+	<li>The PIC first must establish a connection with the EEPROM
+	 by transmitting the 7-bit address of the EEPROM. As shown in 
+	Figure 8-2, the device address of the EEPROM is 0b1010000 (you 
+	will see in the lab that A2, A1, A0 are 0,0,0).
+	<li>After the EEPROM sees its device address it asserts an 
+	acknowledge (ACK) bit, which tells the PIC that the EEPROM is 
+	able to receive a write operation.
+	<li>Next the PIC transmit the 15-bit starting address that the 
+	PIC wants to start "writing" to.  The PIC will send no data to
+	write.  The only effect of this "write" is to initialize the
+	EEPROMs address register with the starting address of the read
+	that is coming.
+	<li>The PIC issues a restart condition to the EEPROM with a 
+	request to read.
+	<li>The EEPROM sends the data bytes,
+	<li>The PIC asserts an acknowledge (ACK) at the end of every
+	data packet except for the last byte where the PIC sends a
+	not-acknowledge (NACK).
+	<li>The EEPROM understands the NACK and stops sending data.
+</ul>
+
+
+A read operation usually requires two separate steps.  The first is a
+"fake-write" of 0-bytes.  I call this a fake-write, because you are
+not writing any data to the memory.  Instead, this write operation 
+is used to set the address register inside the EEPROM to
+to the address you want to read
+data from.  Note, the EEPROM will not try to commit a 0-byte write 
+operation so you will not have to wait for the commit.  After
+the fake-write, you can request a genuine read of 64-bytes.  The 
+transfer of this data over the I2C bus will require a significant 
+amount of time.  Your program can poll the status of this read operation,
+or just wait a sufficient amount of time for the read to complete.
+<br><Br>
+
+On a read operation, the EEPROM will auto increment the address pointer
+after every byte read, even across page boundaries.  Hence, if you
+wanted to read the entire contents of the EEPROM, you could perform
+a fake-write to address 0, then issue consecutive page reads, each
+one coming from an incrementally larger page of the EEPROM.
+<br><Br>
+
+The following code snippet shows how to perform a single page read from
+the EEPROM.
+
+<pre>
+#define EEPROM_I2C_ADDR     0b1010000       // 7-bit address for 24LC256
+#define BLOCK_SIZE          64              // 0x40
+
+void main() {
+
+    I2C2_MESSAGE_STATUS      I2C_Wflag;
+    uint8_t                  pData[BLOCK_SIZE+2];
+
+    pData[0] = pageAddress>>8;
+    pData[1] =  (uint8_t) pageAddress;
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterWrite(pData, 2, EEPROM_I2C_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);                       
+                
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterRead(pData, BLOCK_SIZE, EEPROM_I2C_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+}
+</pre>
+
+
+</body>
+</html>

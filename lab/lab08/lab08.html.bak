@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #7 - Microphone</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>                     </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab07/lab07.html">&lt;Prev</a></li>
+                        <li><a href="../lab09/lab09.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<center>
+<h1>EENG 383</h1>
+Lab 8 - Microphone
+</center>
+<br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>8</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 8</h2>
+Some self guided <a href="./inlab08.html">activities.</a>
+
+<h2>Lab 8 assignment</h2>
+Write a program that determines the frequency of a sin wave audio input
+provided by a whistle or audio function generator (like Keuwlsoft
+Dual Channel Function Generator for Android or Tone Generator Audio
+Frequency for iPhone).  In order to ensure that you have usable data,
+your algorithm will wait until the sound level measured by the microphone
+exceeds a upper or lower sound threshold level as shown in the following
+image. 
+
+<br><img src="./img/audioSampling.bmp"><br><br>
+
+When enabled, the ISR will have the responsibility to:
+<ul>	<li>Determine if the ambient sound level exceeds 
+	either the upper or lower threshold,
+	<li>When this happens to fill a 512 byte buffer with audio samples 
+	collected from the microphone.  These samples will be collected 
+	every 25&micro;s.  The buffer will be 512 bytes long - be careful
+	with the data type of your counting variables (uint8_t can only
+	count up to 256, not 512).
+	<li>When the buffer is full, set a flag true alerting main that
+	the buffer is full.
+</ul>
+
+Main will be polling this flag and when it is true will go
+on to determine the period of the waveform as follows.<Br><br>
+
+<ul>
+<li>Have main scan the buffer, that was filled by the ISR, to determine 
+indicies where the microphone samples increased past the value of 128.
+In other words, look for array indicies where buffer[index] &le; 128 and 
+buffer[index + 1] &gt; 128.  We will call these positive edge crossing
+because the microphone values are increasing through a threshold value, 128.
+<li>Store all these positive edge crossing indicies into an array.
+<li>Have main determine the number of indicies between adjacent positive 
+edge zero crossing. 
+<li>Compute the average of all the periods collected and then print 
+the average and, from this information, the frequency.  There will be
+some further discussion below about how to do this so that you can
+extract the maximum amount of information from the data you have.
+</ul>
+
+Since the microphone was sampled every 25&micro;s by the ISR, the average
+number of indicies between consecutive positive edge crossing times 
+25&micro;s, is equal to the period.   You will represent your answer in
+microseconds, this will allow you to perform all your math using integers.
+<br><br>
+
+If you are having issues where the compiler complains that the PIC
+is "out of memory", move your large arrays out of main and make them
+global.  Also, you do NOT need to make the zero crossing array have
+512 entries. You should assume that someone whistling will produce a
+sine wave abod 1.8kHz. In the example presented below, this creates
+10 zero crossing.  Doubling this value should be more than enough 
+zero crossing for any realistic whistle.
+
+<b>ISR Details</b><br>
+Write the ISR to operate as a state machine using the following state
+diagram.
+<br><img src="./img/isrFSM.bmp"><br><br>
+
+Use an enumerated type to define the states.  You could use something
+like the following declaration.
+<pre>
+typedef enum  {MIC_IDLE, MIC_WAIT_FOR_TRIGGER, MIC_ACQUIRE} myTMR0states_t;
+</pre>
+The ISR should use the switch/case structure to move between states.
+Your ISR will need several static variable to keep track of the state
+and the buffer index.
+<br><br>
+
+When you first get your program working, you will notice that your program
+reports the waveform periods lower than the input period. I will focus on
+period in this discussion because you will use the period information to 
+fix this problem.  For example, my program reports that a waveform with 
+period 2500 &micro;s (400 Hz) has a period of 2037 &micro;s. This is 
+difference of 463 &micro;s represents time spent in the ISR.  I want you to 
+compensate for this time spent in the ISR by adjusting the initial count 
+value of the TMR0 ISR by a fudge factor.  The factor is not 463 &micro;s,
+because this amount of time was distributed across the number of ISR calls
+made during one period of the input waveform.  You should be able to 
+calculate exact how many timer counts to include in your fudge factor.
+When you get it right, your program should be able to get within 50Hz of 
+the true waveform.
+<br><br>
+
+At start-up your program should present a splash screen - this would
+be a great place for some ASCII art. The splash screen should also contain
+connection instruction for the development board; for this assignment tell the 
+user there are no jumpers to install! When you press "?" at the terminal 
+you should be greeted with the following menu.
+<pre>
+------------------------------
+?: Help menu
+o: k
+Z: Reset processor
+z: Clear the terminal
+T/t: Increase/decrease threshold 138 - 118
+f: gather 512 samples from the microphone and calculate the frequency
+------------------------------
+</pre>
+
+<ul>
+<li><b>?</b><br>
+Prints out the ever useful help menu.  Display the current upper and
+lower audio thresholds as part of the menu.
+<br><br>
+
+<li><b>z</b><br>
+Clear the terminal using a bunch of new lines.
+<br><br>
+
+<li><b>z</b><br>
+Reset the processor so that we can see that splash screen.
+<br><br>
+
+<li><b>T</b>
+Increase the upper threshold by 5 and decrease the lower threshold by
+5.  This allows you to decrease the sensitivity of the microphone to
+ambient noise and requires a stronger audio input to trigger the 
+frequency measurement procedure.  
+At program start-up set the initial upper threshold to 128 + 10.
+At program start-up set the initial lower threshold to 128 - 10.
+<br><br>
+
+<li><b>t</b>
+Decrease the upper threshold by 5 and increase the lower threshold by
+5.  This allows you to increase the sensitivity of the microphone to
+ambient noise and requires a weaker audio input to trigger the 
+frequency measurement procedure.
+At program start-up set the initial upper threshold to 128 + 10.
+At program start-up set the initial lower threshold to 128 - 10.
+<br><br>
+
+<li><b>f</b>
+Calculate the frequency of audio waveform using the procedure
+discussed above.  Provide the following diagnostic information
+as you work your way through the process.  In order to reduce the
+amount of text, I changed the NUMBER_OF_MICROPHONE_SAMPLES_TO_COLLECT
+define in my program to 256. My program was designed to run with this
+define set to 512.  You may want to write your program with a define
+like this - for initial testing set the define small (like 64) and then 
+later increase the define to 512.
+
+<pre>
+The last 256 ADC samples from the microphone are:
+
+S[ 0]208 211 205 194 173 156 136 113  92  74  58  51  50  53  67  81
+S[16] 95 114 135 157 176 193 202 210 206 199 185 165 148 122 101  85
+S[32] 66  53  49  43  53  65  85 103 122 143 164 185 196 202 207 202
+S[48]192 175 160 137 115  94  76  59  52  45  45  56  72  88 110 133
+S[64]154 175 193 205 210 208 202 189 166 148 128 106  86  67  55  46
+S[80] 46  52  62  81  99 120 138 159 181 197 203 202 204 191 182 163
+S[96]139 116  94  70  62  49  44  43  50  66  84 105 129 150 167 188
+S[112]202 204 207 198 185 170 150 130 109  84  67  53  44  47  52  58
+S[128] 71  95 113 135 155 178 193 204 206 210 199 181 164 142 117  99
+S[144] 77  62  51  47  47  54  62  78 101 126 143 163 182 197 204 210
+S[160]201 192 171 155 132 111  92  73  59  49  47  49  58  74  90 108
+S[176]130 152 171 185 201 208 206 198 188 173 151 130 104  82  67  55
+S[192] 47  52  56  68  85  98 117 142 169 186 199 207 213 208 197 185
+S[208]165 142 119  95  76  62  50  46  52  53  68  87 112 129 156 174
+S[224]189 200 206 208 197 187 173 150 130 105  89  65  56  49  46  47
+S[240] 57  75  90 112 136 161 175 191 203 209 206 197 185 162 138 118
+
+The sound wave crossed at the following indicies
+17 40 62 85 107 130 153 175 198 220 243
+
+The sound wave had 10 periods
+40 - 17 = 23
+62 - 40 = 22
+85 - 62 = 23
+107 - 85 = 22
+130 - 107 = 23
+153 - 130 = 23
+175 - 153 = 22
+198 - 175 = 23
+220 - 198 = 22
+243 - 220 = 23
+
+average period = 565 us
+average frequency = 1769 Hz
+</pre>
+
+A "crossing" occurs when a microphone sample is less than or equal to 128 
+and the next microphone sample is above 128.  The list of numbers below the 
+text "The sound wave crossed &hellip;" are the indicies of the crossing 
+values.  For example, the 17th ADC value (remember to index from 0) is 114
+and the 12th value is 145.  Thus, 17 is stored (in an array) as a
+crossing point.  You need to store all such crossing points in an array  - 
+this is the list 17 40 62 85 107 130 153 175 198 220 243.  Associated with
+this, you will also need to have a variable that stores the number of 
+crossings - in this case 11.  The number of indicies between two consecutive 
+crossings is the period of the waveform (in units of the sampling frequency).
+<br><br>
+
+Now, this brings us back to the last billeted point in the list of items
+that main is responsible for.  In order to best utilize the information that
+you have, you should compute the average period and frequency as follows.
+<ul>	<li>Loop through the crossing point array,
+	<li>For each index, compute the number of indicies between 
+	adjacent crossing. This is done in the example above as the list
+	<pre>
+	40 - 17 = 23
+	62 - 40 = 22
+	85 - 62 = 23
+	107 - 85 = 22
+	130 - 107 = 23
+	153 - 130 = 23
+	175 - 153 = 22
+	198 - 175 = 23
+	220 - 198 = 22
+	243 - 220 = 23
+	</pre>
+	<li>Compute the sum of all these differences.  Using the data above
+	this is 23 + 22 + 23 + 22 + 23 + 23 + 22 + 23 + 22 + 23 = 226
+	<li>Since the period is being measured in terms of sample and there
+	are 25 &micro;s per sample, the period (in &micro;s) is just the 
+	period in samples time 25.  So, the average period (in &micro;s) 
+	as the sum * 25 / &lt;NUMBER_OF_ZERO_CROSSINGS - 1&gt;.  Using the 
+	data above, this is 226*25/10 = 526.  Now this is the most
+	important point in this discussion, <u>perform the multiplication
+	in the numerator before performing the division!</u>  Why?
+	<br><br>
+	Consider the
+	data in our example; if you performed an integer divided 25 by 10
+	you would get either 2 or 3 depending on how the division is 
+	rounded, either way you would loose the fraction, 0.5 in this case.
+	You answer, would be about 25% off from the correct value.  Now
+	if you perform the multiplication first you are dividing a reasonably
+	large number by 10, reducing the impact of any rounding error.
+
+	<li>Determine the frequency by taking the reciprocal of the 
+	period.  Since your period is in terms of &micro;s, you will need
+	to introduce a factor of 1,000,000 into this express to get a 
+	frequency in terms of Hz.
+</ul>
+
+<h3>Turn-in</h3>
+You may work with a single partner (or alone) to complete this lab.
+Submit your main.c file on Canvas using the instructions posted
+there.  You should take note of the Rubric that will be used to evaluate
+your assignment. Please form a group before submitting using the
+instructions posted on Canvas. You will demonstrate your code at the
+beginning of lab.
+<br><br>
+
+Your program will be tested using waveforms between 400Hz and 6kHz.
+My program was able to get within 1% of the actual frequency. Your
+program will be considered to be working correctly if it is within 
+2% of the test frequencies.  Spend some time tuning that interrupt frquency!
+
+
+<!---
+<h3>Soldering for next week's lab</h3>
+
+Next week's lab will use the SD card.  You should have your SD card
+holder in your parts bag.  You will be provided with a SD card next
+week.  Note, the software I will provide you with will only work with 
+2GB or smaller SD cards - SD HC and SD XC cards will not work with 
+the software I will provide you with.
+<br><Br>
+
+I would advise you to use solder paste and the soldering iron to complete
+this soldering task. To do this, apply a normal amount of solder paste 
+on the pads, position the SD card holder on the pads just like you did
+when you use the reflow skillet.  However, instead of putting the 
+development board on the skillet, you will use the soldering iron to
+"reflow" the solder paste.  The soldering iron will reflow the solder
+paste in a second or two.  Make sure to heat the solder blob long enough
+so that the solder completely attaches to the solder pad on the development
+board and the pin of the SD card holder.  2 of the solder locations are 
+tabs directly attached to the SD card holder's metal frame.  Consequently, 
+these locations are going to require more heat pumped into them to get a 
+good connection.  Apply enough heat to get a good connection then stop.
+<br><Br>
+
+Solder the SD card holder to the bottom of the development board in 10 
+locations.  8 of these locations are the pins of the SD card holder and 
+2 of these locations are the frame of of the SD card holder (one on the 
+left side and one on the right side).
+<br><Br>
+
+<img src="./sdCardInstall/frontSide.jpg"><br><br>
+<img src="./sdCardInstall/leftSide.jpg"><br><br>
+<img src="./sdCardInstall/rightSide.jpg"><br><br>
+--->
+</html>

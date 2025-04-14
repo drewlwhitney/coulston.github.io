@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab05.html">Lab 5</a></li>
+                    </ul>
+ 		     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+In Lab 5 - Color Cube</center>
+
+<h2>Requirements</h2>
+Working in teams of two, read through the following lab activity and perform all the actions prescribed. You do not need to document bullet items. Make a record of your response to numbered items and turn them in a single copy as your teams solution on Canvas using the instructions posted there.
+
+Include the names of both team members at the top of your solutions. Use complete English sentences when answering questions. If the answer to a question is a table or other piece of art (like an oscilloscope trace or a figure), then include a sentence explaining the piece of art. Only include your answers, do not include the question-text unless it is absolutely needed.
+
+
+
+<h2>Objective</h2>
+The objective of this lab is to teach you how to create a terminal 
+interface to your microcontroller.
+
+<h2>External Hardware</h2>
+The firmware that you will be working today will allow you to manipulate
+the state of the LED using a terminal application running on a PC.  We
+will focus here on the newest piece of hardware, the FT230 chip.
+<br><br>
+
+
+<h3>FT230</h3>
+The FT230 chip acts as a USB to serial bridge.  This chips allows
+a microcontroller to use the RS232 communication protocol to a serial
+terminal application on a PC  using a USB cable.  This little piece of
+magic is accomplished using the FT230 chip and software residing on
+the PC as illustrate in the following figure.
+
+<br><img src="./img/vcom.bmp"><br><br>
+
+Any character sent from the PIC on pin RC6, as a series of bits, is
+transformed into a USB signal by the FT230 chip, and decoded by a
+software driver residing on the PC into a series of bit sent over a 
+COM port.  You can configure a terminal application like PuTTY to
+decode the bits from a COM port into character printed in the terminal
+window on your PC.  Similarly, character typed into the terminal (using 
+your PC's keyboard) are sent to pin RC7 of the PIC.  <br><Br>
+
+When you plug your development board into a PC you may have noticed that your
+PC makes chime sound.  This tells you that the PC has recognized the
+FT230 chip and assigned it a COM port.  A PC may have any number of COM
+ports, so each is given a unique numerical value.  There are a variety 
+of different ways to determine the COM port assigned to your FT230 chip, 
+but I find the easiest to run 
+<a href="../../COMSniffer.exe">Brandon's COM port finder</a>.  There is
+also a link to this application on the class main page.  Plug your development
+board into your PC and run this application.  You should see something 
+similar to the following; in this case my FT230 chip has been assigned COM3.
+Note that more than likely your PC will assign your FT230 a different
+port number.  You will need the port number anytime you need to connect 
+your PIC to a a terminal application like PuTTY.  
+
+<br><img src="./img/COMSniffer.bmp"><br><br>
+
+Now that we know the identity of the COM port created to our PIC, 
+let's start by looking at how ASCII character are represented as a series
+of bits using an oscilloscope.  Start by launching 
+PuTTY. Select Connection type = Serial in the initial pop-up 
+screen - use COMx where "x" is the COM port number assigned to your FT230 
+chip.  Adjust the default speed (adjusted through Category -> 
+Connection -> Serial) 9600 baud (bits per second) - this step is not usually 
+needed, but included just in case it is.
+<br><Br>
+
+You do not need to program your PIC in order to perform the following
+experiment, just leave your lab 4 music player programmed on your board.  
+Now setup the oscilloscope to view the bit stream coming from PuTTY into 
+the PIC using the following setup:
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>RC7
+<tr><td>Ch1 ground clip		<td>Development board ground loop
+<tr><td>Horizontal (scale) 	<td>200 us
+<tr><td>Ch1 (scale) 		<td>1V
+<tr><td>Trigger mode		<td>Auto
+<tr><td>Trigger source		<td>1
+<tr><td>Trigger slope		<td>&darr;
+<tr><td>Trigger level		<td>1.5V
+</table>
+
+Make sure to:
+<ul>	<li>Align Ch 1 on the <u>third</u> lowest reticule so as to
+	leave room for the decoded serial character,
+	<li>Align the horizontal position at the second left-most reticule,
+</ul>
+
+<li>Type a "5" in PuTTY - the "5" will NOT appear in the PuTTY window.
+You should see the flicker of bits being sent and 
+then a short time later they will go away.  In order to get the bits to 
+stay on the screen you need to switch the oscilloscope triggering from auto 
+to normal mode.  [Mode/Coupling] &rarr; <u>Mode</u> &rarr; <u>Normal</u>
+<br><br>
+
+Again, type "5" in PuTTY and the bit stream of ASCII '5' sent from the PC 
+to the PIC will stay on the oscilloscope.  Note that
+the data bits are 0b00110101 when arranged from MSB (left-most bit) to LSB
+(right-most bit).  This converts to 0x35 which is the ASCII code for the 
+number 5. Note: The image below has CH1 aligned to the 2<sup>nd</sup>
+lowest reticule, it should be aligned to the 3<sup>rd</sup>
+lowest reticule.
+<br><img src="./img/scope_0.bmp"><br><br>
+
+Finally, let's get the oscilloscope to convert this stream of bits
+into an ASCII character using the following oscilloscope setup.
+
+<ul>	<li>Convert serial stream<br>
+	[Serial] &rarr; <u>Mode</u> &rarr; UART/RS232<br>
+	[Serial] &rarr; <u>Serial</u> &rarr; Serial 1: UART/RS232 &check;<br>
+	[Serial] &rarr; <u>Signals</u> &rarr; Rx &rarr; 1<br>
+	[Serial] &rarr; <u>Signals</u> &rarr; <u>Threshold</u> &rarr; (Trigger Level) &rarr; 1.65V<br>
+	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>#Bits</u> &rarr; 8<br>
+	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>Parity</u>  &rarr; None<br>
+	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>Baud Rate</u> &rarr; <u>Baud</u> &rarr; 9600 b/s<br>
+	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>Polarity</u> &rarr; Idle high<br>
+	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>Bit Order</u> &rarr; LSB<br>
+	[Serial] &rarr; <u>settings</u> &rarr; <u>Base</u> &rarr; ASCII<br>
+		
+	<li>Clear all menus off the bottom of the screen<br>
+	[&uarr;Back]
+	<li>Screen shot the screen on USB:<br>
+	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr; 
+	<u>24-bit Bit... (*.bmp)</u>
+	[Save] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
+</ul>
+<br><br>
+Try pressing different keys in PuTTY and observe the decoded stream on
+the oscilloscope.  Try the arrow keys (you will need to change the 
+time base to 1ms/division), delete, backspace.  Some of characters
+are escaped so the terminal interprets them not as character to print,
+but rather as terminal control commands.
+
+<ol start=1>
+<li>Screen capture the '5' character on your oscilloscope and include it 
+in your report.  Make sure to show the serial decoding at
+the bottom of the screen.
+</li>
+
+<li>
+Complete the following table for the character listed in the left most
+column.  Remember that every transmitted character has a start and 
+stop bit (do not include) and is transmitted LSB first. 
+<ul>
+<li>Fill in the "Bit period" column with the shortest bit period (in 
+microseconds) duration for that character.  To determine the bit period,
+find, and measure, the shortest logic "1" or logic "0" pulse.  You can
+measure the duration of the pulse using the horizontal scale or by using 
+the Cursor function activated by pressing the cursor button.
+<li>Fill in the "Bit frequency" column with the reciprocal of the Bit period.
+Use units of bps (bits per seconds) instead of Hertz (cycles per second).
+<li>Extract the 8-bit binary code from the data sent, making sure to
+ignore start and stop bits and ordering them from MSB (left) to LSB (right)
+and put it into the "Binary code for data" column,
+<li>Convert the 8-bit binary code data into 2 hex characters and put
+the value in the "Hex code for data" column,
+<li>Use an external resource to look-up the ASCII character for each of
+the Hex codes and put it into the "ASCII char for data" column.
+</ul>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Character sent<td>Bit period (us) <td>Bit frequency (bps)
+<td>Binary code for data<td>Hex code for data<td>ASCII char for data bits
+<tr><td>'a' <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>'A' <td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>&lt;Enter&gt;<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+<tr><td>&lt;Backspace&gt;<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp<td>&nbsp
+</table>
+</ol>
+<!--
+'a' = 0110 0001 = 0x61 = ascii 'a'
+'A' = 0100 0001 = 0x41 = ascii 'A'
+<Enter> = 0000 1101 = 0x0D = ascii CR - carriage return
+--->
+
+Note that certain keys will produce multiple bytes sent.  For example
+the left arrow key will send 0x1B, 0x5B, 0x44 corresponding to escape,
+[, D.  These sequence are called escape sequence and are used by
+terminals to send special characters that do not exist in ASCII.  
+Experiment with &lt;Del&gt;, number pad keys, and the arrow keys to
+see some examples of escape codes.  You can get more information 
+<a href="http://ascii-table.com/ansi-escape-sequences.php">here</a>.
+Note, that goofing around with the function keys will most likely hang
+your development board.  Try using the reset "button" near the USB port
+to reset your board if it hangs.
+
+
+<h2>Internal Subsystem</h2>
+The Enhanced Universal Synchronous Asynchronous Receiver Transmitter 
+(EUSART) subsystem of the PIC can be configured to send and receive 
+ASCII characters to a terminal application on a PC.  The configuration
+of the EUSART subsystem is described in the PIC18(L)F2X/4XK22 Data Sheet.
+The PIC has two EUSARTs denoted EUSART1 and EUSART2.  When you encounter
+register and field name references in the Data Sheet that contain a 
+lower-case "x", like TXREGx, you should substitute "1" or "2" for the "x"
+depending on which EUSART you are working with.  On our development board, I
+have connected EUSART1 to the FT230 chip, so we will always substitute
+"1" for "x".  Remember that a field is a named collection of bits within 
+a register.
+
+<ol start=3>
+<li>Using Table 2 on page 6 of the Data Sheet (for the 28-pin SSOP package), 
+what I/O pins are associated with the EUSART1?  Note, we are not
+using the EUSART2 subsystem nor its associated pins.
+
+<li>The baud rate generator inside the PIC slows down the main oscillator
+by dividing it by the value stored in the baud rate generator register 
+pair SPBRGH1:SPBRG1 to make the 9600 baud rate clock used to produce bits.
+Note the ":" symbol separating the two register names means that we are
+building a 16-bit value with SPBRGH1 as the upper 8-bits and SPBRG1 as 
+the lower bits.
+The relationship between the main oscillator frequency (Fosc) and the
+baud rate is given in Baud Rate Formula column of Table 16-3 in the 
+Microchips PIC18(L)F2X/4XK22 Data Sheet.  The value n in the equation 
+(per the legend) is the SPBRGH1:SPBRG1 register pair and the answer to 
+this question.
+<br>
+The bit sequence observed in the previous section was 
+asynchronous (SYNC = 0) because it was not accompanied by a clock.
+We will be using the high speed 16-bit baud rate generator (BRG16 = 1 and 
+BRGH=1).  
+<br>
+Determine the value for the 16-bit baud rate generator SPBRGH1:SPBRG1 to 
+generate a 9600 baud rate assuming that the PIC is running at 64MHz.  
+Show your work and state your 16-bit answer in hexadecimal.
+
+<li>Look at the Figures 16-1 and 16-2, what register would you write to in 
+order to transmit (TX) a data byte out of the PIC?  What register would you
+read in order to receive (RX) a data byte sent into the PIC?  Note that 
+these registers need to be connected to the data bus.
+
+<li>Look at the Figures 16-1 and 16-2, what flag indicates when a
+data byte can be transmitted out of the PIC?  What flag indicates
+that a data byte has been received by the PIC? Note that these flags 
+are connected to the TX and RX register.
+
+<li>Read about the TX1IF and RC1IF flag in the PIR1 register defined on 
+page 112.  How are each of these flags cleared?
+</ol>
+
+<h2>Firmware Organization</h2>
+Create a project for today's inLab code using the following steps.
+
+<ul>
+<li>Launch MPLab X
+<li>Close any open project: File &rarr; Close All Projects
+<li>Create a new inLab05 project as you did in Lab 4.  Make sure, at 
+step 2 (Select Device), to choose PICKit 3.
+<li>Click  Tools &rarr; Embedded &rarr; MPLab Code Configurator
+<li>If the MPLab Code Configurator is not listed then you will need
+to install the Code Configurator as follows:
+<ul>	<li>Tools &rarr; Plugins,
+	<li>In the Plugins pop-up select the "Available Plugins" tab,
+	<li>Check the "MPLab&reg; Code Configurator" check box,
+	<li>Click Install,
+	<li>In the Plugin Installer pop-up, click Next,
+	<li>Accept the terms, click Install,
+	<li>Check the "Restart Now" radio button, click Finish,
+	<li>Wait for netBeans Platform to do its thing and then proceed,
+	<li>When MPLab launches, open the MPLab Code Configurator.
+</ul>
+<li>In the Save MCC Configuration File pop-up, keep defaults and click Save,
+<li>In the INTERNAL OSCILLATOR area of the System Module window
+<ul>	<li>Oscillator Select:	Internal oscillator block
+	<li>System Clock Select: FOSC
+	<li>Internal Clock: 16MHz_HFINTOSC
+	<li>Software PLL Enabled: Check
+</ul>
+The Current System clock should be 64MHz (4x PLL)
+
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR0.
+<li>In the Device Resources area of the project window, expand the EUSART
+option.  Double click EUSART1 [PIC10/PIC12/PIC16/PIC18 MCUs by Microchip
+Technology Inc.]
+<li>In the Device Resources area of the project window, expand the ECCP
+option.  Double click ECCP1
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR2.
+
+<li>In the Project Resources area of the project window, expand the 
+Peripherals option if not already expanded, and click on TMR0.
+<ul>	<li>Enable Timer:	&check;
+	<li>Enable Prescaler:	&check;
+	<li>Prescaler:		1:16
+	<li>Timer mode:		16-bit
+	<li>Clock Source:	FOSC/4
+
+</ul>
+
+<li>In the Project Resources area of the project window click on EUSART1.
+Note &square; means to leave the box unchecked. A &check; means to check
+the associated box.
+<ul>	<li>Enable EUSART:	&check;
+	<li>Enable Transmit:	&check;
+	<li>Enable Wake-up:	&square;
+	<li>Auto-Baud Detection:	&square;
+	<li>Enable Address Detect:	&square;
+	<li>Baud Rate:		9600
+	<li>Transmission Bits:	8-bit
+	<li>Reception Bits:	8-bit
+	<li>Clock Polarity:	async_noninverted_sync_fallingedge
+	<li>Enable Receive:	&check;
+	<li>Enable EUSART Interrupts:	&square;
+	<li>Redirect STDIO to USART	&check;
+</ul>
+
+<li>In the Project Resources area of the project window click on TMR2.
+<ul>	<li>Enable Timer:	&check;
+	<li>Postscaler:		1:1
+	<li>Prescaler:		1:16
+	<li>Timer Period:	64 us
+</ul>
+
+<li>In the Project Resources area of the project window click on ECCP1.
+<ul>	<li>ECCP mode:	Enhanced PWM
+	<li>Timer Select:	Timer2
+	<li>PWM Duty Cycle:	50%
+	<li>Enhanced PWM mode:	single
+	<li>PWM pins polarity:	P1A,P1C: active high; P1B, P1D active high
+	<li>Auto shutdown on:	disabled
+	<li>PWM Delay counts:	0x0
+</ul>
+In a future question you will need the information listed in the 
+PWM parameters.  Save yourself a little time and write down the values
+for PWM period, PWM Resolution, and PWM Frequency.  Note that while the PWM
+resolution only requires 8-bits, you must use a 16-bit integer to hold the 
+value because there are options which allow the PWM resolution to be
+greater than 8-bits.
+
+
+<li>File &rarr; Save All&hellip;
+<li>Click on the "Generate" button in the Project Resources area of the
+project manager window.  You should note activity in the Output area of the
+console showing that the code configurator is creating files associated
+with your project.  Anytime that you make a change to the configuration
+you must re-generate the supporting files by clicking on the generate
+button,
+<li>Double click the file main.c to open it in the editor window.
+<li>Replace the contents of main.c with 
+<a href="./code/inlab05.c">inlab05.c</a>,
+<li>Compile and download the code to the PIC,
+<li>Launch PuTTY and connect to the serial port associated with the 
+FT230 chip,
+<li>Type "?" in the terminal.  You should see,
+<pre>
+------------------------------
+?: Help menu
+o: k
+Z: Reset processor
+z: Clear the terminal
+t: Display current TMR2
+T: Display current TMR0
+p/P: decrease/increase duty cycle
+------------------------------
+</pre>
+<li>Connect a jumper wire between RC2 and an LED and experiment
+with the duty cycle,
+<li>Experiment with the commands - see discussion below.
+</ul>
+
+<b>?</b><br>
+Every terminal program that you write this term needs to have a help
+menu which tells the operator what commands they can issue and a
+brief description of what the commands can do.  In some labs you will
+include some basic status information at the top of the help menu.
+<br><br>
+
+<b>Z</b><br>
+While developing an embedded systems application it is useful to perform
+a software reset of the PIC.  This reset will reveal the "splash screen",
+a welcome screen displayed at system start-up.  I put some basic information
+on the splash screen including the wiring information.  After downloading your
+program you will not see
+the splash-screen because your program has already started running and is
+waiting for terminal input.  I would encourage you to include some ASCII
+art in your splash screen to customize your system - search "ASCII art 
+generator". 
+<br><Br>
+
+<b>z</b><br>
+Sometimes you just want all the garbage on the terminal screen to go away.
+<br><br>
+
+<b>t/T</b><br>
+The value may appear random  because the timer is counting up and 
+rolling over so quickly.
+<br><br>
+
+<b>p/P</b><br>
+I often use a upper and lower case letter for 
+commands that decrease (lower case) or increase (upper case) some
+system value.  In order to see the LED light-up make sure that you
+have a jumper wire connected between RC2 and an LED.   Adjust the
+duty cycle to turn the LED off remembering that the RGB LED is
+active low.
+<br><br>
+
+Before moving on, let's examine some of the helper functions generated
+by MCC that you will need to use in your lab this week.  In the project 
+manager window expand Header Files &rarr; MCC Generated File. Double click 
+and open all the files in this folder. Use the contents of the files to 
+answer the following questions.
+
+<ol start=8>
+<li>Each function prototype has a comprehensive block of comments that
+precede each function prototype.  Look through the "@Summary" comments
+and identify the function that "Loads 16-bit duty cycle."  List the 
+associated function prototype.
+
+<li>What register and field are used for the EUSART1_DataReady?
+Note, this is in one of the #defines in eusart1.h.
+
+<li>When writing a value to TMR0 using the TMR0_WriteTimer function, what
+data-type should the input argument be?
+
+<li>Look through the comments in front of the TMR0_HasOverflowOccured function 
+prototype in tmr0.h.  In the example code section, how is the TMR0 interupt 
+flag cleared?
+
+</ol>
+
+In the project manager window expand Source Files &rarr; MCC Generated 
+File. Double click and open all the files in this folder. Use the contents 
+of the files to answer the following questions.
+<ol start=12>
+<li>In the EUSART1_Initialization function (found in MCC Generated File 
+&rarr; eusart1.c), what 16-bit value (in hex) is written to the baud rate 
+generator registers SPBRGH1:SPBRG1?  Compare this value to an earlier answer.
+
+<li>What PIC data registers does the EUSART1_Read function get the incoming 
+character from?  Hint, it is the returned value.
+What PIC data registers does the EUSART1_Write function put
+the outgoing character to?  
+
+<li>When performing a read what flag does the EUSART1_Read function wait on?
+
+<li>When performing a write, what flag does the EUSART1_Write function wait on?
+If the EUSART1_Write must wait on this bit, what does it imply about the
+the status of the EUSART transmitting hardware? 
+</ol>
+
+In the project manager window double click and open main.c. Use the contents
+of main.c to answer the following questions.
+<ol start=16>
+<li>List the invocation(s) of #defines contained in the MCC Generated
+Header Files that are present in the main.c file. 
+
+<li>List all calls to functions contained in the MCC Generated Source
+Files that are present in the main.c file.
+</ol>
+
+Open up the Microchips XC8 Compiler User's Guide posted on the class web
+page and goto the PRINTF function on page 392-393.
+<ol start=18>
+<li>Is there a format character to print a value in binary?  If so what is it?
+Is there a format character to print a value in octal?  If so what is it?
+Is there a format character to print a value in hexadecimal?  If so what is it?
+What is the difference between using an upper or lower case "x" when printing
+values?
+
+<li>For the RESET function on page 400,
+what library do you need to include in order to access this function?
+What MCC Generate header files (there are more than one), found in 
+your project, contains the #include to this library?
+</ol>
+
+
+<h2>Firmware Experiments</h2>
+To answer the following question, add a bunch of printf statements
+to your program under the "f: print using several format specifiers."
+menu option.  For each (format, value) pair in the following table, 
+determine the output produced by printf on the terminal.  For example to 
+determine the output produced by the %u format with the value of 
+0xABCD you would put the following code in your program:
+<font face="courier">printf("%u\r\n",0xABCD);</font>.
+If the result is a non-printable character, put "non-character" in the
+corresponding space.
+In the row labeled "decimal" determine the unsigned decimal equivalent
+of each value, computed by you using the windows calculator program.  
+
+<ol start=20>
+
+<li>Complete the table using the output shown in the terminal.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>format	<td>'0'	<td>0x30  <td>0xAB  <td>0xABCD	<td>0xABCD0123
+<tr><td>%c	<td>&nbsp; <td>&nbsp; <td>unprintable <td>&nbsp; <td>&nbsp;
+<tr><td>%u	<td>&nbsp; <td>48     <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>%d	<td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>291
+<tr><td>%x	<td>30     <td>&nbsp; <td>&nbsp; <td>&nbsp; <td>&nbsp;
+<tr><td>%04x	<td>&nbsp; <td>&nbsp; <td>&nbsp; <td>abcd   <td>&nbsp;
+<tr><td>decimal	<td>&nbsp; <td>&nbsp; <td>171   <td>&nbsp; <td>&nbsp;
+</table>
+</li>
+
+<li>As you discovered in the previous problem, printing out 32-bit values
+is problematic.  Problematic in the sense that it cannot be done.  If you
+need to print a 32-bit value you must print it as a pair of 16-bit values,
+the upper 16-bits and then the lower 16-bits.  To do this you will need to
+use a shift operation to move the upper 16-bits (of the 32-bit variable)
+into the lower 16-bits.  Then you will need to mask off the lower 16-bits
+(of the 32-bit variable).
+<pre>
+	uint32_t var32 = 0xABCD0123;	
+	// print var32>>16 in a single printf statement
+	// print var32&0xFFFF in a single printf statement
+</pre>
+Write a pair of printf statements that prints 8 hexadecimal characters
+of a 32-bit variable with "0x" in front of the 8 hexadecimal characters.
+You need to print leading zero's in each 4 hex character output 
+using the "04" format specifier.  Obviously, it would be a good idea to 
+try out your idea in code.   
+<br><br>
+
+<dir>
+I have not been able to get the following to work on our compiler.  
+Having this capability would really simplify printing 32-bit
+integers.
+<i>
+If you put <font face="courier">#include &lt;inttypes.h&gt;</font>
+at the top of your program (just below mcc_generated_file/mcc.h)
+then you can use the following to print 32-bit variables.
+</i>
+<pre>
+printf("0x%08" PRIx32 "\r\n",var32);
+</pre>
+</dir>
+
+<li>Connect an oscilloscope to RC2 and determine the PWM resolution.
+The PWM resolution is the time (in us) per duty cycle count.
+To do this:
+<ul>	<li>Measure the time high of the PWM waveform,
+	<li>Note this initial duty cycle value,
+	<li>Change the duty cycle value, noting the new value,
+ 	<li>Measure the time high of the PWM waveform,
+	<li>Compute the difference of the times high,
+	<li>Compute the difference between the duty cycle values,
+	<li>Compute the ratio difference in times high over difference in
+	duty cycle values.
+</ol>
+
+Perform this procedure at least twice to verify your value.
+
+</body>
+</html>

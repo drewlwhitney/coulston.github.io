@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture16.html">&ltPrev</a></li>
+                        <li><a href="./lecture18.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>17</td></tr>
+<tr><td>Objective:</td>	<td>Provide more examples of how interrupts
+	can provide a low-level software interface to hardware.
+</table>
+
+
+<h1>Interrupt Challenges</h1>
+Here are a pair of challenges that will help you develop your
+understanding of interrupts.
+
+
+<h2>One wheel rotation</h2>
+Your robot has DC motor driving a wheel which you want to rotate exactly once.
+To help with this task, the wheel's rotation is tracked by an encoder that 
+pulses 12 times for each rotation of the wheel.  The motor drive signal is 
+connected to RC1.  When RC1 equals 1, the motor (and wheel) turn.  
+When RC1 equals 0, the motor (and wheel) are stopped.
+Because main is preoccupied with other tasks, you need to write
+an ISR that keeps track of the wheel's position.  In particular you 
+need to write an ISR that stops the motor when the wheel has made one
+complete rotation.  <br><br>
+
+To accomplish this, you decide to route the pulses into 
+RC2 and use the associated CCP1 capture interrupt to stop the
+motor when it has made one complete rotation.  Note, we will be using the
+capture mode, not to measure the duration of the pulses, but just to
+call the ISR when a positive edge of a pulse is detected.
+<br><br>
+
+You use the following code in your initPIC(); function to 
+configure the CCP1 capture to interrupt on positive edges
+of the RC2 pin.
+<br><br>
+
+<pre>
+void initPIC(void) {
+  
+    TRISCbits.RC1 = 0;		// Make pin RC1 (motor control) and output
+    TRISCbits.RC2 = 1;		// Make pin RC2 an input
+    CCP1CONbits.CCP1M = 0b0101;	// Enable the capture channel 1 on rising edge
+    CCPTMRS0bits.C1TSEL = 0b00; // Associate TMR1 with CCP1
+    T1CONbits.TMR1ON = 1;       // Turn on timer 1
+    PIR1bits.CCP1IF = 0;	// Clear the CCP1 flag
+    PIE1bits.CCP1IE = 1;	// Enable CCP1 interupts
+    INCONbits.PIE = 1;		// Enable perhipheral interrupts
+    INCONbits.GIE = 1;		// Enable global interrupts
+  
+} // end initPIC
+</pre>
+
+This initialization code ensures that the ISR is called every time a 
+positive edge arrives on pin RC2.<br><br>
+
+While there are several ways to go about accomplishing this goal,
+your team has decided on the following approach.  Main will decide
+when to start the wheel turning by setting
+<font face="courier">RC1 = 1;</font> 
+and by setting a global flag
+called <font face="courier">motorMode</font>.  When the motor completes
+a single rotation, the ISR will turn the motor off by setting RC1 = 0;
+<br><Br>
+
+
+<pre>
+#define MOTOR_ON      1
+#define MOTOR_OFF     0
+uint8_t motorMode = MOTOR_OFF;
+
+void main(void) {
+
+    initPIC();
+
+    for (;;) {
+	// lots of important stuff
+
+	LATCbits.LATC1 = 1;		// Start motor turning
+	motorMode = MOTOR_ON;		// Set flag for ISR
+	while(motorMode == MOTOR_ON);	// The ISR will clear the motorMode
+					// flag after one rotation
+
+    } // end infinite loop
+
+} // end main
+</pre>
+
+When the ISR has counted 12 positive edges the ISR will set RC1=0;
+and clear the global flag called <font face="courier">motorMode</font>.  
+<br><Br>
+
+<pre>
+//*****************************************************************
+//*****************************************************************
+void high_priority interrupt pulse_isr(void) {
+
+    static uint8_t motorPulseCount = 0;    
+    
+    if (motorMode == MOTOR_ON) {
+      motorPulseCount += 1;
+      if (motorPulseCount == 12) {
+          motorMode = MOTOR_OFF;
+          motorPulseCount = 0;
+          LATCbits.LATC1 = 0;
+      } // end if
+    }
+
+    PIF1bits.CCP1IF = 0;
+    
+} // end isr
+</pre>
+
+You should note that the static variable motorPulseCount keeps
+track of the number of pulses and shuts down the motor when a
+single rotation has been made.
+
+<h2>Wheel rotations</h2>
+Now that you have the idea of how to get one rotation, let's add 
+some more functionality.
+<ul>
+<li>main will write to a global
+variable <font face="courier">numRotations</font> the number of
+wheel rotations it wants completed.  The number of wheel rotations
+will always be less than or equal to 200.
+<li>main will set the global flag <font face="courier">motorMode</font>.
+<li>main will set <font face="courier">RC1</font> to turn the motor on.
+</ul>
+
+The ISR will count the rotations, decrementing 
+<font face="courier">numRotations</font> after each wheel rotation.
+When the number of rotations reaches 0, the ISR should stop the
+wheel and clear the global flag <font face="courier">motorMode</font>.
+
+
+<pre>
+//*****************************************************************
+//*****************************************************************
+void high_priority interrupt pulse_isr(void) {
+
+    static uint8_t motorPulseCount = 0;    
+    
+    if (motorMode == MOTOR_ON) {
+	motorPulseCount += 1;
+	if (motorPulseCount == 12) {
+	    numRotations -= 1;
+	    motorPulseCount = 0;
+	    if (numRotations == 0) {
+		motorMode = MOTOR_OFF;
+		LATCbits.LATC1 = 0;
+	    } // end if completed all the rotations
+	} // end if completed one more rotation
+    } // end if the wheel is turning
+    PIF1bits.CCP1IF = 0;
+} // end isr
+</pre>
+
+
+</body>
+</html>

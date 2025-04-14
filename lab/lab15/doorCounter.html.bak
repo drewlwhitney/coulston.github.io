@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Embedded System Design: Lab #15 - Accelerometer</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab15.html">Lab 15</a></li>
+                    </ul>
+ 		     <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+<body>
+
+<center>
+<h1>Door Counter</h1>
+</center>
+<br>
+
+
+The goal of this experiment is to count the number of times a door in Brown Building 
+is opened and closed between classes and by extension the number of people that 
+pass through that door.   I would suggest using the 10-minute window before classes
+start.  You will do this by taping the development + daughter board combo to the door.  
+Make sure that you remove <u>all</u> the tape from the door after your experiment.
+And, please stay in proximity of your experiment while it is being performed so that
+you can explain to passers-by what is going on.
+<br><img width=400 src="./img/experiments/door.jpg"><br><br>
+
+Using a low sampling rate will make post-processing the data easier.  You should use
+one of the gryroscope axis to determine the rotational rate the door is being opened.
+I would advise doing a short test run to verify your data logging configuration before 
+doing the full experiment.
+<br><br>
+
+<ul>
+<li>Spool the data into a csv file.
+<li>Open this csv file in Excel and immediatly save it in the native Excel format.
+<li>Make a column to the left of the raw data which is the time (in seconds) for each sample.
+<li>Make a column called degree per second.  Each entry in this column is the raw data converted
+into a degree/second value using the full scale range of the gyroscope that you configured.
+<li>Make a column called degrees moved per sample.  Each entry in this coumn is the
+degree/second entry multipled by the sampling period of the gyroscope that you configured.
+<li>Make a column called degrees moved overall.  Each entry in this column is the sum of all
+the degrees moved per sample up to that time.
+</ul>
+<br><br>
+
+When I performed this experiment at my front door, I got a graph that looked something like
+thge following.  Note that there was drift in the resting position of the door.  This is
+to be expected.
+
+<br><img src="./img/experiments/doorData.JPG"><br><br>
+
+Fully label both axis and title your graph with a description of where and when you performed
+the experiement.  Finally, make sure to indicate somewhere, how many people when through
+the door.
+
+
+</html>

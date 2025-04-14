@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture03.html">&ltPrev</a></li>
+                        <li><a href="./lecture05.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>4</td></tr>
+<tr><td>Objectives:</td><td>C looping structures, for and while.
+</table>
+
+<h1>C looping statements</h1>
+Loops repeat the execution of a collection of statements (called the body) 
+until some condition is met.  Today we will examine two of the more useful
+looping structures in C, the for and while loops.
+
+
+<h2>For-loops</h2>
+A for-loop generally is used when you need a counting variable along with
+iteration.  The counting variable is often referred to as the loop variable.
+The for statement itself has three components separated by 
+semicolons as shown in the following figure and a body.<Br><br>
+<br><img src="./img/forStruc.bmp"><br><br>
+
+<ul><li>The initalization statement is executed only once, when 
+	the for-loop is first entered.  Embedded programmers do not 
+	typically declare the data-type of the loop-variable in this 
+	statement (even though you may have done this in a previous 
+	programming class).  The variable that is initialized is
+	usually the variable the controls the number of times that
+	the body of the for loop is executed.  Hence, thgis variable
+	is refered to as the loop control variable.
+	<li>The condition is checked <u>before</u> the body of the 
+	loop is executed.  If the condition is true, the body is 
+	executed, otherwise the loop is terminated.  Remember that
+	TRUE is the equivlent of any non-zero value
+	<li>The increment statement is executed at the end of the loop,
+	<u>after</u> the body has been executed.  The increment statement
+	typically changes the loop control variable.  The term
+	"increment" is used here loosely because you can perform any
+	sort of operation in this field.  For example you could have
+	a for loop that initializes the loop control variable to 10 and
+	the "increment" statement could decrement the loop control 
+	variable.  Other mathematical operations can be used as needed.
+	<li>The body is typically the whole point of having a for loop,
+	it's the stuff that you want to do.
+</ul>
+
+The flow-chart to the right of the for-loop shown in the figure above
+describes the relationship between these four statements graphically.
+Hopefully you can put together these pieces to figure out that the 
+for-loop given at left in the figure above executes the body 10 times.
+<br><Br>
+
+Let's explore the operation of another for-loop with the following example.
+
+<pre>
+    uint8_t i;
+    uint8_t sum = 0;
+    uint16_t prod = 1;
+
+    for (i=0; i<10; i++) {
+	sum += i;
+	if (i>0) prod *= i;
+	// now record value of i, sum and prod in the table
+    } // end for
+</pre>
+
+Fill in the following table with the values of the three values
+at the line indicated in the program above.  Make sure to respect
+the data type!
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>i	<td>sum		<td>prod
+<tr><td>0	<td>&nbsp	<td>&nbsp
+<tr><td>1	<td>&nbsp	<td>&nbsp
+<tr><td>2	<td>&nbsp	<td>&nbsp
+<tr><td>3	<td>&nbsp	<td>&nbsp
+<tr><td>4	<td>&nbsp	<td>&nbsp
+<tr><td>5	<td>&nbsp	<td>&nbsp
+<tr><td>6	<td>&nbsp	<td>&nbsp
+<tr><td>7	<td>&nbsp	<td>&nbsp
+<tr><td>8	<td>&nbsp	<td>&nbsp
+<tr><td>9	<td>&nbsp	<td>&nbsp
+</table>
+
+<!--
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>i	<td>sum		<td>prod
+<tr><td>0	<td>0		<td>1
+<tr><td>1	<td>1		<td>1
+<tr><td>2	<td>3		<td>2
+<tr><td>3	<td>6		<td>6
+<tr><td>4	<td>10		<td>24
+<tr><td>5	<td>15		<td>120
+<tr><td>6	<td>21		<td>720
+<tr><td>7	<td>28		<td>5,040
+<tr><td>8	<td>36		<td>40,320
+<tr><td>9	<td>45		<td>362,880 mod 2^16 = 35,200
+<table>
+-->
+
+
+If your for-loop is acting strangely, make sure that you have not
+inadvertently done something to the loop variable in the body
+of your for-loop.  A C compiler would have no problem with allowing
+you to decrement the i variable (subtracting 1 from it) in the 
+body of the for-loop above.<br><br>
+
+<h3>Count down loops</h3>
+There will be times when you need a index variable that goes from
+a large value to a small value.  This is especially common when
+working with arrays.  Let's look at an example program to see
+how to make a for-loop count down.
+<br><br>
+
+The for loop i the following code snippet initialize the loop 
+counting variable i to 10.  The comparision will stop the for-loop 
+iterating when the index variable i equals 0.  The trick to making 
+the count down work is the decrement operation i--.  This operator
+decrements i, subtracts 1, on every iteration of the loop.  So,
+what would the value of sum equal to after the execution of the
+following code snippet?<br>
+sum = 10 + 9 + &hellip; 1 = 55.
+
+<pre>
+    uint8_t i;
+    uint8_t sum;
+
+    for (i=10; i>0; i--) {
+        sum += i;
+    } // end for
+</pre>
+
+
+
+
+
+
+<h3>Infinite loops and the superloop</h3>
+Before we leave this section there is one very special for-loop that
+I would like to present before we leave.
+
+<pre>
+    for(;;) {
+	body;
+    }    
+</pre>
+
+This for-loop has no initialization, condition or increment statements.
+The most important in this case is that
+it lacks a condition.  When left blank, the condition field is 
+assumed to be TRUE.  Hence, this for-loop never terminates.
+This is an <u>infinite loop</u>, meaning that once execution enters 
+this for-loop, the program will forever execute the body.  In your
+previous programming courses, you probably would avoid
+a structure like this because you would want your program to end so 
+that the computer could do other things.  Well in our environment,
+our computer is embedded into an application and has nothing else to
+do expect the application we are designing it into. For example, imagine
+if a vending machine with an embedded processor reached the end of
+its program and then just stopped running!  This would not be acceptable,
+so we design the main program as an infinite loop, checking for money,
+dispensing beverages and then going back to check for money.
+<br><br>
+
+The vending machine is a good example of the structure that we will
+use for most of our programs this term, the super-loop.  A super-loop
+is an infinite loop that contains a set of tasks that are performed
+over and over again.  For eample
+
+<pre>
+    for(;;) {
+	if (current_temperature > highSetPoint) {
+	    TURN_ON_COMPRESSOR();
+	}
+
+	if (current_temperature < lowSetPoint) {
+	    TURN_OFF_COMPRESSOR();
+	}
+
+	if (coinDeposit == TRUE) {
+	    switch(grade) {
+		case NICKLE:
+		    total += 5;
+		    break;
+		case DIME:
+		    total += 10;
+		    break;
+		case QUARTER:
+		    total += 25;
+		    break;
+	    } // end switch
+	    coinDeposit = FALSE;
+	}
+
+	if (total >= 100) {
+	    DISPENSE_SODA();
+	    total = 0;
+	}
+
+    } // end super-loop
+</pre>
+
+It's pretty easy to read through this list of tasks and figure out
+what the vending machine is doing.  In the case of a super-loop you
+are expecting that the loop is executed quickly enough that the user
+will sense that the machine acts instantously to any input, when in fact
+we know that the machine is doing one thing at a time.
+<br><br>
+
+Later in the semester, we will add interrupts to the super-loop
+software architecture so that the microcontoller can really do several
+things at the same time.
+
+
+<h2>While loops</h2>
+While loops are structurally more simple than for-loop, having a 
+single condition, that while true, allows the body of the while-loop
+to execute.  So, for example, the following while loop produces the
+same iterative behavior as the first for-loop.
+
+<pre>
+    uint8_t i;
+    uint8_t sum = 0;
+    uint16_t prod = 1;
+
+    i = 0;
+    while(i < 10) {
+	sum += i;
+	if (i > 0) prod *= i;
+	i += 1;
+    }
+</pre>
+
+However, a while-loop like this is of little practical use because this
+loop structure is more naturally realized using a for-loop.  However,
+there is one very important use of while-loop that we will use extensively
+and that is to wait for some external event to happen.<br><br>
+
+<h2>Delay loops</h2>
+A delay loop is a loop constructed to have the embedded processor wait
+for some event.  Lets look at a concrete example that we will work with
+in lab 2, controlling an LED with a push button.  To accomplish this task
+we will need to make some assumption here that will be justified later on.
+<br>
+First, we will connect our push button to our PIC and that associated 
+with this push button we have a variable called "buttonPressed".  This 
+variable is TRUE when the user presses on the push button and FALSE when 
+the user is not pressing the button.  <br>
+Second, we will connect an LED to out PIC and that associated with
+the LED is a variable called "LED".  Assigning this variable the value of
+0 will turn the LED off, assigning a 1 will turn the LED on.<br>
+Finally, we need to recognize that <u>the microcontroller is executing the
+instructions many millions of times faster than a user can press or 
+release the button.</u>  With these assumptions in place lets look at a
+practical delay loop that you will see many times in our course.
+<br><br>
+
+<pre>
+1.    LED = 0;				// turn off the LED
+2.    for(;;) {
+3.    	while(buttonPressed == FALSE);	// wait for a button press
+4.    	while(buttonPressed == TRUE);	// wait for a button release
+5.	LED ^= 1;			// toggle the LED
+6.    }
+</pre><br><br>
+
+Let's walk through the program from top to bottom.  To facilitate this
+discussion, I have added line numbers in the far left; please understand
+that these are not actually part of the program.<br>
+
+<b>Line 1</b> turns the LED off.  While not strictly part of the problem 
+statement, its often a good idea to put indicators like LEDs into a 
+know initial state at the start of a program.<br>
+
+<b>Lines 2-6</b> form an infinite loop.  Meaning that our computer will forever
+be checking the state of the button and turning the LED on and off.<br>
+
+<b>Line 3</b> is a while-loop that executes its (empty) body while the button
+is not pressed.  There are two important points to make here.  First,
+<u>this while loop may get stuck executing this while loop many millions
+of times before the button is pressed.</u>   This is because the PIC
+is running at 64 MHz, meaning that its executing 64 million (assembly)
+instructions per second.  Hence, it can do a lot of checks every second.
+Second, while our program is executing this while loop <u>it is doing
+absolutely nothing except checking that button.</u>  This is the 
+quintessential delay loop, synchronizing the execution of our program 
+to the user's input by waiting and doing nothing until the user performs
+some task.  You rarely see these types of statements in other programming
+classes because variables in those classes only change under your programs
+control, but in this class we will have variables that change based on
+actions performed outside your program.<br>
+
+<b>Line 4</b> is a while-loop that executes its (empty) body while the button
+is pressed. Once again, the PIC is executing statements millions of times
+faster than the user can release the button.  Hence, our program needs to
+wait until the button has been released before continuing.<br>
+
+<b>Line 5</b> toggle the state of the LED after the button has been pressed
+and then released.
+<br><br>
+
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Write a for loop that starts at 3, counts up by 5 and ends before
+reaching 105.
+<!--
+<pre>
+    uint8_t i;
+    for (i=3; i<105; i+=5) {
+	body;
+    } // end for 
+</pre>
+-->
+
+
+<li>Write a for loop that counts up from 1 to 4096 (inclusive) by powers of 2.
+<!--
+<pre>
+    uint16_t i;
+    for (i=1; i<=4096; i*=2) {
+	body;
+    }
+</pre>
+-->
+
+<li>Write a for loop that counts down from 88 to no less than 42 by 2's.
+<!--
+<pre>
+    uint8_t i;
+    for (i=88; i>=42; i-=2) {
+	body;
+    }
+</pre>
+-->
+
+<li>Write a loop that counts up by one while a button is being held down.
+Since the while-loop would be executing so much faster than the user
+could respond this would make a reasonablly good random number generator.
+The counter should be type uint8_t.  I would expect that this counter variable
+would roll-over many, many times while the button is pressed.  This is
+not a problem as again, we are expect to end up with a random number.
+
+<!--
+<pre>
+    uint8_t count = 0;
+
+    while(buttonPressed == TRUE) count += 1;
+</pre>
+-->
+
+<li>Write a loop that counts up by one everytime a button is pressed.
+<!--
+<pre>
+    uint8_t count = 0;
+    for(;;) {
+    	while(buttonPressed == FALSE);	// wait for a button press
+    	while(buttonPressed == TRUE);	// wait for a button release
+	count += 1;
+    }
+</pre>
+-->
+
+<li> A linear feedback shift register (LFSR) is a general techanique
+ that has been used with great success in generating pseudo-random number. 
+A pseudo-random number is a number that looks random to someone who 
+does not know how they are produced, but is in fact generated by a 
+deterministic procedure (an algorithm).
+<br><br>
+
+A pseudo-random number generator starts with a seed valuye (any non-zero 
+number) and generates a sequence of numbers that look like they have no 
+relationship to one another. To generate a sequence of pseudo-random 
+16-bit numbers using an LFSR with current varX16. To do this:
+<ul>
+<li>Step 1: xor the bits in positions 15,13,12,10 and 0 (start 
+	indexing your bits starting at position 0),
+<li>Step 2: shift varX16 left one bit,
+<li>Step 3: put the xor bit into the LSB of varX16.
+</ul>
+
+Write a program to generate pseudo-random numbers using a LFSR.
+
+
+<!--
+
+This program will really stretch your coding skills and make you
+practice all the concepts we have learned.  I structured my program
+as an infinte loop that computes new values of the pseudo-random number
+varX16 on each iteration.  The first thing that I do in the loop is
+isolate bits 15,13,12,10 and 0, each in its own variable.   This 
+requires some explaining which I will use the 13th bit as an example.
+<br><br>
+
+I get the value of the 13th bit of varX16 by first building a mask, a
+bit pattern that will allow the 13th bit of varX16 to be isolated.  The
+mask, in this case, is 1 shifted left 13-bits (this is the expression
+"1 << 13") which has a binary value 
+of 0010 0000 0000 0000.  I will call this binary pattern "mask" in the
+following discussion.  Since this mask has 0's everywhere except the 13th 
+position, "mask AND varX16" will definitly have 0's in every bit position 
+outside the 13th bit position.  Note "AND" is being played by "&" in the 
+C-code.
+In the 13th bit position of "mask AND varX16", the 1 in the mask will allow
+the 13t bit of varX16 to show through (because 1 and x = x).  Hence, if
+varX16 AND mask is not zero (TRUE) then the 13th bit of varX16 must be 1
+else the 13th position of varX16 must be 0.  I assign the variable x13
+to be this 0 or 1 value.
+<br><Br>
+
+A similar argument is made for the other bits of varX16.  After these 5
+bits have been determined they are XORed together using the "^" XOR 
+operator into a new variable called newBit.  I made newBit a 16-bit type
+because in the last line, I OR together (using the "|" operator) the
+varX16 and newBit to form the next random value.
+<br><Br>
+
+The code is as follows:
+
+<pre>
+    uint16_t    varX16, newBit;
+    uint8_t     x15, x13, x12, x10, x0;
+    varX16 = 1;
+    for(;;) {
+        if (varX16 & (1 << 15)) x15=1; else x15=0;
+        if (varX16 & (1 << 13)) x13=1; else x13=0;
+        if (varX16 & (1 << 12)) x12=1; else x12=0;
+        if (varX16 & (1 << 10)) x10=1; else x10=0;
+        if (varX16 & (1 << 0))  x0=1;  else x0=0;
+        newBit = x15 ^ x13 ^ x12 ^ x10 ^ x0;
+        varX16 = (varX16 << 1) | newBit;
+    }
+</pre>
+
+While the first 10-20 iterations of this algorithm are not very 
+interesting, things quickly change and the sequence becomes 
+increasingly difficult to predict.  Try it yourself, this makes
+a great random even generator in games, something you might want
+to build as part of your final project.
+
+--->
+
+
+<li>Embedded C programs will let you get away with some pretty
+weird stuff.  Sometimes this is really helpful, but when you are
+starting out, this will allow you to make some pretty horrible
+mistakes.  The following program will run and terminate.  What 
+value will the count variable have when it does and explain how
+it got that way.
+<pre>
+    uint8_t i, count = 0;
+    for(i=200; i&gt;100; i++) {
+	count += 1;
+    }
+</pre>
+
+<!--
+Since the i variable is typed as an 8-bit integer, it can only
+have values between 0 and 255.  Furthermore, the i variable is
+being incremented by 1 on every loop.  So, the i variable will
+count up from 200 to 255 (this is 56 loop iterations) because 
+the continuing condition i&gt;100 is true. However, when the 
+i variable equals 255 and is incremented, then its value will go 
+to 0.  This will cause the continuing condition to be false;
+Hence the count variable will equal 56 at the end of the loop.
+<br><br>
+
+Note, the compiler will not throw any wanrnings or errors when
+it sees this code.
+--->
+
+<li>Here is another weird one.  What does count equal when the
+loop terminates?
+<pre>
+    uint8_t i, count = 0;
+    for(i=200; i != 100; i++) {
+	count += 1;
+    }
+</pre>
+
+<!--
+Using the same principle as the previous problem, the i variable will
+be incremented from 200 up to 255 (56 iterations), then from 0 
+and upwards to 99 (100 iterations).  On the last increment from 99 to 100,
+the bosy of the for-loop is not incremented.  Hence count will equal
+156.
+--->
+
+
+
+<li>Here is another weird one.  Does the loop terminate and if so,
+what does count equal when it does?
+<pre>
+    uint8_t i, count = 0;
+    for(i=200; i &lt;= 300; i++) {
+	count += 1;
+    }
+</pre>
+
+<!--
+The big stand-out issue with this program is that 300 cannot be 
+represented in 8-bits and the i variable is an 8-bit type.
+So this problem is asking you to reflect on how the compiler handles 
+the conditional statement "i &lt; 300".  Your first instinct would
+be that the compiler would halt and throw an error on this statement.
+Try it, it compiles only with an easy to ignore warning.
+<br><br>
+
+My initial suspecion was that the loop would terminate when i = 44
+because the 8-bit representation of 300 is 44 when cast as an 8-bit
+unsigned integer. However, this is not the case.
+<br><br>
+
+The code given causes the PIC to enter an infinite loop.
+<br><br>
+
+However, it does not do this without telling you something
+is amiss.  The compiler provides the following warning telling you 
+<pre>
+arithmetic.c:42: warning: (764) mismatched comparison
+arithmetic.c:42: warning: (757) constant conditional branch
+</pre>
+
+Where line 42 of the program contains the comparision "i &lt;= 300;"
+-->
+
+<li>Here is another weird one.  Does the loop terminate and if so,
+what does count equal when it does?
+<pre>
+    uint8_t i, count = 0;
+    for(i=200; i != -1; i++) {
+	count += 1;
+    }
+</pre>
+
+<!--
+My initial suspecion was that the loop would terminate when i = 255
+because the 2's complement representation of -1 is all 1's, which
+equals 255 when cast as a unsigned integer.
+<br><br>
+
+However, this is not the case and the code given causes the PIC to enter
+ an infinite loop.  However, it does not do this without telling you 
+something is amiss.  The compiler provides the following warning:
+<pre>
+arithmetic.c:42: warning: (764) mismatched comparison
+</pre>
+
+However, we are easily lulled to ignore warning, so you could easily
+miss this and be left wondering what is going on.
+--->
+
+
+<li>Here is an interesting loop.  What does count equal when the loop
+terminates?
+<pre>
+    uint8_t i, count = 0;
+    for(i=43; i != 171; i*=3) {
+        count += 1;
+    }
+</pre>
+
+<!--
+This problem is a beast, and to be honest, I would just drop it in
+a compiler and see when (or if) it terminates.  However, we should
+math it out to understand what is going on.
+<br><br>
+
+Every time the loop executes, i is multiplied by 3 and only the least 
+8-bits are kept (because i has type uint8_t). Keeping the least 
+significant 8-bits is eqivlent to a modulus operation.  I created a
+excel speadsheet to compute successive values of i
+i using the equation "=MOD(B3*3,256)" for the value of i in cell B4
+where B3 contained the previous value of i (or 43 for the first value 
+of i).  This gave me the following list:
+<pre>
+count	i
+0	43
+1	129
+2	131
+3	137
+4	155
+5	209
+6	115
+7	89
+8	11
+9	33
+10	99
+11	41
+12	123
+13	113
+14	83
+15	249
+16	235
+17	193
+18	67
+19	201
+20	91
+21	17
+22	51
+23	153
+24	203
+25	97
+26	35
+27	105
+28	59
+29	177
+30	19
+31	57
+32	171
+</pre>
+
+So count = 32.  This problem is similar to The Chinese Remainder 
+Theorem, an important problem in moder cryptography.  Look it up,
+its cool stuff.
+--->
+
+
+</body>
+</html>

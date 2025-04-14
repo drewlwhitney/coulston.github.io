@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture08.html">&ltPrev</a></li>
+                        <li><a href="./lecture10.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture:</td>	<td>9</td></tr>
+<tr><td>Objective:</td>	<td>Understand the operation of the timer
+and how to use it to create precise delays.  </td></tr>
+</table>
+
+
+<h1>Timer</h1>
+The PIC timer subsystem is a sophisticated collection of circuitry to
+make precise time measurements.  The core functionality of the timer,
+shown in the figure below, is the 16-bit counter.  When enabled, the 16-bit
+counts up from 0 to 2<sup>16</sup> - 1, and back to 0.  The value of the 
+counter is indirectly available through the 16-bit register
+<font face = "courier">TMR0</font>, a variable that you can access 
+in your C programs in the MPLab X integrated development environment.
+<br><br>
+
+The state of the timer, whether its running or stopped, is controlled
+by the <font face="courier">TMR0ON</font> bit in the Timer Control 
+Register 0, called <font face="courier" color=red>T0CON</font>.  
+Setting TMR0ON starts the timer counting
+up, clearing TMR0ON stops the timer.  Like many of the bits in registers,
+MPLab X provides a convenient alias consisting of the register name 
+and bit name concatenated with a "." character.  So, for example, the 
+following line of code starts the timer running.
+
+<pre>
+	T0CONbits.TMR0ON = 1;
+</pre>
+
+<u>When the counter counts up from 2</u><sup>16<u></sup>-1 to 0, is is said to 
+roll-over.</u>  This roll-over sets the <font face="courier">TMR0IF</font> 
+bit in the <font face="courier" color=red>INTCON</font> register.  This flag 
+is sticky, meaning that once it's set by the 16-bit counter rolling over, 
+it stays set until the user clears it in software.  The TMR0IF bit is cleared
+by writing a 0 to that value.  In other words, the following instruction 
+clears the TMR0IF bit. 
+<br><br>
+
+<pre>
+	INTCONbits.TMR0IF = 0;		// Clear timer overflow flag
+</pre>
+
+
+<img src="./img/simpleTimer.jpg"><br>
+The timer subsystem, adapted from Figure 11-2 on page 161 of the 
+PIC18F26K22 Data Sheet.
+<br><br>
+
+The timer counts up synchronously the main oscillator, F<sub>osc</sub>,
+divided by 4. <u>For the time being we will assume that the Programmable
+Prescaler is set to 1:1, meaning that it can be ignored</u>.  This means
+that on every fourth rising edge of the main oscillator, the counter counts 
+up by 1.  Since the PIC bus clock runs at 64MHz, the counter counts up at a 
+rate of 16MHz.  This means that in one second the timer counts 
+up 16,000,000 times.  Each of those counts takes: 
+<pre>
+	    1 second        62.5 ns
+	----------------- = -------
+	16,000,000 counts    count
+</pre>
+
+This time interval, 62.5 ns, is the <u>time resolution</u>
+of the timer, meaning that we cannot confidently measure time intervals
+with an accuracy smaller than this value.  This marks a good point to 
+start measuring time with the timer using the following code snippet.
+<br><br>
+
+<pre>
+	T0CONbits.TMR0ON = 1;	// Assume that counter starts counting from 0
+	INCONbits.TMR0IF = 0;	// Clear roll-over flag
+	while(INTCONbits.TMR0IF == 0);	// Wait for roll-over flag to be set by counter
+</pre>
+
+Your question is to calculate how long the 
+<font face="courier">while(INTCONbits.TMR0IF == 0);</font> statement takes
+to execute, assuming that the counter starts at 0.  In other words
+I am asking how long it takes for the counter to roll-over.  The 
+solution to this problem relies on <u>dimensional analysis</u>, the 
+method of converting units of a quantity without changing its value.
+This relies on multiplying by a <i>unity ratio</i>, a ratio where the
+numerator and denominator are the same but represented in different
+terms.  For example (60 seconds / 1 minute) is a unity ratio because
+both the numerator and denominator represent the same length of time.
+Dimensional analysis allows us to convert the bus clock into the time
+required to roll-over the timer.
+
+<pre>
+     1 second      1000 ms     1 clk    2^16 counts 
+    ------------ * -------- * ------- * ----------- 
+    16*10^6 clks   1 second   1 count   1 roll-over 
+
+which comes out to  4.10 ms
+                   ---------
+                   roll-over
+</pre>
+<br><Br>
+
+Notice that the units clks, counts and seconds cancel each other 
+leaving the units on the right.  This is of fundamental importance 
+to demonstrate on the exam.  Do not skip any of the conversions, 
+even "obvious" ones like converting seconds to milliseconds.
+<br><br>
+
+Just like how the time resolution sets a lower limit on the 
+resolutions of time measurements, the value of 4.10 ms sets an
+upper bound on the time resolution of the 16-bit counter using
+a 1:1 prescaler.  In order to measure time intervals longer than
+this, we will need to resort to other methods.  One obvious method
+would be to put the delay loop inside a larger counting loop
+that iterated the 4.10 ms delay as many times as needed.  Another
+method we will explore in the next lecture is to prescale the bus
+clock before it gets to the 16-bit counter, slowing down the rate
+at which the counter increments and thus increasing the amount of
+time it takes the counter to roll-over.
+<br><Br>
+
+In general, when I am working one of these problems, I work through
+the equation from left to right, starting on the left with the bus
+clock.  You can simplify your life by choosing the proper ratio for
+the bus clock.  By this I mean, you have two choices for the bus
+clock, (1 second / 16*10^6 counts) or (16*10^6 counts / 1 second).  Since
+the question asked for the time for a roll-over, I knew that we needed
+time units in the numerator.  Thus, I choose the bus clock ratio with time
+units in the numerator.
+<br><br>
+
+Finally, note that this question was really asking for a unity ratio,
+the ratio of two representations of the same quantity expressed using
+different "rulers".  The next question requires that we build a unity 
+ratio and then multiply it by a constant to determine the solution.
+Calculate the number of timer counts that go by during 1 ms.
+<br><br>
+
+
+<pre>
+    16*10^6 clks   1 second   1 count  
+    ------------ * -------- * ------- * 1 ms = x count
+      1 second     1000 ms     1 clk
+
+Solving for x yields x = 16,000 
+</pre>
+
+This problem is different, because you need to put information on both
+sides of the equation and some of the terms are not unity ratios. 
+<br><br>
+
+<h3>Some problems</h3>
+
+<ul>
+<li><b>Question:</b>How much time goes by in 30,00 counts?  State
+your answer in ms and round to 3 significant figures.
+<br>
+<b>Answer:</b>
+
+<pre>
+      1 second     1000 ms     1 clk    
+    ------------ * -------- * ------- * 30,000 counts = 1.88ms
+    16*10^6 clks   1 second   1 count    
+</pre>
+<br>
+
+<li><b>Question:</b>Starting at 30,000, how long will it take TMR0 to
+roll-over?
+State your answer in ms and round to 3 significant figures.
+<br>
+<b>Answer:</b>
+There are 2<sup>16</sup>-30,000=35,536 counts until TMR0 rolls-over.
+<pre>
+      1 second     1000 ms     1 clk    35,536 counts     2.22 ms
+    ------------ * -------- * ------- * ------------- = ---------
+    16*10^6 clks   1 second   1 count    roll over      roll over
+</pre>
+<br>
+
+<li><b>Question:</b>What starting value would result in TMR0 rolling over
+in 3ms?
+<br>
+<b>Answer:</b>
+We will call the tarting value of the TMR0, x.  TRM0 has to count up
+from x to 2<sup>16</sup> in order to roll-over.  This is a total of
+2<sup>-x</sup>-x counts.  This term is used int he solution to the
+problem.
+
+<pre>
+      1 second     1000 ms     1 clk       2<sup>16</sup>-x  
+    ------------ * -------- * ------- * ---------- = 3 ms
+    16*10^6 clks   1 second   1 count    roll over      
+
+solving for x yields, x = 17,536
+</pre>
+<br>
+
+
+<li><b>Question:</b>In the algorithm below, what initial value for TMR0
+would produce a 2ms pulse on RA0?
+<pre>
+	TMR0 = ______;
+	INTCONbits.TMR0IF = 0;
+	LATAbits.LAT0 = 1;
+	while(INTCONbits.TMR0IF == 0);
+	LATAbits.LAT0 = 0;
+</pre>
+<b>Answer:</b>
+The calculation of the initial TMR0 for this code is the same as the
+calculation for the previous problem.
+We will call the target value of the TMR0, x.  TRM0 has to count up
+from x to 2<sup>16</sup> in order to roll-over.  This is a total of
+2<sup>-x</sup>-x counts.  This term is used in the solution to the
+problem.
+
+<pre>
+      1 second     1000 ms     1 clk    2<sup>16</sup>-x  
+    ------------ * -------- * ------- * ------------- = 2 ms
+    16*10^6 clks   1 second   1 count    roll over      
+
+Solving for x yields x = 33,536.
+</pre>
+<br>
+
+<li><b>Question:</b>An active low push button is connection to RA2,
+is pressed for an unknown amount of time - except that we know that it
+is not more than 4ms.  Complete the program below to
+measure the number of TMR0 counts of the button press.
+would produce a 2ms pulse on RA0?
+<pre>
+	while(PORTAbits.RA2 == ____);		// wait for press
+	start = TMR0;
+	while(PORTAbits.RA2 == ____);		// wait for release
+	end = TMR0;
+	duration =  __________;
+</pre>
+<b>Answer:</b>
+The first delay loop must wait for the user to press the button, meaning
+that the code must wait while the button produces its nominal logic level.
+An active low push button is nominally logic 1, hence the first line reads:
+<font face="courier">while(PORTAbits.RA2 == 1);</font>
+<br><br>
+
+The second delay loop must wait for the user to release the button,
+meaning the code must wait while the button produces its active logi level.
+An active low push button produces a logic 0 when pressed, hence the
+third line reads:
+<font face="courier">while(PORTAbits.RA2 == 0);</font>
+<br><br>
+
+Since the time that the button press ends is greater than the starting 
+time that the button is pressed, the difference
+of the end and start time is computed in the last line.
+<font face="courier">duration = end - start;</font>
+There is one very big caveat that we must address and that is what
+happens if TMR0 overflows between start and end?  This situation is 
+pictured in the figure below.
+<br><img src="./img/tmrRoll.bmp"><br><br>
+
+If the timer rolls over during the button press, then 
+end &lt; start. Since subtraction of end - start is equivalent to addition of 
+end with the 2's complement start we can re-write 
+<font face="courier">duration = end - start;</font> as
+<font face="courier">duration = end + (2<sup>16</sup> - start);</font>
+The second term in this statement 
+<font face="courier">(2<sup>16</sup> - start)</font>
+is just the number of timer counts from the start of the button press
+until the timer rolls-over (the timer rolls over when it gets to 
+2<sup>16</sup>).  This is illustrated as the red line on the right
+side of the number line above.
+The term "end" in the expression
+<font face="courier">end + (2<sup>16</sup> - start);</font>
+is just the number of timer counts from 0.  This is illustrated
+as the red line on the left side of the number line above.  Thus
+the sum of these two number lines accuratly describes the number
+of timer counts the button was pressed.
+<br><Br>
+
+<li><b>Question:</b>How many TMR0 counts occur in 1.5ms?
+<br>
+<b>Answer:</b>
+<pre>
+    16*10^6 clks   1 second   1 count    
+    ------------ * -------- * ------- * 1.5 ms = 24,000 counts
+      1 second     1000 ms     1 clk    
+</pre><br><br>
+
+<li><b>Question:</b>How many times would TMR0 rollover in 100 seconds?
+<br>
+<b>Answer:</b>
+<pre>
+    16*10^6 clks  1 count   1 rollover 
+    ------------ *------- * ---------- * 100 s = 24,414 rollovers
+      1 second     1 clk    2<sup>16</sup> counts
+</pre>
+<br><br>
+
+<li><b>Question:</b>Starting at 0, what value would be stored
+in TMR0 after 10ms?
+<br>
+<b>Answer:</b>
+TMR0 will roll over because TMR0 only required 4.1ms (from earlier work) to
+roll over.  So my first step in this problem is to compute how many times
+TMR0 rolls over.
+<pre>
+    16*10^6 clks   1 second   1 count   1 rollover
+    ------------ * -------- * ------- * ---------- * 10 ms = 2.44 rollovers
+      1 second     1000 ms     1 clk    2<sup>16</sup> counts
+</pre>
+
+From this we know that TMR0 will count up from 0 to 2<sup>16</sup>-1 two
+times with 0.44 of a roll over left over.  The second part of the problem
+will convert this 0.44 roll overs into counts.
+
+<pre>
+    2<sup>16</sup> counts 
+    ---------- * 0.44 rollovers = 28,928 counts
+    1 rollvers    
+</pre>
+
+So, starting at 0, TMR0 will end up at 28,928.
+</ul>
+
+
+The rate at which the timer counts up is primarily determined by the
+16 MHz bus clock, but can be slowed down using a prescaler.  This is a
+topic that we will take up next lecture.
+
+<h1>Test your understanding</h1>
+You can find the solutions embedded in the "source code" for this
+web page by right mouse clicking on this web page and selecting
+"view source".  The solutions are in HTML comments.
+
+<!--  This is an HTML comment -->
+
+<ol>
+<li>Assume that the counter is currently at 0xABCD, how long will
+it take for the counter to roll-over.  You should assume that the
+prescaler is 1:1.  State your answer in milliseconds with 3 significant
+figures.
+
+<!--
+To solve this problem we must first compute <i>The number of counts
+required to roll the counter over.</i>  Since the counter starts at
+0xABCD or 43,981 and rolls over at 2<sup>16</sup> or 65,536, the counter
+only needs to count up by 65,536 - 43,981 = 21,555 counts.  Now we
+can use the dimensional analysis solution ealier in the lecture.
+
+<pre>
+      1 second     1000 ms     1 clk    21,555 counts    1.35 ms
+    ------------ * -------- * ------- * ------------- = ---------
+    16*10^6 clks   1 second   1 count    1 roll-over    roll-over
+</pre>
+-->
+
+
+<li>Assume that the counter is currently at 0xABCD, how long will
+it take for the counter to reach 0x1234.  You should assume that the
+prescaler is 1:1.  State your answer in milliseconds with 3 significant
+figures.
+
+<!--
+To solve this problem we must first compute <i>The number of counts
+required to get the counter from 0xABCD to 0x1234.</i>  Starting at 
+0xABCD or 43,981 the counter need to count up to 2<sup>16</sup> or 65,536, 
+to roll-over to 0.  This is 65,536 - 43,981 = 21,555 counts.  Then
+the counter must continue from 0 to reach 0x1234 = 4,660.  So in
+total the counter needs 21,555 + 4,660 = 26,215 counts.  Now we
+can use the dimensional analysis solution ealier in the lecture.
+
+<pre>
+      1 second     1000 ms     1 clk    26,215 counts    1.64 ms
+    ------------ * -------- * ------- * ------------- = ---------
+    16*10^6 clks   1 second   1 count    1 interval     interval
+</pre>
+-->
+
+<li>Assume that the counter is currently at 0 and that the prescaler
+is 1:1.  What value will the counter have in 1.0 ms?
+
+<!--
+We will start by using dimensional analysis with the number of counts
+as the unknown.
+<pre>
+      1 second     1000 ms     1 clk   
+    ------------ * -------- * ------- * x counts =  1.0 ms
+    16*10^6 clks   1 second   1 count   
+</pre>
+
+Solving for x yields 16,000.  So the counter will end at 16,000 counts
+beyond 0, so will end at 16,000.
+--> 
+
+<li>Assume that the counter is currently at 0 and that the prescaler
+is 1:1.  What value will the counter have in 10.0 ms?
+<!--
+We will start by using dimensional analysis with the number of counts
+as the unknown.
+<pre>
+      1 second     1000 ms     1 clk  
+    ------------ * -------- * ------- * x counts =  10.0 ms
+    16*10^6 clks   1 second   1 count   
+</pre>
+
+Solving for x yields 160,000.  Unfortunatly, the counter cannot hold
+a value greater than 2<sup>16</sup> = 65,536.  So in the course of counting
+up to 160,000 our counter has rolled over several times.  How many,
+well that would be 160,000 / 65,536 = 2.44, so 2 times.  All we now
+need to do  is subtract off these 2 sets of roll-overs from the count
+total to see how far the counter got after the 2nd roll-over.
+160,000 - 2*65,536 = 28,928.  So the counter will read 28,928 after
+10 ms.
+-->
+
+<li>How many times will the counter roll-over when counting up from 0
+with a 1:1 prescaler in 3.14 seconds?
+
+<!--
+<pre>
+    16*10^6 clks   1 count     1 roll-over    
+    ------------ * -------- * ------------- * 3.14 seconds = x roll-overs
+      1 second     1 clk      65,536 counts
+</pre>
+
+x = 766.60, so the counter rolls-over 766 times.
+-->
+
+<li>The following questions assume that the counter is running a prescaler
+of 1:1.
+<ol type="a">
+<li>Assume the timer starts counting at 0x0000, what will it read in 1mS?
+<!-- 16,000 or 0x     -->
+<li>Assume the timer starts counting at 0x0000, what will it read in 0.9375mS?
+<!-- 15,000 or 0x     -->
+<li>Assume the timer starts counting at 0x0000, what will it read in 1.875mS?
+<!-- 30,000 or 0x     -->
+<li>Assume the timer starts counting at 0x0000, how long does it take the counter to reach 0x1000?
+<!-- 0x1000 = 4096 counts = 256us         -->
+<li>Assume the timer starts counting at 0x0000, how long does it take the counter to roll over?
+<!-- 65536 = 0x10000 =  4.096 ms    -->
+<li>Assume the timer starts counting at 0xF000, how long does it take the counter to roll over?
+<!-- 0x1000 = 4096 =   256us      -->
+<li>Assume the timer starts counting at 0xF000, how long does it take the counter to reach 0x1000?
+<!--- 0x2000 = 8192 =   512us     -->
+</ol>
+
+</ol>
+
+
+</body>
+</html>

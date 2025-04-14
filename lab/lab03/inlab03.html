@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab03.html">Lab 03</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 383</h1>
+In Lab 3 - Music Box
+</center>
+
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams solution on Canvas using the instructions posted there.
+<Br><Br>
+
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+
+
+<h2>Objective</h2>
+The objective of this lab is to introduce you to the MPLAB Code 
+Configurator (MCC) and how to use delays to generate sounds.
+<br><img src="./img/speaker2sound2music.bmp"><br><br>
+
+<h2>External Hardware</h2>
+Today you will write code that you can interact with through a button
+(input) and generate musical tones through the speaker (output).  You
+should be familiar with the operation of the buttons from last week's 
+lab.  Since this lab is already jam packed with goodness, we will
+wait until next week's lab to explore the hardware on your development
+board that converts the low power output from the PIC into a 
+high power signal to drive the speakers.
+
+
+<h2>Internal Subsystem</h2>
+This lab will use one of the GPIO pins as an output driving the speaker
+and two of the GPIO pins to read the push buttons.<br><Br> 
+
+In order to use the speaker you need to install a 2 pin jumper (shown
+below) over the pair of pins 5V (near the USB connector).   Leave
+this jumper in place until you need 5v or want to measure the current
+consumed by the development board.
+<br><img src="./img/jumper.jpg"><br><br>
+
+We will compare the  delay generating paradigm used in last 
+week's lab, having the processor idly execute NOP instructions to 
+create delays, and timers.  NOPs are useful in simple applications
+and where you need to create very brief delays.  However, in order 
+to generate more precise 
+delays, or to allow the micrcontroller to perform other work while 
+waiting for the delay to be over, you will need to learn to use timers.
+While you may question the benefit of the 
+added complexity timers introduce into your code, I hope that you will 
+soon realize that they represent one of the most powerful subsystems in a 
+microcontroller.<br><br>
+
+
+<h2>Firmware Organization</h2>
+A microcontroller by itself is not terribly interesting, being not much more 
+than a slow-running processor.  Microcontrollers derive their power from 
+the subsystems they contain and the external devices these subsystems can 
+control.  In order to be able to interface to as many different external 
+devices as possible, the computer engineers who design microcontrollers make
+the subsystems as flexible as possible.  This means that there are potentially
+a great number of alternative configurations for each subsystem.  When 
+developing an embedded application that interfaces a microcontroller subsystem 
+to an external device, one of the first tasks you must complete is configuring
+the subsystem.  <br><br>
+
+In my experience subsystem configuration is a necessary task that can
+turn into a time consuming and potentially-frustrating challenge.   
+Thankfully, the folks at Microchips 
+developed the MPLAB Code Configurator (MCC) to address this challenge.
+Paraphrasing the text in the MPLAB® Code Configurator User’s Guide,
+MCC is a plug-in tool in MPLAB X which generates drivers (software) for 
+controlling and driving subsystems based on the settings and selections 
+made in the Graphical User Interface. The generated drivers can be used 
+in your program.
+
+<h3>Create new project</h3>
+The first step to using MCC is to create a new project
+and launch MCC as described in the steps below.
+
+<ul>
+<li>Launch MPLab X
+<li>Close any open project: File &rarr; Close All Projects,
+<li>Create a new inLab03 project as you did in Lab 2,
+<li>Click  Tools &rarr; Embedded &rarr; MPLab Code Configurator v4: Open/Close,
+<li>At the MCC Content Manager Wizard screen:
+<ul>	<li>Click on the blue button "Select MCC Classic" in the center tile,
+	<li>On the next page click on the blue "Finish" button
+</ul>
+<li>If the MPLab Code Configurator is not listed then you will need
+to install the Code Configurator as follows,
+<ul>	<li>Tools &rarr; Plugins,
+	<li>In the Plugins pop-up select the "Installed" tab,
+	<li>Type "code" into the search box on the right side of the pop-up,
+	<li>Check the "MPLab Code Configurator" check box, 
+	<li>Click Activate,
+	<li>Click Finish in the Plugin Installer pop-up,
+	<li>Click OK on any Confirmation dialog pop-ups.
+</ul>
+</ul>
+
+<h3>Configure the PIC with MCC</h3>
+You should use MCC for the remainder of the term for all future projects.
+Every project in this class will require you to configure the oscillator
+and I/O pins as shown in the steps below.  Consult the figure below the
+text in case you have difficulty finding some of the selections described.
+<br><br>
+
+If you installed the plugin correctly, there should be a blue shield icon in
+the toolbar labeled “MCC”. This is the code configurator. Click the
+icon and hit “save” when given an option to save your configuration files.
+See the image below for assistance in locating buttons described in the 
+following instructions.
+
+<ul>
+<li>In the INTERNAL OSCILLATOR area of the System Module window
+<ul>	<li>Oscillator Select:	Internal oscillator block
+	<li>System Clock Select: FOSC
+	<li>Internal Clock: 16MHz_HFINTOSC
+	<li>Software PLL Enabled: &check;
+</ul>
+The Current System clock (at the top) should be 64MHz (4x PLL).
+If the system clock says 16MHz, you have created your project incorrectly. 
+Please go back and re-create your project, as this will cause issues in the 
+future. 
+
+<li>In the Pin Manager: Grid [MCC] tab of the console window
+click on the open lock in the Port A, 2 column and in the GPIO input row.
+The blue background color should switch to a green closed lock, meaning that 
+RA2 is now locked as an input. The blue open lock one row below (in the output
+row) should have change color to orange meaning that RA2 is not an output,
+<li>In the Pin Manager: Grid [MCC] tab of the console window
+click on the open lock in the PortA 3 column and in the GPIO input row,
+<li>In the Pin Manager: Grid [MCC] tab of the console window
+click on the open lock in the PortB 5 column and in the GPIO output row,
+<li>In the Project Resources area of the project window, click 
+"Pin Module".  The editor window will change from the System Module to
+Pin Module. Click on the Custom Name text box in the RA2 row and change 
+the name of RA2 from "IO_RA2" to "TOP_BUTTON",
+<li>Change the name of RA3 to "BOTTOM_BUTTON",
+<li>Change the name of RB5 to "SPEAKER_PIN",
+<li>In the Pin Module in the Analog column, uncheck analog for RB5 if
+	it is selected,
+<li>In the Device Resources window (at left) scroll down and find the
+"Timer" list (has a watch icon).  Expand this list and double click 
+on "TMR1".  Two things will happen; the main window will change to
+show the TMR1 configuration options and second, TMR1 will appear in the
+Peripherals list in the Project Resources area.  Use the following to
+configure timer 1.  Note where you see "&check;", it means to put a check
+in a box.  Where you see "&square;" it means to leave the check box empty.
+If a configuration option is not listed it means that option is unimportant.
+
+<ul>	<li>Enable Timer:	&check;
+	<li>Clock Source:	FOSC/4
+	<li>Prescaler:		1:1
+	<li>Timer Period:	4.096 ms
+</ul>
+
+<li>Click on the "Generate" button in the Project Resources area of the
+project manager window.  Anytime that you make a change to the configuration
+you must re-generate the supporting files exported into your project using
+the "Generate" button.  If you have the output console open you will see
+MCC generating the files you specified in this configuration.
+</ul>
+
+<br><img src="./img/codeConfig.jpg"><br>
+
+<h3>Add source code</h3>
+In addition to generating the code to configure the PIC, MCC generates
+a variety of useful function and definitions that you can call from
+inside your code.  In this lab, I have written a simple program that
+uses some of these definitions.   In the steps below, you will 
+add this program to your project.
+
+<ul>
+<li>Start by switching the main project tab from the Project Resources
+view, back to your project manager view (left-most tab),
+<li>Expand the "Source File" folder,
+<li>Double click the file main.c to open it in the editor window.
+<li>Replace the contents of main.c with <a href="./code/inlab03.c">inlab03.c</a>
+<li>In main.c, edit the number of NOPs in the microSecondDelay function to
+correctly generate a microsecond delay.  This is necessary because slight 
+changes in the compiler changes the number of NOPs needed.
+</ul>
+
+Before running the inLab03.c program, take a moment to
+look at the structure of the files created by MCC and the utility functions
+and definitions contained in them.  
+In the project manager window expand Header Files &rarr; MCC Generated 
+File.  Double click and open all the files in this folder.  Use the contents 
+of the files to answer the following questions.
+
+<ol start=1>
+<li>What three defined expressions are available for you to write values
+to the Speaker?  Hint, these all manipulate the Latch and contain a set
+of parentheses.
+<li>What defined expression can you call in your code to get the value
+of TOP_BUTTON?  Hint, it's not TOP_BUTTON_PORT - we want a similar
+expression that has parenthesis.
+<li>List all the functions that you can call to interact with timer 1.
+</ol>
+
+In the project manager window expand Source Files &rarr; MCC Generated File.
+Double click and open mcc.c, pin_manager.c, and TMR1.c in this folder.  Use 
+the contents of these files to answer the following questions.
+
+<ol start=4>
+<li>What functions does the SYSTEM_Initialize call?
+<li>How does the MCC TMR1_ReadTimer function form the 16-bit timer value
+from the two 8-bit timer 1 registers?
+</ol>
+
+In the project manager window double click and open main.c. Use the 
+contents of main.c to answer the following questions.
+
+<ol start=6>
+<li>List all the calls in main.c to definitions contained in the 
+MCC Generated Header Files.  To answer this question, look through all
+the "#define" statements in the Header Files generated by MCC.  Write
+down any of these "#define" statements that you can find in main.c.
+For example, main.c calls TOP_BUTTON_GetValue() (from pin_manager.h) 
+so this should be included as part of your answer.  Also, all of the
+#define values are shown in light blue text.  Note, some of these
+#defines are declared in main.c - do not include these, only ones
+declared in the MCC Generated Header Files.
+
+<li>List all the calls in main.c to functions contained in the 
+MCC Generated Source Files. To answer this question, look through all
+the functions declared in the Source Files generated by MCC.  Write
+down any of these function declarations that you can find in main.c.
+For example, main.c calls TMR1_WriteTimer() (from tmr1.c) so this should be
+included as part of your answer.
+
+
+<li>Given the configuration of the push buttons discussed in a previous lab,
+when will the instructions inside the while-loop on lines
+44-45 be executed, when the top button is being pressed or unpressed?  
+<li> When will the instructions on lines 47,48 be executed,
+when the top button is pressed or when the button is released?
+</ol>
+
+<h2>Firmware Operation</h2>
+Your next step will be to download the firmware into the PIC, then run and 
+observe the behavior of the program.  Using MCC does not require you to 
+change this process; so the following steps should be familiar.
+
+<ul>
+<li>Connect the development board to a USB port on the PC,
+<li>Connect the SNAP programmer to a USB port on the PC,
+<li>Connect the SNAP programmer to the development board so that the 
+triangle on the SNAP programmer and the development board align,
+<li>In the toolbar click on the Clean and Build Project icon (hammer and
+broom).  If you get an error, it most likely a result of naming the
+buttons differently than I described above.  Either fix the name of the
+pins in the code configurator (and re-generate) or modify the names of
+the pins in the inlab03 code.
+<li>In the toolbar click on the Run Project icon (green arrow pointing right),
+<li>Check the "Do not show this message again" checkbox in the
+MPLab pop-up and then click OK,
+<li>Three things will now happen that should alert you that the download
+is in progress:
+<ul>    <li>Text will scroll by in the SNAP programmer tab of the console ending with
+        <font face="courier">Programming/Verify complete</font>,
+        <li>The lower right corner of the MPLab X window you should see
+        "inlab03 (Build, Load)" with a progress bar flashing,
+</ul>
+<li>Add a jumper wire from RB5 to the LPF_in pin.  Place a 2-pin jumper
+over the LPF_out/AMP_in 2-pin header.
+</ul>
+Setting up the oscilloscope probe for this experiments can be a bit 
+tricky, the image below is one way you can accomplish.
+<br><img width=500 src="./img/probeRB5setup.jpg"><br><br>
+
+
+
+<h3>Observe output</h3>
+One of the primary reasons electrical engineers use oscilloscopes is to
+observe phenomena that are too fast and too small to be observed directly
+with something like a digital multimeter.  In the following steps, you 
+will use the oscilloscope to observe the signal, generated by your
+program, coming from RB5.  
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>RB5
+<tr><td>Ch1 ground clip		<td>Dev board ground loop
+<tr><td>Horizontal (scale) 	<td>1 ms
+<tr><td>Ch1 (scale) 		<td>1V
+<tr><td>Trigger type		<td>Edge
+<tr><td>Trigger mode		<td>Auto
+<tr><td>Trigger source		<td>1
+<tr><td>Trigger slope		<td>&uarr;
+<tr><td>Trigger level		<td>1.5V
+</table>
+
+Make sure to:
+<ul>	<li><font color=green>Align Ch 1 on the second lowest reticule.</font>
+	See green text in image below for clairfication,
+	<li><font color=red>Align the horizontal position at the second 
+	left-most reticule.</font>
+	See red text in image below for clarification,
+	<li>Clear all menus off the bottom of the screen<br>
+	[&uarr;Back]
+	<li>Screen shot the screen on USB:<br>
+	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr; 
+	<u>24-bit Bit... (*.bmp)</u>
+	[Save] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
+</ul>
+
+<br><img src="./img/scopeSetup.bmp"><br><br>
+
+ 
+<ol start=10>
+<li>Include the screenshot (saved on a thumbdrive) of the 980Hz note waveform
+generated while pressing the top button.This will be the note that plays
+on the first button press. If you missed it, just press the top button
+a few more times to cycle back around. You can verify that you have
+the right note by measuring the frequency of your waveform 
+([Meas] &rarr; Add Meas &rarr; Type: Frequency &rarr; Source 1 &rarr; 
+Add Measurement).
+
+<li>Using the time per division information on the oscilloscope screen shot and
+the duration of the waveform (described in divisions), show your calculation 
+for the period of the waveform on RB5.   Invert the period to also determine the
+frequency.  For example, if your oscilloscope was
+set to 250us/division and the waveform had a period of 4.6 divisions, then
+your answer would look like:
+<pre>
+Oscilloscope set to 250us/division
+The period of the RB5 waveform is 4.6 divisions
+
+	 250us      
+	-------- *  4.6 divisions = 1,150us	1/1,150us = 869Hz
+	division 
+</pre>
+
+</ol>
+
+
+<h2>Firmware Experiments</h2>
+Your program uses delays to generate the musical notes in a
+traditional western music scale.  The code to generate notes
+using TOP_BUTTON is similar to this:
+<pre>
+            while (TOP_BUTTON_GetValue() == 0) {            
+                microSecondDelay(halfPeriod[i]);                
+                SPEAKER_PIN_Toggle();
+            } // end pressed button  
+</pre>
+
+In order to generate frequencies that correspond to the notes in a
+traditional musical scale, you need to understand the mathematical
+relationship between a note and its frequency as described in the first 
+paragraph of the
+ <a href="https://en.wikipedia.org/wiki/Equal_temperament">Equal temperament</a>
+wikipedia page.  You will use an excel spreadsheet to compute the 
+halfPeriods (from the code snippet above) of the notes A<sub>4</sub> &hellip; 
+D<sup>#</sup><sub>6</sub>.  Follow these steps to complete this task.
+
+<ul>
+<li>Launch excel and select a blank workbook,
+<li>Left click just to the left of the word "Index" in the table below,
+<li>Hold down the left mouse button and drag to the lower right cell
+in the table (the row with index 31),
+<li>Right mouse click and select "Copy"
+<li>Return to the Excel work sheet.  Right click in cell A1,
+select "Keep Source Formatting (K)" under "Paste Options".
+If this does not work, then you will need to complete the following 
+red steps.
+<ul>
+<font color="red">
+	<li>Enter "Index", &hellip; "Half period (ms)" in cells 
+	A1 &hellip; E1.
+	<li>Enter "0" in cell A2
+	<li>Enter "=A2+1" in cell A3
+	<li>Select cell A3, click and drag the small green square in the lower 
+	right corner of cell A3 down to cell A33.  This will reproduce the 
+	formula that you typed in cell A3 into cells A4 &hellip; A33, except
+	that the "A2" reference will be replaced with the relative 
+	reference to the cell above.   For example, check that the formula in 
+	cell A10 will be "=A9+1".
+	<li>Enter the note names in cells B2 &hellip; B33,
+	<li>Enter "440" in cell C2 and 31000 in cell C33,
+</font>
+</ul>
+<li>Next you will write an Excel formula to compute the frequency (in Hz)
+of each note in the table.  In cell C3 enter the formula for the next
+note above 440, using the
+excel functions "power".  Use the "round" function to limit the numerical
+precision of the cell to 0 significant figures.  If you are stuck refer back
+to the Wiki page for 'Equal temperament'.  Hint: you should have 
+something like, "=round(C2*power(?,?),0)" where the "?" are numerical values. 
+<li>Select cell C3, click and drag the small green square in the lower 
+right corner of cell C3 down to cell C32.  This will reproduce the 
+formula that you typed in cell C3 with a relative replacement of "C2",
+<li>In cell D2 enter the formula for the period of the waveform with the
+frequency given in cell C2.  Use the round function to limit the numerical
+precision of the fraction to 3 significant figures.  Make sure to use units
+of ms for the period.
+<li>Select cell D2, click and drag the small green square in the lower 
+right corner of cell D2 down to cell D33.  This will reproduce the 
+formula that you typed in cell D2 with a relative replacement of "C2",
+<li>In cell E2 enter the formula for half the period of the waveform
+period in cell D2.  Round the numerical precision of the fraction to 3
+significant figures.  Copy the formula into cells E3 &hellip; E33,
+</ul>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Index	<td>Note <td>Freq (Hz) 3 sig figs<td>Period (ms)
+3 sig figs	<td>Half period	(ms) 3 sig figs  <td>TMR1 cnts
+<tr><td>0<td>A<sub>4</sub>	      <td>440 <td>2.273<td>1.137<td>&nbsp;
+<tr><td>1<td>A<sup>#</sup><sub>4</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>2<td>B<sub>4</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>3<td>C<sub>4</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>4<td>C<sup>#</sup><sub>4</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>5<td>D<sub>4</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>6<td>D<sup>#</sup><sub>4</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>7<td>E<sub>4</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>8<td>F<sub>4</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>9<td>F<sup>#</sup><sub>4</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>10<td>G<sub>4</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>11<td>G<sup>#</sup><sub>4</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>12<td>A<sub>5</sub>	      <td>880 <td>1.136<td>0.5682<td>&nbsp;
+<tr><td>13<td>A<sup>#</sup><sub>5</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>14<td>B<sub>5</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>15<td>C<sub>5</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>16<td>C<sup>#</sup><sub>5</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>17<td>D<sub>5</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>18<td>D<sup>#</sup><sub>5</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>19<td>E<sub>5</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>20<td>F<sub>5</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>21<td>F<sup>#</sup><sub>5</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>22<td>G<sub>5</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>23<td>G<sup>#</sup><sub>5</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>24<td>A<sub>6</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>25<td>A<sup>#</sup><sub>6</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>26<td>B<sub>6</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>27<td>C<sub>6</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>28<td>C<sup>#</sup><sub>6</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>29<td>D<sub>6</sub>	      <td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>30<td>D<sup>#</sup><sub>6</sub><td>&nbsp <td>&nbsp<td>&nbsp<td>&nbsp;
+<tr><td>31<td>Ultrasonic	      <td>31,000<td>&nbsp<td>&nbsp<td>&nbsp;
+</table>
+</ol>
+
+
+Your program also uses timer delays to generate the musical notes 
+using BOTTOM_BUTTON is similar to this:
+<pre>
+            while (BOTTOM_BUTTON_GetValue() == 0) { 
+                TMR1_WriteTimer(0x10000 - halfPeriodTimer[i]);
+                PIR1bits.TMR1IF = 0;
+                while(TMR1_HasOverflowOccured() == false);
+                SPEAKER_PIN_Toggle();
+            } // end pressed button   
+</pre>
+
+<br>
+<u>Please note that TMR1 operates identically to TMR0.</u>  That
+means that TMR1 counts up at F<sub>osc</sub>/4.  Since you configured
+F<sub>osc</sub> = 64MHz, then TMR1 counts up 16,000,000 times a second.
+<br><br>
+
+In order to generate frequencies using timer 1 counts, you need to 
+reinterpret the half periods in column E in terms of timer 1 counts.
+To do this let's start by writing an equation which converts a delay
+in milliseconds into 1:1 prescaled timer 1 counts.
+
+<ol start=12>
+<li>Write a dimensional analysis equation to convert a half period delay
+in milliseconds into 1:1 prescaled timer 1 counts.  Do this using the
+following steps:
+<ul>	<li>Write 16*10<sup>6</sup> clk over 1 second
+	<li>Multiply this by the number of timer 1 counts per clock
+	<li>Multiply this by the number of seconds per milliseconds
+	<li>Multiply this by a variable X which represents the number of
+	milliseconds in a half period.
+</ul>
+
+Please write out the dimensional analysis using the form we used in class and
+that used in your lecture notes.
+</ol>
+
+Calculate the number of timer 1 counts for each note in your Excel 
+spreadsheet using the following instructions:
+<ul>	<li>In cell F1 of your excel spreadsheet add "TMR1 cnts"
+	<li>In cell F2 enter the formula you derived in the previous
+	question.  You should have something like "=E2*?", where "?" is
+	a numerical value.
+	<li>Select cell F2, click and drag the small green square in the 
+	lower right corner of cell F2 down to cell F33. This will reproduce 
+	the formula that you typed in cell F2 with a relative replacement 
+	of "E2".
+</ul>
+
+<ol start=13>
+<li>Export the completed spreadsheet as a PDF as the solution to this
+question.  To accomplish this, complete the following steps.<br>
+From Excel:  File &rarr; Export &rarr; Create PDF/XPS Document.
+Save the file in your lab03 directory.
+In Word: Insert &rarr; Object &rarr; Adobe Acrobat Document<br>
+Don't forget the last question below.
+
+<li>Modify the program so that it plays the notes from any of the popular
+<a href="http://www.choose-piano-lessons.com/kids-songs.html">Kids songs</a>
+using the noted from the table above.  Demo the application to the
+lab instructor or TA.  
+<br><br><br>
+</ol>
+
+<h2>Got a problem, try a solution</h2>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Issue	<td>Solution
+<tr><td>Intermittent, crackle sound
+	<td>Install jumper over power input jumper 5V
+
+<tr><Td>Speaker makes sound but oscilloscope is not showing a waveform.
+<td>Disconnect and then reconnect your oscilloscope probe
+
+<tr><Td>Speaker makes no sound and RB5 produces no square wave when button is pressed.
+    <td>Configure RB5 as an output in pin manager and make sure that you have
+	installed a jumper wire from RB5 to AMP<sub>in</sub>.
+
+<tr><td>Speaker makes no sound and oscilloscope probe of screw terminals shows
+	a square wave.
+	<td>Your LM4862 chip is in backwards.
+
+<tr><Td>You are making changes to the program, but they do not seems to be
+	affecting your program the way you expect.
+	<td>You have two projects open
+<tr><Td>You are getting a BUILD ERROR (main.c already defined) when compiling your program
+	<td>You have two .c files in your project, both have 
+	<font face="courier">void main(void) {</font> defined in them.
+</table>
+
+</html>
