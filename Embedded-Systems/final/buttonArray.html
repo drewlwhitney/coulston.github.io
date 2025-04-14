@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Button Arrays</center>
+
+
+Today we will construct an interesting circuit that allows you
+to do a lot with a little.  A general problem when working with
+MCUs is the limited number of I/O pins.
+All is not lost however.  If you are willing to trade
+off some time, you can arrange several push buttons on a single
+MCU pin.  This seemingly miraculous accomplishment is realized
+using the following schematic.
+
+<br><br><center><img src="./img/keyboard.gif"></center><br>
+
+To understand how this circuit works lets look at it in
+three different ways.<br><br>
+
+<h3>High Level</h3>
+At its highest level this is a circuit with three inputs
+(button) which are connected to a single MCU pin.  The MCU
+will run a program which will allow it to know which of the
+three buttons has been pushed.  If more than one button is 
+pressed, then the button with the lowest index (closest to
+the MCU pin) will be identified.<br><Br>
+
+<h3>Mid Level</h3>
+This circuit operates in two modes; charging and discharging.
+While charging the node labeled "MCU pin" must be configured
+as an output.  While configured as an output, this pin supplied
+3.3v to the positive side of capacitor C1 charging it.  After 
+the cap is charged "MCU pin" is configured as an input.
+At this time the charge on C1 will move to ground through
+whatever resistor stands in its way.  The more resistance 
+that stands in its way, the longer it will take to discharge
+C1.  Measuring the amount of time that it takes "MCU pin"
+to go from logic 1 to 0 indirectly tells you the total
+resistance and consequently the button which is pressed.
+
+<h3>Detailed</h3>
+The circuit operates by successively charging and discharging
+the node labeled "MCU pin".  When in charging mode MCU pin
+will be an output at logic 1 causing cap C1 to carry a
+3.3v charge.  When the node labeled "MCU pin" is switched
+to input mode the positive end of the cap will discharge 
+to ground through any intervening resistance.  Lets look
+at the case of what happen when the cap discharges and the
+button S2 is being held.<br><Br>
+
+<b>Button S2 is pressed</b>.  The charge on the cap will go
+to ground through the series combination of the 2, 1000
+ohm resistors.  This series pair has an effective resistance
+of 2000 ohms.  Hence the time constant of the voltage decay is
+RC = (2000)(47nF) = 94uS<br><br>
+
+Give the discharge voltage of an RC circuit is V(t) = Vo*e^(-t/RC)
+What is the time required for the voltage to drop from 3.3v to
+1.0v when the first, second, or third button is pressed?
+<pre>
+	1.0 = 3.3e^(-t/x)
+	1/3.3 = e^(-tx)
+	3.3 = e^(t/x)
+	1.19 = t/x
+	t=1.19 x
+
+First		Second		Third
+RC = 47uS	RC=94uS		RC=141uS
+t=1.19(47uS)	t=1.19(94uS)	t=1.19(141uS)
+t=56uS		t=112uS		t=168uS
+</pre>
+<br><br>
+
+
+
+<h3>MCU considerations</h3>
+At this point its appropriate to consider which of the MCU pins
+to utilize.  Using a general purpose I/O pin would be be straight
+forward, but the deviation in the threshold voltages (the voltage
+at which a pin goes from a 1 to a 0), would require some calibration
+for each Microcontroller which was flashed.  Using RA0-RA3 has the
+important advantage of allowing the comparator module (on page 234)
+and comparator voltage reference module (page 239) to set an
+absolute voltage threshold.  
+<br><br>
+
+<h3>Simultaneous button presses</h3>
+If more than one button is pressed only the resistance of the button
+closest to the MCU pin effects the discharge time, because the two
+button forms a parallel resistor network where one branch (the button
+closer to the MCU) has a 0 resistance and the other branch (the
+button further away from the MCU) has a 1k resistance.  The effective
+resistance of this pair is 0, negating the effect of the button further
+away from the MCU.  Thus, when more than one button is pressed, the
+discharge time is governed by the button closest to the MCU pin.
+
+<h3>No button press</h3>
+When no button is pressed, the cap discharges thought the (very high)
+resistance of the MCU pin.  See the advanced topics below.  The resistance
+in this case is about 1M ohm, hence the time constant is on order to tenths
+of a second.
+
+<h3>Firmware</h3>
+Do you think that you can write some firmware for this problem?
+
+<h3>Advanced topics</h3>
+If we take into consideration the input impedance of the PIC pin
+the analysis above is effectively unchanged.  By Thevenin, the
+input of the PIC can be viewed as an impedance (resistance) 
+connected to ground.  The input impedance of the PIC is really
+large, on the order of mega ohms plus the 100 ohms sitting in
+front of the input.  The resistance of a series circuit is the
+sum of the individual resistors, hence the PIC input is on the
+order of mega ohms.  Now the charge on C1 has two paths to
+ground, one through the R1, R2, R3 resistor network and the
+other through the PIC input.  These two resistors are in parallel.
+The effective resistance of a pair of parallel resistors is the
+reciprocal of the sum of the reciprocal of the resistances.
+Working this out you can see that the equivalent resistance is
+virtually the same as that of the R1, R2, R3 resistor network.
+Hence, taking into consideration the input resistance, only 
+slightly changes the calculations shown above.<br><br>
+
+</html>

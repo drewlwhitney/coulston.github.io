@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Port Extender</center>
+
+
+<h1>Basic Idea</h1>
+This script is a replacement for the device programming functionality 
+of MPLABX using the command line in Linux. From the author...
+<br><br>
+
+
+I did some research online and found out that MPLAB ships with a tool
+to interface with the PICkit and other Microchip programmers, so I wrote
+a bash script that emulates the programming functionality of MPLAB given
+a .hex file (as well as a short function that lets me make and program
+my PIC from within Emacs). I figured I would let you know just in case
+any other students have asked you about this - I'd be happy to share
+my code with anybody that wants it.
+<br><br>
+
+A post script....
+As a followup, Microchip's IPECMD tool tends to spew log files in the
+run directory, which can get annoying. I suppose this is useful, but
+all of the useful output is already echoed to stdout.  It also requires 
+an MPLABX installation (there doesn't seem to be a standalone IPECMD 
+download). I failed to mention this in my comments.
+<br><br>
+
+<pre>
+#!/bin/bash
+# Programs a PIC with a compiled .hex file as an argument
+# author: Brandon Verkamp (verkamp@mines.edu, brandonverkamp@gmail.com)
+# I've also written a couple functions to integrate this with GNU Emacs,
+# feel free to contact me if you'd like that code.
+
+################################################################################
+## Before running, you must compile your code to a .hex file. MPLAB generates a
+## Makefile for each project, so you simply need to run 'make' in the project
+## directory.
+##
+## The .hex file will be located at
+## [project dir]/dist/default/production/dev.production.hex
+
+# Currently, the device (PIC18F26K22) and programmer (PICkit 3) are hardcoded
+# If you put this in your PATH, you can use a relative path for the .hex file
+# For more information, see the documentation in
+# [mplab install directory]/docs
+################################################################################
+
+# ipecmd hangs on my system with java 10 due to "illegal reflective access", so
+# I use Java 8.
+# This is the jdk installation location on my system - you'll probably need
+# to change this. If your system is using Java 8 (or perhaps even 9) by default,
+# you can probably change this to 'java'. Just test it first.
+JAVA=/usr/lib/jvm/java-8-openjdk/jre/bin/java
+# MPLAB install directory
+MPLAB_DIR=/opt/microchip/mplabx/v5.10
+IPECMD=${MPLAB_DIR}/mplab_platform/mplab_ipe/ipecmd.jar
+
+# Print program usage
+usage() {
+    echo -e "Usage:\n$(basename $0) [-h] [.hex file]" 1>&2;
+    exit 1;
+}
+
+# This is kind of useless, since the program only does two things
+# (and one is printing usage)
+while getopts "h" o; do
+    case "${o}" in
+        h)
+            usage
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# If a file is not given after the flags, print usage and exit
+if [ -z "${1}" ]; then
+    usage
+fi
+
+# Run ipecmd to program the device
+$JAVA -jar $IPECMD -P18F26K22 -TPPK3 -M -OL -F"${1}"
+program_pic.sh
+Displaying program_pic.sh.
+</pre>
+
+
+
+
+</body>
+</html>
+

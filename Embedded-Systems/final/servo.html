@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Servo Motor</center>
+
+
+<h2>Hardware</h2>
+
+<ol>
+
+Review the 
+<a href="https://learn.sparkfun.com/tutorials/hobby-servo-tutorial">
+Sparkfun tutorial</a> with an emphasis on the following sections;
+Introduction, Servo Motor Background, Electrical Connection,
+Control signals, and Powering Servo.
+
+<li>Assuming that we are using a Futaba servo motor complete the 
+following table:
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Servo Pin	<td>Signal Name <td>Color 	<td>J12 pin
+<tr><td>1		<td>&nbsp	<td>&nbsp	<td>&nbsp
+<tr><td>2		<td>&nbsp	<td>&nbsp	<td>&nbsp
+<tr><td>3		<td>&nbsp	<td>&nbsp	<td>&nbsp
+</table>
+
+<li>How frequently should control pulses be sent to the servo motor?
+Convert this frequency into a period.
+
+<li>Using dimensional analysis, determine the values of 
+<font face="courier">PWMPRCLK_PCKA</font> and
+<font face="courier">PWMSCLA</font> needed to generate a 20 ms period 
+PWM waveform.  You should set <font face="courier">PWMPERx = 255</font> 
+to get the highest resolution from the duty register.  You should set the
+PWM prescaler (PWMPRCLK_PCKA) to the same value as the timer prescaler would 
+need to create a delay with the duration given in question #4.  Lecture 13 
+has a good discussion on how to compute PWM Show all your work.
+
+<li>Use the values from the previous question to derive the value
+for the <font face="courier">PWMDTY0</font> register to get pulse 
+durations listed in the table below.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Time high (ms)	<td><font face="courier">PWMDTY0</font>
+<tr><td>0.5 ms		<td>&nbsp
+<tr><td>1.0 ms		<td>&nbsp
+<tr><td>1.5 ms		<td>&nbsp
+<tr><td>2.0 ms		<td>&nbsp
+<tr><td>2.5 ms		<td>&nbsp
+</table>
+
+
+<h2>Firmware</h2>
+Build a project around <a href="./code/inlab07.c">lab07.c</a>. Download
+the project to the SSMI board and then open puTTY.
+<br><br>
+
+<ol start=7>
+<li>Complete the "Time high" column in the table below by connecting
+channel 1 of the oscilloscope to the servo pin on J12.  Make sure the
+oscilloscope ground clip is connected to ground.  Configure the 
+oscilloscope as follows:
+<ul>
+<li>Set trigger mode to “normal”,
+<li>Trigger on the rising edge of channel 1,
+<li>Set the trigger level to around 2.5v,
+<li>Set the channel 1 vertical scales to 1v per division,
+<li>Move the channel 1 vertical ground reference to the second lowest reticule,
+<li>Move the horizontal trigger reference to the second leftmost reticule,
+<li>Without using the “fine” adjustment, make the horizontal scale as large 
+as possible to view the entire time high pulse – about 500 us/division,
+<li>Clear all menus off the bottom of the screen.
+</ul>
+
+Next use the terminal interface of the lab07.c program to adjust the value
+of the PWMDTY register to the values given in the table below and record
+the "Time high (ms)" in the table.
+<u>Capture the PWMDTY0 = 19 pulse from the scope and include in your
+inLab as the solution for this question.</u>
+
+<br>
+<br>
+
+<li>After using the oscilloscope to measure the time high of the pulse, 
+you will connect the servo motor to J12 <u>after outfitting your servo
+with a compass</u>.  Do this by downloading, 
+<a href="./img/compass.jpg">Compass</a> and opening with Microsoft
+Paint and printing.  Cut-out your compass along the solid lines and fold
+at the dotted lines.  Punch a hole at the circle and attached the paper
+to the servo motor using two pieces of tape.  You should have something
+that looks like the following.
+<Br><img src="./img/servoCompass.jpg"><br>
+
+<br>
+
+Next, reattach the servo horn, plug the servo motor into J12 in the 
+correct orientation and record  
+the angle of the servo horn for the PWMDTY0 values given in the "Angle"
+column. Make sure that PWMDTY0=7 corresponds to 180&deg.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td><font face="courier">PWMDTY0</font>	<td>Time high (ms) <td>Angle
+<tr><td>7		<td>&nbsp	<td>180&deg
+<tr><td>10		<td>&nbsp	<td>&nbsp
+<tr><td>13		<td>&nbsp	<td>&nbsp
+<tr><td>16		<td>&nbsp	<td>&nbsp
+<tr><td>19		<td>&nbsp	<td>&nbsp
+<tr><td>22		<td>&nbsp	<td>&nbsp
+<tr><td>26		<td>&nbsp	<td>&nbsp
+</table>
+
+<li>Plot the values in the previous table with PWMDTY0 on the horizontal
+axis and Angle on the vertical axis.  Add a trendline, do this by 
+selecting the graph,  Design -> Add Chart Element -> Trendline ->
+More Trendline Options...  In the side-menu select Linear and the
+"Display Equation on chart" checkbox.  Include the plot as your answer
+to this question.
+
+<li>Write a line of C-code that converts the PWMDTY0 value into the 
+angle of the horn.  Do this by rounding the decimal coefficient in 
+front of the PWMDTY0 to the nearest integer.
+
+</body>
+</html>

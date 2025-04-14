@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Liquid Crystal Display</center>
+
+
+<h1>LCD control</h1>
+Today we will explore the functionality of the Lumex Opto/Components 
+Inc. LCM-S01602DTR/A.  This LCD consists of two parts; a LCD 
+(made by Lumex) and a controller chip (made by Samsung).  The LCD 
+is the glass stuff that you see characters on.  The LCD contains 
+something like 80 wires that are used to draw all pixels of all the
+characters and refresh the display.  The controller chip reduces all
+this control information down to 14-pins that will be wired into
+your bread board via a 14-pin header.  
+
+
+The LCM-S01602DTR/A product page can be found at
+<a href="http://www.lumex.com/spec.asp?p_n=LCM-S01602DTR/D">
+http://www.lumex.com/spec.asp?p_n=LCM-S01602DTR/D</a>  Open 2 PDF files
+associated with our LCD by clicking the link for our LCD.  You will
+note that these are more focused on the mechanical aspects of the 
+LCD and its pin out.  Make sure that you have a copy of page 2 handy
+when it comes time to wire up your LCD to your PIC.
+<br><Br>
+
+What you really want to know is how to communicate with the LCD
+and make it do interesting stuff.  Towards this end you will need
+to examine the chip which draws stuff on the LCD, called the LCDs
+controller chip.  Our LCD has a Samsung controller chip.  The technical 
+documentation for this driver can be found at the bottom of our LCDs page:
+<a href="http://www.lumex.com/tech_notes/drivers/samsungdriver.pdf"> 
+http://www.lumex.com/tech_notes/drivers/samsungdriver.pdf</a>
+<br><br>
+
+In its simplest form the LCD is just an 80 (decimal) character RAM.  The
+ASCII code of the contents of a memory location correspond to the character
+displayed in that location.  To see the exact characters consult the 
+Samsung CG Table table at
+<a href="http://www.lumex.com/tech_notes/drivers/samsungCGRom.pdf">
+http://www.lumex.com/tech_notes/drivers/samsungCGRom.pdf</a>.
+Note in this table the 8-bit binary code
+for a character is given as "H" and "L" which stand for logic 1 and 0
+respectively.  For example, the binary code for the character "Z" is
+0x5A.  Each of the memory locations has a logical
+position in the LCD's memory space.  The logical arrangement of memory
+locations are shown in the figure below.
+<br><img src="window.gif"><br><br>
+
+All the address in this figure are in decimal. Since the LCD's physical
+display is 16 columns by 2 rows then only a portion of the logical
+display can be seen at a time.  The viewable region will be called the
+"window" on the LCD's memory.  The LCD interface is specified by the
+following 4 types of signals.  As we will see latter
+the window can be shifted without shifting the data in the LCD.  As
+shown in the figure above, the window is in the "home" position.
+<br><br>
+
+There are two types of instructions that you can give to the 
+LCD, configuration and data.  Data values are just the character
+you want displayed.  Configuration instructions change the
+way the LCD displays information.  You can change the Address
+counter, the point to where the next character is displayed.
+You can clear the display.  The LCD can be configured to run in
+4-bit mode, a mode allowing data to be transfered in 2, 4-bit nibbles.
+This can save you 4-data line at the expense of slower data 
+transfer to the LCD.
+
+</html>

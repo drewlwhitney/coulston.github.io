@@ -1,0 +1,166 @@
+<html>
+<center><h1>CMPEN 352w</h1>
+Self guided activities for Lab#5</center>
+
+
+<h2>InLab5</h3>
+Word process your answers to these questions. Title your solutions 
+"InLab5 Solutions", include the date and the time when the lab 
+session begins, and both team members names. Solutions should be 
+numbered, formatted neatly, and when applicable written in complete 
+English sentences with punctuation. Turn in the solutions to the
+following questions by the end of today's lab session.  <br><br>
+
+
+<h3>LCD</h3>
+Today we will explore the functionality of the Crystalfontz America,
+Inc. 
+<a href="http://www.crystalfontz.com/products/1602b-wt/datasheets/936/CFAH1602BNGGJTV_v1.0.pdf">CFAH1602B-NGG-JTV</a>.   
+LCD.  This link points to the technical documents for the display.  What
+you are primary concerned with is 
+What you really want to know is how to communicate with the LCD
+and make it do interesting stuff. 
+
+<ol>
+<li>Use the Module Classification Information on page 4 of the 
+Crystalfontz documents to give a complete description of the characters
+which form the string "CFAH1602B-NGG-JTV".
+
+<li>Go to page 12 of the CFAH1602B-NGG-JTV technical documents.
+Make a table with 16 rows and 4 rows.  The table header should be
+LCD pin#, Symbol, PIC pin, description.  Use the Spring Board
+<a href="http://ecse.bd.psu.edu/cmpen352/lab/lab3/SpringSch.html">
+schematic</a> to help with the PIC pin reference.
+
+<li>Examine <a href="lab5.h">lab5.h</a>, and correct the 
+definitions of the LCD I/O pins.  Show the corrected definitions.
+
+<li>Read pages 37 of the CFAH1602B-NGG-JTV technical documents.
+Describe the role of the two registers in the LCD in your own
+words.  
+What roles does the RS bit serve when interacting with these two registers?
+What roles does the R/W bit serve when interacting with these two registers?
+Complete English sentences, please.
+
+<li>Read page 58 of the CFAH1602B-NGG-JTV technical documents.
+Write a sequence of instructions which writes a value to the 
+CONTROL register in the display.  You should use the lab5.h defines. 
+
+<pre>
+	// Write data to the display
+	TRIS_LCD_DATA = value;
+	E_PIN = value;
+	RS_PIN = value;
+	RW_PIN = value;
+	LCD_DATA = value;
+	// A small delay here of a couple of clock cycles will allow 
+	// the signals to stabalize, at most Delay10TCY(1)
+	
+	other stuff from the timeing diagram....
+</pre>
+
+<li>Read page 58 of the CFAH1602B-NGG-JTV technical documents.
+Write a sequence of instructions which reads a value to the display.
+You should examine the lab5.h file for the defines 
+
+<pre>
+	// Read data from the display
+	TRIS_LCD_DATA = value;
+	E_PIN = value;
+	RS_PIN = value;
+	RW_PIN = value;
+	LCD_DATA = value;
+	// A small delay here of a couple of clock cycles will allow 
+	// the signals to stabalize, at most Delay10TCY(1)
+	
+	other stuff from the timeing diagram....
+</pre>
+
+<li>Download and open the MCC18 compiler 
+<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/MPLAB_C18_Libraries_51297f.pdf">MPLAB-C18-Libraries.pdf</a>
+file.  Goto to section on the Delay functions.
+For each of the 5 delay fuctions listed, calculate the number of instruction
+clock cycles of each delay.
+for:
+<ul>	<li>Delay1TCY()
+	<li>Delay10TCY(5)
+	<li>Delay100TCY(5)
+	<li>Delay1KTCY(5)
+	<li>Delay10KTCY(5)
+</ul>
+
+
+<li>Make the lab5 project (instructions are at the bottom of this page).
+Download on your Spring Board.  Hook an O'scope to the RC2 pin (the one
+next to the IR LED would be convienent).  Measure the period of the
+waveform.  Using this information to determine the length (in time) of
+1 instruction cycle.  Round your answer to a reasonablly close value.
+
+<li>Using the instruction cycle time calculated in the previous 
+problem to determine the minimum and  maximum delay that you can create 
+with each of the 5 delay fucntions?
+
+<li>Read page 45 of the CFAH1602B-NGG-JTV technical documents.
+Assume that you have a "LCD_WRITE" instruction like that described in 
+<a href="http://ecse.bd.psu.edu/cmpen352/lab/lab5/lab5.html">lab5</a>,
+and you have the delay fucntions defined in the delays.h library.  Write
+a program to initialize the display.  Read page 51 for the sequence
+of instructions necessary to initialize the LCD.  Your initialization
+program will look like.  CONTROL_WRITE needs to be defined in the 
+LCD.h file.
+<pre>
+	// Initialization sequence
+	DELAY100TCY(value);			// Power-up delay?
+	LCD_WRITE(CONTROL_WRITE, value)		// function set
+	DELAY100TCY(value);			// Wait ??uS
+	LCD_WRITE(CONTROL_WRITE, value)		// function set
+	DELAY100TCY(value);			// Wait ??uS
+	LCD_WRITE(CONTROL_WRITE, value)		// display ON/OFF control
+	DELAY100TCY(value);			// Wait ??uS
+	LCD_WRITE(CONTROL_WRITE, value)		// display clear
+	DELAY100TCY(value);			// Wait ??mS
+	LCD_WRITE(CONTROL_WRITE, value)		// entry mode set
+	DELAY100TCY(value);			// Really should wait here
+	
+</pre>
+
+</ol>
+
+
+<h3>Making a project</h3>
+
+<ul>
+<li>Create a project directory
+<li>Project > New
+<ul>	<li>Give the project a name
+	<li>Browse to directory, make sure target folder is selected
+	<li>Click OK
+</ul>
+<li>Project > Select Language Toolsuite.  
+<ul>
+	<li>Select "Microchip C18 Toolsuite" as the Active Toolsuite.
+	<li>Select MPLAB C18 C Compiler (mcc18.exe) in the Toolsuite 
+		Contents subwindow. Set Location to c:\mcc18\bin\mcc18.exe
+	<li>Select MPLINK Object Linker (mplink.exe) in the Toolsuite 
+		Contents subwindow.  Set Location to c:\mcc18\bin\mplink.exe
+</ul>
+<li>Project > Build Options... > Project
+<ul>
+<li>In the "General" tab
+	<ul>	<li>Set Include Path to c:\mcc18\h
+		<li>Set Library Path to c:\mcc18\lib
+		<li>Set Linker-Script Path to c:\mcc18\lkr
+	</ul>
+<li>In the "MPLINK Linker" tab check Suppress COD-file generation
+</ul>
+<li>Right mouse click on the Linker Scripts folder in the Workspace
+submenu and select Add Files... Select c:\mcc18\lkr\18f4520.lkr
+<li>Configure > Select Device.  Select PIC18F4520 under the Device: pull-down.
+<li>Download <a href="lab5.c">lab5.c</a> and <a href="lab5.h">lab5.h</a>
+into your project directory and add them to your project
+<li>Project > Make
+<li>Plug in the PICkit 2 and download lab5.hex
+</ul>
+
+
+</html>

@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - MPlab Install on MAC</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+
+</head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="./index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="./index.html">Home</a></li>
+                    </ul>
+                    </ul>
+                </div>
+            </div>
+
+
+<center>
+<h1>Mplab Install on MAC</h1>
+</center>
+
+
+<h2>Mplab on MAC</h2>
+One of the reasons that I chose to use the MPLab X IDE is that it is
+available as a free download allowing student to use it on their own 
+computers.  This supports an important
+pillar of my teaching philosophy; to enable students to work 
+independently to explore and solve interesting problems.  Unfortunately,
+many engineering programs are PC only, leaving MAC users with awkward
+solutions to work off campus.  Fortunately with a little work, MAC users
+can install and use the MPLAB X IDE.  What follows are some guidelines
+to help you through the process - as a PC user I have not tested these!
+Hence, if you find these instructions lacking in any way, please send me 
+an email at coulston@mines.edu with concrete suggestions on how to improve 
+them.  Support your fellow and future MAC users.  That said, thanks to 
+Nick for providing these.
+<br><br>
+
+
+<h2>Preliminaries</h2>
+These preliminaries are needed before installing MPLAB or XC8 
+compiler.<br><br>
+
+If you don’t have Xcode and its dependent Command Line Tools, you can
+download Xcode for free from the 'App Store' on your mac.  Or, you can 
+install Command Line Tools (CLT) without Xcode (its big) by opening
+'Terminal' located in Applications/Utilities/.  In a new Terminal 
+window enter:
+<pre>
+  xcode-select --install
+</pre>
+Followed by the return key.  You'll be asked if you want to install CLT,
+say yes.  See 
+<a href="http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/">
+	http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/</a>
+for more help.
+<br><br>
+
+You will also need Java (JRE6). To see if you already have it installed, 
+enter the following into a Terminal window:
+<pre>
+  java -version
+</pre>
+If Java is already installed, you will get an output indicating which
+version.  An example output (as of Sept 2017) looks like:
+<pre>
+  Java version "1.6.0_65"
+</pre>
+
+If you do not have Java installed you will need to download and install it
+from 
+<a href="https://support.apple.com/kb/DL1572?locale=en_US">
+	https://support.apple.com/kb/DL1572?locale=en_US</a>
+You may want to visit 
+<a href="http://microchipdeveloper.com/install:mplabx-macos10-7-plus">
+	http://microchipdeveloper.com/install:mplabx-macos10-7-plus </a>
+for more help.
+<br><Br>
+
+Now you should be able to install MPLab X and XC8 compiler from the 
+links on the class website.
+
+<h2>Using Terminal instead of PUTTY</h2>
+For a significant portion of the semester, you will be using a terminal
+interface to your development board.  A terminal interface traditionally
+consists of a text display device and a keyboard.  In our class we will
+use a PC (or MAC) as the terminal and connect it to our development board
+through the USB port on the development board.  The FT232 chip on the 
+development board will create a virtual communication port (VCOM) with 
+the PC.  This VCOM port acts as a serial port, meaning that data is 
+transmitted one bit at-a-time across the interface.  While I can use
+the terms "VCOM" and "serial port" interchangeably, I prefer the term
+"VCOM" when I want to emphasize the USB-ness of the connection and 
+"serial port" when I want to emphasize the bits being pushed to and
+from the PIC.  To create a terminal interface to the development board, you 
+will need to run a terminal application on your MAC and then point the
+terminal application at the VCOM port.
+<br><br>
+
+After plugging in the development board to your MAC, you need to determine
+the name given by your MAC to the serial port associated with the VCOM port.
+You can list all serial devices available by entering the following into 
+a Terminal window:
+</pre>
+  ls /dev/tty.*
+</pre>
+
+One development board that was plugged into a MAC provided the following 
+output:
+<pre>
+  /dev/tty.Bluetooth-Incoming-Port	/dev/tty.usbserial-A505PQE1
+</pre>
+
+You will get a slightly different address.  Consider copying the portion 
+<font face="courier">/dev/tty.usbserial-&lt;myAddress&gt;</font> to a text 
+document or my code for quick reference.  To connect to your development
+board, enter:
+<pre>
+  screen /dev/tty.usbserial-&lt;myAddress&gt; 9600 -L
+</pre>
+and work away with the terminal interface. 
+<br><Br>
+
+<b>Important</b>
+You have to release your serial port to end the session!  To do this:
+<pre>
+ control  a
+ control \
+ Y &lt;to confirm&gt;
+</pre>
+
+Finally, if you'd like to log your Terminal session to a file, you can enter
+<pre>
+  script -a -t0 myLog.txt
+</pre>
+
+followed by your normal screen /dev/tty... command
+
+To stop logging, Press control d
+
+The file, myLog.txt will be saved to your home folder.
+
+</html>

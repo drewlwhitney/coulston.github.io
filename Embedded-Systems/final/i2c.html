@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+I2C setup</center>
+
+<h2>Internal Subsystem</h2>
+
+<ol start=9>
+<li>Go to the "I<sup>2</sup>C Mode Overview" section of the 
+PIC18(L)F2X/4XK22 Data Sheet found on the class web page.  What are the names
+for the two signal connections to the I2C bus?
+
+<li>What I/O pins are associated with each of the two Master Synchronous 
+Serial Port (MSSP) in the PIC?  State your answer by completing the following 
+table.  Hint, use the PIC pin summary in the PIC18(L)F2X/4XK22 Data Sheet.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>MSSP	<td>SCLx	<td>SDAx
+<tr><td>1	<td>&nbsp;	<td>&nbsp;
+<tr><td>2	<td>RB1		<td>&nbsp;
+</table>
+</ol>
+
+<h2>Firmware Organization</h2>
+
+<ul>
+<li>In the INTERNAL OSCILLATOR area of the System Module window
+<ul>	<li>Oscillator Select:	Internal oscillator block
+	<li>System Clock Select: FOSC
+	<li>Internal Clock: 16MHz_HFINTOSC
+	<li>Software PLL Enabled: Check
+</ul>
+The Current System clock should be 64MHz (4x PLL)
+
+<li>In the Device Resources area of the project window, expand the Timer
+option.  Double click TMR0,
+<li>In the Device Resources area of the project window, expand the EUSART
+option.  Double click EUSART1 [PIC10/PIC12/&hellip;],
+<li>In the Device Resources area of the project window, expand the ADC
+option.  Double click ADC [PIC10/PIC12/&hellip;],
+<li>In the Device Resources area of the project window, expand the MSSP
+option.  Double click MSSP2 [PIC10/PIC12/&hellip;].
+
+
+<li>In the Project Resources area of the project window click on TMR0.
+<ul>	<li>Enable Timer:	&check;
+	<li>Enable Prescaler:	&square;
+	<li>Prescaler:		1:2	&lt;Doesn't matter&gt;
+	<li>Timer mode:		16-bit
+	<li>Clock Source:	FOSC/4
+	<li>Timer Period:	500 us
+	<li>Enable Timer Interrupt	&check;
+</ul>
+
+<li>In the Project Resources area of the project window click on EUSART1.
+<ul>	<li>Enable EUSART:	&check;
+	<li>Enable Transmit:	&check;
+	<li>Enable Wake-up:	&square;
+	<li>Auto-Baud Detection:	&square;
+	<li>Enable Address Detect:	&square;
+	<li>Baud Rate:		9600
+	<li>Transmission Bits:	8-bit
+	<li>Reception Bits:	8-bit
+	<li>Data Polarity:	async_noninverted_sync_fallingedge
+	<li>Enable Continuous Receive:	&check;
+	<li>Enable EUSART Interuupts:	&square;
+	<li>Redirect STDIO to USART	&check;
+</ul>
+
+<li>In the Project Resources area of the project window click on ADC.
+<ul>	<li>Enable ADC:	&check;
+	<li>Clock Source:	FOSC/64
+	<li>Acquisition Time:	8
+	<li>Result Alignment:	left
+	<li>Positive Reference:	VDD
+	<li>Negative Reference:	VSS
+</ul>
+Now click on the Register tab to the right of the Easy Setup tab that
+you are currently editing in. In the ADCON0 area, change the setting 
+for CHS to AN4.
+<li>In the Project Resources area of the project window click on MSSP2
+<ul>	<li>Mode:	I2C Master
+	<li>Enable MSSP:	&check;
+	<li>Enable SM Bus Input:	&square;
+	<li>Slew Rate Control:	High Speed
+	<li>SDA Hold Time:	100ns
+	<li>Baud Rate Generator Value:	0x27	&lt;I2C Clock Frequency 
+				will change to 400kHz&gt;
+	
+	<li>Slave Address:	7 bit
+</ul>
+
+<li>In the Project Resources area of the project window, click 
+"Pin Module".  The editor window will change from the System Module to
+Pin Module.  Click on the Pin Manager tab in the console area.  Click
+on Port C bit 0 and Port C bit 1 in the GPIO output row .  The blue open 
+lock should change to a green closed lock.  Now in the Pin Module area, 
+click on the Custom Name text box in the RC0 Pin Module row and change 
+the name to "TEST_C0_PIN" and hit enter.  Name RC1, "TEST_C1_PIN".
+<li>Click File &rarr; Save All
+<li>Leave the configuration file name as "MyConfig.mc3"
+<li>Click on the "Generate" button in the Project Resources area of the
+project manager window.  If you get a MCC pop-up asking you to confirm 
+that the configuration has warnings, click Yes. The warning is about 
+configuring CCP5 so that whenever its associated flag is set the ADC 
+module performs a conversion - we will not enabling this feature, so 
+we do not have to configure CCP5.
+In the MCC Save Configuration File, keep the defaults and Save.
+Remember that anytime that you make a change to 
+the configuration you must re-generate the supporting files by clicking 
+on the generate button,
+<li>Click on the Project tab in the project manager window,
+expand the Source Files folder and double click main.c to open 
+it in the editor window,
+<li>Replace the contents of main.c with 
+<a href="./code/inlab09.c">inlab09.c</a>,
+</ul>
+
+<h3>MCC Read Byte Interface</h3>
+A read operation from the I2C takes place in two parts, a write 
+(to set the starting address) and the read.  The write operation (to 
+set the starting address) happen first.  Let's take a look at the
+code snippet below to see how this works.  First we declare an array
+called pData, of 65 8-bit values (line r01).  The first two bytes of
+pData are the populated with the I2C address (lines r02, r03). Next, 
+the status flag is set for the write operation (line r04), the write to 
+the I2C is performed (line r05), and the program waits for the write 
+to complete (line r06).  I call this write a "no-data" write, its purpose 
+is only to set the address register inside the I2C.  The address 
+register is a register that stores the location of memory location that
+we are going to read or write.  When you request to read data from the 
+I2C, the address register contains the location of the first stored
+byte to read out of the I2C.  Lastly, the status flag is set for the 
+read (line r07), the read is performed (line r08), and the program waits 
+for the read to complete (line r09). 
+
+
+<pre>
+r01.	uint8_t pData[64];
+
+r02.	pData[0] = address>>8;
+r03.    pData[1] =  (uint8_t) byteAddress;  
+r04.    I2C_Wflag = I2C2_MESSAGE_PENDING;
+r05.    I2C2_MasterWrite(pData, 2, I2CDEVICE_I2C_ADDR, &I2C_Wflag);
+r06.    while(I2C_Wflag == I2C2_MESSAGE_PENDING);                       
+                
+r07.    I2C_Wflag = I2C2_MESSAGE_PENDING;
+r08.    I2C2_MasterRead(pData, 1, EI2CDEVICE_I2C_ADDR, &I2C_Wflag);
+r09.    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+</pre>
+
+Let's examine what is going on between the PIC and the I2C
+during this process.  To do this, we will use the I2C serial
+decode function built into our Keysight oscilloscopes.  Configure
+your oscilloscope as follows:
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Ch1 probe		<td>RB1 - SCL
+<tr><td>Ch1 ground clip		<td>Dev board ground loop
+<tr><td>Ch1 (scale) 		<td>2V
+<tr><td>Ch2 probe		<td>RB2 - SDA
+<tr><td>Ch2 (scale) 		<td>2V
+
+<tr><td>Horizontal (scale) 	<td>50 us
+<tr><td>Trigger mode		<td>Normal
+<tr><td>Trigger source		<td>1
+<tr><td>Trigger slope		<td>&darr;
+<tr><td>Trigger level		<td>1.65V
+</table>
+
+Make sure to:
+<ul>	<li>Align Ch 1 on the <u>third</u> lowest reticule to make room
+	for the I2C decode
+	<li>Align the horizontal position at the second left-most reticule,
+
+	<li>Convert serial stream<br>
+	[Serial] &rarr; <u>Mode</u> &rarr; I<sup>2</sup>C<br>
+	[Serial] &rarr; <u>Serial</u> &rarr; Serial S1: I2C &check;<br>
+	[Serial] &rarr; <u>Signals</u> &rarr; SCL &rarr; 1<br>
+	[Serial] &rarr; <u>Signals</u> &rarr; SDA &rarr; 2<br>
+
+	[Serial] &rarr; <u>Signals</u> &rarr; <u>Threshold</u> &rarr; (Trigger Level) &rarr; 1.65V (for both SCL and SDA)<br>
+	[Serial] &rarr; <u>Address Size</u> &rarr; <u>7 Bit</u><br>
+		
+	<li>Clear all menus off the bottom of the screen<br>
+	[&uarr;Back]
+</ul>
+
+Your scope screen should looks like the following when you perform 
+a byte read.  Go ahead and experiment with the other I2C read
+and write functions.  Compare when you see in PuTTY and what you
+see on the oscilloscope.
+
+<br><img src="./img/byteRead.bmp"><br><br>
+
+The serial decode on the oscilloscope uses letters and colors
+to describe the I2C bits.  Blue and Yellow text denote control 
+packets, while white text is data.  Data values are represented
+in hexadecimal.  Upper-case 'W' or 'R' denotes
+a read or write operation.  Acknowledge bits are denoted with
+'a' and no acknowledge with '~a'. 
+
+<ol start=13>
+<li>Screen shot your oscilloscope with the decoded stream for a byte read.
+<li>In the following table, relate the oscilloscope serial decode information 
+of an I2C from your byte read to the information contained in the 24LC256
+technical documents for a random read shown in Figure 8-2.  Note that our
+byte read qualifies as a random read in the technical documents.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Figure 8-2	<td>Control Byte
+		<td>Address High Byte
+		<td>Address Low Byte
+		<td>Control Byte
+		<td>Data Byte
+<tr><td>Oscilloscope serial decode	
+		<td>&nbsp
+		<td>&nbsp
+		<td>&nbsp
+		<td>&nbsp
+		<td>&nbsp
+</table>
+
+</ol>
+
+<h3>MCC Byte Write Interface</h3>
+Unlike a byte read from the I2C, a byte write to the I2C occurs
+as a single transaction.  After the control byte is sent indicating that
+the PIC wants to write to the I2C, the starting address of the write
+is sent in two bytes, followed by the data.  However, the work of the
+I2C really starts <u>after</u> the entire I2C packet is
+received.  The I2C must commit the data into its non-volatile
+memory.  This commit can take several milliseconds.  If we wanted
+to perform another read or write from the I2C immediately after
+this byte write, then we would need to poll the I2C, asking it
+when it was done committing the byte write.  However, since this
+byte write is followed by prompting the user for input from the 
+terminal, there is plenty of time for the byte write to commit,
+hence in this case we do not poll the I2C to determine if it
+has committed the byte write to its non-volatile memory.
+<br><br>
+
+Go ahead and perform a byte write operation from PuTTY and observe
+the decoded serial data stream at the bottom of the oscilloscope.
+The following is an example oscilloscope capture.
+
+<br><img src="./img/byteWrite.bmp"><br><br>
+
+<ol start=15>
+<li>Screen shot your oscilloscope with the decoded stream for a byte write.
+<li>In the following table, relate the oscilloscope serial decode information 
+of an I2C from your byte write to the information contained in the 24LC256
+technical documents for a random write as shown in Figure 6-1.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Figure 8-2	<td>Control Byte
+		<td>Address High Byte
+		<td>Address Low Byte
+		<td>Data Byte
+<tr><td>Oscilloscope serial decode	
+		<td>&nbsp
+		<td>&nbsp
+		<td>&nbsp
+		<td>&nbsp
+</table>
+
+
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Microcomputer Architecture and Interfacing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                </div>
+        </div>
+
+<center><h1>EENG 383</h1>
+Graphics LCD</center>
+
+
+
+<h2>Multiple files</h2>
+You will put all your LCD routines into a file called graphics.c.  Amoung
+other things this file will contain the bitmaps for the ascii characters.
+
+<ol start=9>
+<li>Give the declaration of array of 128x8 int8's, called ascii, 
+that are stored in program memory.
+<li>Give an example of what the initialization will look like for the
+ascii array for a couple of characters.
+<li>In order to use the <i>ascii</i> array in main, the defintion of 
+ascii will have to be given in dev10.h using the extern modifier.  
+Show the this defintion.  You may want to check extern in Wiki.
+</ol>
+
+
+<h2>Newhaven Display</h2>
+The initialization sequence of the Newhaven display needed some 
+minor tweeks to make it work in our application.  Below is my
+initialization sequence used to generate the test file used in
+lab3.  For each command below identify the command and its function.
+
+<ol start=12>
+<li>
+<table border=1>
+<tr><td>Command				<td>Command	<td>Function
+<tr><td>SEND_DISP(COMMAND_MODE,0xA0);	<td>(8) ADC Select 
+<td>Display RAM adress SEG output correspondence: normal
+<tr><Td>SEND_DISP(COMMAND_MODE,0xAE);	<td>&nbsp	<td>&nbsp
+<tr><Td>SEND_DISP(COMMAND_MODE,0xC0);	<td>&nbsp	<td>&nbsp
+<tr><Td>SEND_DISP(COMMAND_MODE,0xA2);	<td>&nbsp	<td>&nbsp
+<tr><Td>SEND_DISP(COMMAND_MODE,0x2F);	<td>&nbsp	<td>&nbsp
+<tr><Td>SEND_DISP(COMMAND_MODE,0x20);	<td>&nbsp	<td>&nbsp
+<tr><Td>SEND_DISP(COMMAND_MODE,0x81);	<td>&nbsp	<td>&nbsp
+<tr><Td>SEND_DISP(COMMAND_MODE,0x3f);	<td>&nbsp	<td>&nbsp
+</table>
+
+<li>Fill in the blanks in order to complete the SEND_PLANE command.
+Note the rows of the display are refered to as pages.
+<pre>
+void SEND_PLANE(int8 plane[128][4]) {
+    int8 row,col;
+
+	SEND_DISP(COMMAND_MODE,     );		// LCD display off
+	for(row=0; row<4; row++) {
+		SEND_DISP(COMMAND_MODE,     );	// point to the first "row"
+		SEND_DISP(COMMAND_MODE,     );	// and the 0th column
+		SEND_DISP(COMMAND_MODE,     );	// Column Address Set requires two writes
+		for (col=0; col<128; col++) {
+			SEND_DISP(DATA_MODE,                );
+		} // end for column
+	} // end for row
+	SEND_DISP(COMMAND_MODE,    );		// LCD display on
+} // end for SEND_PLANE
+</pre>
+
+
+<li>Import the following image into paint and show what happens for 
+each of the operations.
+<img src="./map.bmp">
+</ol>
+
+
+
+<table border=1>
+<tr><td>Function	<td>Description
+<tr><td>void INIT_LCD(void)</b>
+	<td>Initializes the LCD,
+<tr><td>void SEND_DISP(int8 mode, int8 data)</b>
+	<td>Send the data to the display in the specified mode.  The 
+	function should check the SSPIF before transmitting to insure
+	the the transmitt buffer is not overrun.
+<tr><td>void WRITE_STRING(int8 row, int8 col, char *ptr, int8 plane[128][4])</b>
+	<td>Writes the NULL terminated string to the display.
+<tr><td>void POINT(int8 x0, int8 y0, int8 plane[128][4])
+	<td>Draws a point at location (x0,y)
+<tr><td>void CHANGE_MODE(int8 mode)
+	<td>
+	<table border=1>
+	<tr><td>Mode	<td>Effect
+	<tr><td>OVER	<td>Overwrites anything on the graphics plane
+	<tr><td>AND	<td>ANDs new pixels into the graphics plane
+	<tr><td>OR	<td>ORs new pixels into the graphics plane
+	<tr><td>XOR	<td>XORs new pixels into the graphics plane
+	</table>
+<tr><td>void INIT_PLANE(int8 display[128][4], int8 color)</a>
+	<td>Clears all the pixels in the graphics plane to the 
+	defined color (black=1, white=0).
+<tr><td>void COPY_PLANE(int8 src[128][4], int8 dest[128][4])
+	<td>Copys the pixels from the source plane into the
+	destination plane.
+<tr><td>void SEND_PLANE(int8 display[128][4])</a>
+	<td>Sends the pixel array pointed to by display to the LCD.
+</table>
+
+<h2>Bonus functions</h2>
+<table border=1>
+<tr><td>void LINE(int8 x0, int8 y0, int8 xf, int8 yf, int8 plane[128][4])
+	<td>Draws a line on the LCD starting at (x0,y0) and finishing
+	at (xf,yf)
+<tr><td>void CIRCLE(int8 x, int8 y, int8 radius, int8 plane[128][4]);
+	<td>Draws a circle at x,y with the specified radius
+<tr><td>void <a href="http://en.wikipedia.org/wiki/Sprite_%28computer_graphics%29">SPRITE</a>(int8 *sprite, int8 width, int8 height, int8 x, int8 y, int8 plane[128][4])
+	<td>Mask in the 2-D sprite with dimensions width x height into the 
+	graphics plane at location x,y
+</table>
+
+Its up to you to write an application which demonstrates that these functions
+work.  You can write a simple terminal application, use the push buttons, or
+build a simple game of tic-tac-toe.  Its your call.
+
+</html>

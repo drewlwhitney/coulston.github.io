@@ -1,0 +1,147 @@
+
+<html>
+<body bgcolor=white>
+
+<table>
+<tr><td>Date:</td>	<td>April 20</td></tr>
+<tr><td>Lecture:</td>	<td>24</td></tr>
+<tr><td>Theme:</td>	<td>RTOS</td></tr>
+<tr><td>Source</td>	<td>
+<a href="http://www.pumpkininc.com/content/user_manual.htm">Chapter 2</a>
+</table>
+
+<h2>Real Time Operating System</h2>
+
+Superloop programming -  Grocery list of things to do.
+Multitasking -- What events are happening and what do I need to do about them?
+
+First a really large list of terms
+<ul>	<li><b>Task</b> -- A sequence of instructions.  A small program.
+	<li><b>Task Priority</b> -- The relative importance of the task
+		relative to all the other tasks.  It may be static
+		or dynamic.
+	<li><b>Interrupt</b> -- An internal or external event that
+		causes program execution to be suspended and a user
+		defined Interrupt Service Routine to be run.
+	<li><b>Task Switch</b> -- When one task is suspended to run another.
+		Sometimes called a context switch.
+	<li><b>Preemption</b> -- When a task is interrupted by another
+	<li><b>Kernel</b> -- A software system which manages the switching
+		of tasks and intertask communication.  Generally ensures
+		that the highest priority tasks is running.
+	<li><b>Delay</b> -- The amount of time that a progcess is
+		suspended.  When a process is suspended it should
+		consume little or none of the CPUs resources.
+	<li><b>Event</b> -- An occurrence which a task can wait for, 
+		examples include
+	<ul>	<li>An interrupt
+		<li>An error
+		<li>A timer timing out
+		<li>Periodic interrupt
+		<li>A resource being freed
+		<li>An I/O pin changing state
+		<li>A keypress
+		<li>RS-232 Tx or Rx
+		<li>message being passed
+	</ul>
+	<li><b>Intertask communication</b> -- an orderly means
+		of passing information between tasks.  Types of
+		interrtask communiaction:
+		<ul>	<li>Semaphores
+			<li>messages
+			<li>message queues
+			<li>event flags
+		</ul>
+	<li><b>Timeout</b> -- The max amount of time that a task
+		will wait for an event.  This is an optional
+		characteristic, a task can wait forever.
+	<li><b>Task State</b> -- Describe what the task is currently doing
+		<ul>	<li>Eligible -- waiting to be run on the CPU (not highest
+			priority)
+			<li>Running -- On the CPU
+			<li>Delayed --  Waiting for a delay timer
+			<li>Stopped -- Suspended indefinitely
+			<li>Destroyed -- Dead
+			<li>Waiting -- Waiting for an event
+		</ul>
+		<img src="./img/state.gif">
+	<li><b>Timer</b> -- Keeps track of the real time.
+</ul>
+
+The mode of programming which we have employed thus far in the course
+is referred to as <i>Superloop</i> , calling subroutines in an ordered
+sequence.  To illustrate...
+
+<br><center><img src="./img/sloop.gif"></center><br><Br>
+
+All the subroutines have the same level of priority.  The response of a 
+subroutine to information made available in an ISR is limited by the amount
+of time required for the superloop to get to that code.  The functions
+in main are executed in a strictly serial manner.  Loop timing is effected by
+the execution of the subroutines and the interrupts that occur.  There
+is also the problem of non-reentrant functions.  For example,
+imaging that you have the following printfs in main and inside a ISR.
+
+<pre>
+void main() {
+...
+    printf("This is main\n");
+...
+}
+
+
+void ISR() {
+...
+    printf("in an ISR");
+...
+} // end ISR
+</pre>
+<br><Br>
+
+The problem occurs if main is interrupts by the ISR while its in
+the middle of printing out the "This is main" message.  The results
+can be somewhat baffeling oat worst or just misleading at least.
+What we need is a way to handle mutually exclusive resources.
+<br><br>
+
+
+The solutions to
+this problem is to break the superloop into a set of independent tasks 
+and have all of the tasks running at the same time, <i>multitask</i>.
+Clearly, all of the tasks will not be running at the same time because
+we have only a single processor (the HC11).  However the kernel will
+switch the running task in a process known as a <i>context switch</i>.
+Clearly, in order for multitasking to work the context switch must be
+transparent, not visible.  In order for the context switch to be transparent
+the entire state of the process must  be stored (on a stack).  This 
+manipulation of the stack is handled by the kernel.  Therefore, the kernel
+executes between every context switch.  Thus, the overhead of a context 
+switch is the cost of running the kernel, storing a tasks context on the 
+task and restoring a tasks context off the stack.  Clearly, the kernel
+need to be frugal with its context switching.<br><br>
+
+If all the tasks in a multitasking environment were all waiting
+to have the CPU then the resulting system would be not better
+than our superloop setup.  Make the multitasking system <i>event driven</i>
+allows the CPU to focus on those tasks which really require CPU 
+cycles.  
+However, there will still be cases when our "independent"
+tasks are in actuality dependent on one another.  Consider two tasks
+which both require access to a LCD.  Clearly, some arbitration mechanism
+is needed.  We will consider a <i>semaphore</i>, a variable (flag) used to
+communicate the presence or absence of an event.  Two actions can be
+performed to a semaphore, posting and receiving. 
+<ul>	<li><b>Posting (P)</b> involves setting the semaphore to 1.  Generally
+		P is associated with claiming a resource.
+	<li><b>Receiving (V)</b> involves clearing the semaphore to 0.
+		Generally V is associated with freeing a resource.
+</ul>
+
+Generally, tasks wait on semaphore especially when they correspond
+to some physical resource.  This introduces the problem of 
+<b>deadlock</b> two or more tasks waiting for semaphore(s) held by another
+task.  There are some conditions that you should avoid in order to
+guarantee not encountering deadlock, but you will study this in OS.
+
+</html>
+

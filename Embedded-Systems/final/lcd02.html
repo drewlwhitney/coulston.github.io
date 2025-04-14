@@ -1,0 +1,190 @@
+<html>
+
+<center>        <font size=10>Lab 5</font><br>
+                <font size=1>LCD</font><br>
+                <font size=1>InLab: Due Feb 7,9</font><br>
+                <font size=1>PostLab: Due Feb 14,16</font><br>
+</center><br><br>
+
+
+<h3>InLab5</h3>
+Look over the <a href="./lcd.html">lcd tutorial</a> document and
+answer the following questions.
+
+<ol>
+<li>Make a table with 14 columns and 2 rows.  In the top row write the
+numbers from 14 downto 1.  In the second row write the name of the 
+corrsponding pin of the LCD.  For example pin 12 is DB5.
+<li>Configure the LCD in 8-bit mode, with 2 rows using 5x8 characters,
+with no cursor, autoincrement the adddress.  For each of the 
+instructions determine the hexadecimal code and execution time.  You 
+can get this information on pages 12-16 of the Samsung technical documents.
+<ul>	<li>Function set
+        <li>Display control
+        <li>Entry mode set
+        <li>Clear display
+        <li>Return home         </ul>
+<li>Use the timing diagram on page 34 of the samsung technical document
+and describe in a complete English sentence or two what tsu1 and tsu2
+mean.
+<li>What symbol is used to decribe the minimum amount of time that
+E has to be strobed?  Make sure to include units.
+<li>What is the minimum amount of time that you have to wait between
+asserting E high and reading from the LCD?  Make sure to include units.
+What symbol is used to describe this value?
+<li>Do you read data from the LCD while E is high, or do you 
+return E low before reading?
+</ol>
+
+Now we will perform some experiments with BehrendBug.  Create
+a lab5 project built around <a href="lab5.c">lab5.c</a>
+<ol start=7>
+<li>What address does the T0CON reside at?
+<li>What address does the TMR0 reside at?
+<li>Completely describe how TMR0 is setup in words.
+<li>What BehrendBug command will allow a user to view data memory?
+<li>What is the value of TMR0 in data memory?
+<li>What happens to TMR0 when you resume lab5.c and then break back
+into behrendBug?
+<li>What is the value of T0CON when in BehrendBug?
+<li>Examine the configuration bits (see page 195 in 18f452
+data sheet) in program memory.  What are the meaning and values of 
+the configuration bit CONFIG1?
+</ol>
+
+
+<h3>Hardware</h3>
+Solder a 14-pin header to your LCD.  Make sure to attach it to
+pins 1-14.  Do not bother connecting the backlight pins 15 and 16,
+our LCDs do not have backlights.  After you have pins attached to the
+LCD, wire up your LCD to your PIC as follows.
+<ul>	<li>Connect the data lines of the LCD to PORTD
+	<li>Connect RS to PORTC.3
+	<li>Connect R/W' to PORTC.4
+	<li>Connect E to PORTC.5
+</ul>
+
+<h3>Software:</h3>
+The data line will have to be bidirectional because you will poll the
+BUSY flag after write operations to determine when the LCD has 
+completed its operation.  Your LCD system should have the following
+functions.
+
+<ul>
+<li><b>void INIT_PIC();</b>
+This function sets up the PIC for operation.
+
+<li><b>void INIT_LCD();</b>
+This function configures the LCD.  I found that the following 
+power-up sequence to work with our LCDs.
+<ol>	<li>wait 2mS for power-up
+	<li>Function set
+	<li>Display control
+	<li>Entry mode set
+	<li>Clear display
+	<li>Return home		</ol>
+
+
+<li><b>void LCD_WRITE(int8 reg_sel, int8 data);</b>
+This function will write the given data to the LCD using the
+RS mode given.  You can either have the MCU enter a fixed 37uS
+delay (using delay_us function) or for a bonus you can have 
+the MCU poll the BUSY flag (using LCD_READ) and wait for
+it to go to FALSE.
+
+
+<li><b>int8 LCD_READ(int8 reg_sel);</b> This function will return 
+	a 8-bit value for the register select.  Make sure to follow
+	the following sequence
+	<ol>	<li>Configure PORTD as an input
+		<li>Assert correct values for RS, R/W', E
+		<li>wait 1uS for data to stabilize
+		<li>Read PORTD
+		<li>Assert correct values for RS, R/W', E
+		<li>Configure PORTD as an output
+	</ol>
+
+</ul>
+In addition your program should have a complete set of #define's 
+for the LCD instructions.  These should be included in your lab5.h
+file.
+	<ul>	<li>CLEAR_DISPLAY
+		<li>SHIFT_DISPLAY_RIGHT
+		<li>SHIFT_DISPLAY_LEFT
+		<li>SET_DDRAM_ADDR - you will have to mask in the position
+		using the "|" operator.		</ul>
+
+You have a choice of writing one of 3 different programs this week.  Since
+they build off one another, I might suggest starting with a stripped down
+version of the easiest and working towards the more complicated programs.
+
+<ol>
+<li><b>Interactive LCD (max grade C)</b>
+You are to write a program that will allow you to interactively work 
+with the LCD. The main menu should contain the following options.
+
+<pre>
+    1: Write to current location (until carriage return)
+    2: Scroll the display
+    3: Reset display 
+</pre>
+
+<b>Option 1</b> should allow the user to type a character and see 
+it on the display if the DDRAM is pointed inside the window. The 
+DDRAM should be configured to autoincrement after a write so that 
+the cursor is automatically positioned at the next available 
+character. Echo the characters back to the terminal so that the 
+user can verify what they typed. Remember that the LCD displays 
+ASCII just like the terminal. The user is to remain in this mode 
+(continuously printing characters) until carriage return (hex 0x0D) 
+is pressed, at which time you are to print the main menu.
+<br><br>
+
+<b>Option 2</b> should allow the user to set up a rotation of the 
+entire display until a key.  Pause the display between consecutive 
+shifts (around 0.2 seconds or so).
+<br><br>
+
+<b>Option 3</b> should allow the user to clear the entire display, 
+move the cursor to the home position and move the window back to 
+its nominal position.
+<br><br>
+
+<li><b>Clock (max grade B)</b>
+Use TMR0 to set up an interrupt which sets a global variable, NEW_SEC,
+TRUE once every second. Main will wait for NEW_SEC to go TRUE, and then
+increment the time, display it on the LCD, and then wait for the next
+NEW_SEC.  Time should be displayed using the following format:
+<pre>
+	hh:mm:ss
+</pre>
+Where hh is the hours in military time (0-23), mm is the minutes (0-59),
+and ss is the seconds (0-59).  It would be reasonable to keep separate
+variables for each of the 6 characters involved in the time display.
+This would make converting the time into ASCII much easier.
+
+<li><b>Asteroids (max grade A)</b>
+A much better project would be to create a simple asteroids game 
+which would consist of driving your
+space ship (The letter "<" or a cool Japanese character) though a
+field of astroids (the letter "*" or a cool Japanese character)
+hurtling at you.  You could move your space ship either in the
+top or bottom row, with your ship always in the rightmost column
+of the display.  Actually, the astroids are going nowhere, you are
+just shifting the LCD frame over a fixed field of astricks while
+erasing and redrawing your spaceship.  You should use a simple LFSR
+to determine the placement of the astroids.  See 
+<a href="http://psbweb2.psu-erie.bd.psu.edu/cenbd452/lectures/lecture12.html">
+lecture 12</a> from CENBD452 for more details about LFSRs.  You 
+could even play some simple sounds over your speaker!
+</ol>
+
+<h3>Turn-in</h3>
+<ol>
+<li>A completed <a href="eval5.doc">lab 5 evaluation</a>.
+<li>A hard copy (2 pages per sheet and double sided) of your program.
+<li>ZIP your project and submit it on the Lab5 drop box on ANGLE.  Name
+your zip file with your PSUID.
+<li>An in-class demo at the beginning of next lecture.
+</ol>
+</html>

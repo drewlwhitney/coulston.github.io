@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture32.html">&ltPrev</a></li>
+                        <li><a href="./lecture34.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Date:</td>	<td>Nov 14</td></tr>
+<tr><td>Lecture:</td>	<td>33</td></tr>
+<tr><td>Links:</td>	<td><a href="http://www.gearslutz.com/board/attachments/geekslutz-forum/341013d1366399238-hows-rotary-encoder-reliability-your-gear-rotaryencoder.jpg">Internal</a><br>
+			<a href="http://www.robotroom.com/Counter/InsideEncoder.jpg">Internal</a><br>
+</td></tr>
+</table>
+
+<h2>Rotary Encoders</h2>
+A rotary encoder is an input device which allows a user to adjust a value
+using a rotating knob.  Its possible to determine the direction of the 
+rotation (cw or ccw) from the 2 outputs from a rotary encoder.
+The rotation of the input knob is usually
+accompanied by the knob settling into a preferred
+position with a sort of snap.  This preferred 
+position is referred to as a detent.  The number of
+detents per rotation is an attribute which varies 
+between rotary encoders.  Typical values include 24 
+and 36 detents per rotation.  
+<br><br>
+
+A quadrature rotary encoder will usually
+have 3 pins.  These three pins can be thought of as 
+part of a simple switching system.  The schematic
+below shows a rotary encoder in yellow and the 
+external parts added to make it function correctly.
+
+<br><center><img src="./img/enc_sch.gif"></center><br><br>
+In this figure the actual rotary encoder is shown in the
+yellow box, the accompanying circuitry is to ensure that the
+encoder works correctly.
+From this figure you can see that when a switch is open
+the corresponding output signals is pulled high to logic
+1.  The resistors and capacitors are put in this circuit
+at the manufactures recommendation in order to eliminate
+switch bouncing.  When a switch is open, the corresponding
+output signal goes to logic 0.  The correspondence between
+the rotation of the knob and the pattern of outputs
+displayed on the two signal outputs forms what is called
+a quadrature output.
+<br><br>
+
+The movement of the switches inside the encoder defines its
+output type.  We will examine a Gray encoder, or quadrature 
+encoder style device.  Regardless of the type, mechanical
+rotary encoders implement the two switches inside of a rotary 
+encoder is built from an encoder wheel, which is a a circular plate with a 
+<a href="http://www.mcmanis.com/chuck/robotics/projects/images/enc-quad.gif">
+funny shaped copper pattern.</a> This copper pattern is attached to 
+the common pin of the encoder.  The two other pins are
+attached to copper contacts which drag against the encoder
+wheel.  Sometimes these contacts make contact with the common
+pin and sometimes they don't.  In the figure below a section
+of the encoder wheel has been removed.  The shaded section
+of the wheel is attached to the common pin.  The two other
+contact pins (called channel a and channel b) are shown.
+
+<br><center><img src="./img/encoder.gif"></center><br><br>
+
+In their current configuration, the contact pins are not
+attached to the common pin, hence output a logic 1.  Imagine
+that the contacts both moved to the left, over the 7.5 
+degree mark.  Then channel a would output a 1, while
+channel 0 would output a zero.  As the contacts progressed
+further to the left they would sweep out the pattern 
+shown in the table below.
+
+<br><br>
+<center><table border=1>
+<tr><td>angle	<td>channel a	<td>channel b	</tr>
+<tr><td>11.25	<td>1		<td>1		</tr>
+<tr><td>7.50 	<td>0		<td>1		</tr>
+<tr><td>3.75 	<td>0		<td>0		</tr>
+<tr><td>0.00 	<td>1		<td>0		</tr>
+</table></center>
+<br>
+
+The binary pattern shown in this table should look 
+familiar, its the order used in the arrangement of cells in a
+kmap.  Why is this significant?  Because the cells of a
+kmap were arranged so that <i>adjacent cells had
+binary representation that differed by a single bit.</i>
+This is important, because if a rotary encoders outputs
+changed by two bits then its entirely possible that 
+one of the two bits would change first, possibly causing
+confusion about the current state of the encoders position.
+<br><br>
+
+Its clear that the figure above only shows a segment
+of the encoder wheel, but how did we arrive at the 
+angles shown.  Well, this encoder has 24 detents per 
+revolution.  This implies
+that there are 15 degrees between consecutive detents.
+Since the transition between consecutive detents  takes
+the encoder through 4 patterns, then there are 3.75 degrees
+between consecutive patterns. 
+<br><br>
+
+Now, lets get back to a statement that was made earlier,
+"the rotation of the knob and the pattern of outputs
+displayed on the two signal outputs forms what is called
+a quadrature output."  What does it mean to say a rotary
+encoder has quadrature outputs. Oscillations that are said 
+to be in quadrature if they are separated in phase by 90° 
+If you plot a 
+timing diagram of the channel a and channel b outputs
+through time as the encoder know is rotated, you would see
+that the two channel are 90 degree out of phase with one 
+another.  
+<br><Br>
+
+The phase of the two channels of output gives the engineer
+valuable information about the direction of rotation.
+For example in the figure above, assume that the encoder
+knob is hooked up to the encoder wheel and that the 
+contacts are stationary.  If the wheel was rotated
+in a clockwise (cw) direction then the outputs would
+change from 00 to 10 (outputs are listed with
+channel a in the MSB and channel b in the LSB).  Hence
+anytime that you see a 00 to 10 transition on the 
+outputs you know that the know has been rotated in
+a clockwise direction.  Similarly, if you see the encoder
+outputs transition from 00 to 01 then you know that the
+know has been rotated in a cc direction.
+
+
+<h3>Firmware</h3>
+The encoder is assume to be configured with all
+the external hardware required to make it operate correctly.
+Furthermore, the PIC is assume to be configured as follows.
+Channel a and channel b to the port b are wired up to the
+interrupt on change pins (RB4-RB7).  The PIC is configured
+to generate an interrupt when one of these inputs changes.
+Assume that the encoder pins are aliased to <b>A</b> and <b>B</b>.
+<br><br>
+
+Write a program which sets a global variable <b>dir</b> 
+to 1 when the encoder rotates in a cw direction and -1 when 
+rotated in a ccw direction. Main may clear the <b>dir</b>
+variable so that it be notified when the wheel is
+moved.
+
+<br>
+<pre>
+#int INT_RB
+//------------------------------------
+// RB_ISR
+// output:  1 if rotation was cw (smaller angles)
+//	   -1 if rotation was ccw (larger angles)
+//	    0 if rotation was illegal
+//------------------------------------
+void RB_ISR() {
+    static unsigned int8 oldA, oldB;
+
+    if ((oldA == 0) && (oldB == 0) && (A == 0) && (B == 1)) dir=-1;
+    if ((oldA == 0) && (oldB == 0) && (A == 1) && (B == 0)) dir= 1;
+    if ((oldA == 0) && (oldB == 1) && (A == 0) && (B == 0)) dir= 1;
+    if ((oldA == 0) && (oldB == 1) && (A == 1) && (B == 1)) dir=-1;
+
+    if ((oldA == 1) && (oldB == 0) && (A == 0) && (B == 0)) dir=-1;
+    if ((oldA == 1) && (oldB == 0) && (A == 1) && (B == 1)) dir= 1;
+    if ((oldA == 1) && (oldB == 1) && (A == 0) && (B == 1)) dir= 1;
+    if ((oldA == 1) && (oldB == 1) && (A == 1) && (B == 0)) dir=-1;
+
+    oldA=A;
+    oldB=B;
+
+} // end RB_ISR
+</pre>
+<br><br>
+
+<h3>Better Firmware</h3>
+A better algorithm compresses the bit patterns above into an
+index to an array.
+
+<pre>
+#int INT_RB
+//------------------------------------
+// RB_ISR
+// output:  1 if rotation was cw (smaller angles)
+//	   -1 if rotation was ccw (larger angles)
+//	    0 if rotation was illegal
+//------------------------------------
+void RB_ISR() {
+ 
+    encoder[16]={0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
+    static unsigned int8 index;
+
+    index = (index << 2) & 0x0F;
+    index = index | (A << 1);
+    index = index |  B;
+    dir  = encoder[index];
+
+} // end DIR
+</pre>
+
+</html>
