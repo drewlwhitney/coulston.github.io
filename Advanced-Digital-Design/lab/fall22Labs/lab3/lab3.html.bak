@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EENG 498</title>
+        <meta name="description" content="EENG 498">
+        <meta name="author" content="Todd Branchflower">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+		<META HTTP-EQUIV="refresh" CONTENT="600"> <!--added this line to force page refresh every 600 seconds-->
+    </head>
+    <body>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab2/lab2.html">&ltPrev</a></li>
+                        <li><a href="../lab4/lab4.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>		<td>3</td></tr>
+</table>
+
+
+<h1>Oscilloscope Datapath and Control</h1>
+
+You are going to create a simple but stand-along oscilloscope in this lab.  You will use
+the AD7606 to acquire the data and the HDMI port to display the data.  It will be a 
+challenge but something to be proud of when complete.
+<br><br>
+
+Your oscillscope will operate in two modes, FORCED and TRIGGERED.  
+<ul>
+	<li>In FORCED mode the oscillscope will wait for the user to signal that they want 
+	the scope to collect data by pressing a button.  The oscillscope will then fill its 
+	BRAMs with sampled data from the AD7606.  
+	<li>In TRIGGER mode, the oscilloscope will wait for the input waveform on channel 1
+	to increase through 0V.  When this happens, the oscilloscope will start filling its
+	BRAMS with sampled data from the AD7606.  After fillings the BRAMs, the oscilloscope
+	will then go back to look for another trigger.
+</ul>
+	 
+When complete, your output should look something like the following:
+<br><img src="./img/pics/finalResult.jpg"><br><Br>
+
+<h2>Architecture</h2>
+The <a href="./img/signalAcquire.pdf">signalAcquire Top Level</a> consists of two modules,
+a datapath and a control.  The user will control the signalAcquire module using two buttons
+as follows:
+<ul>	<li>Pressing PL KEY3 should toggle the oscillscope between FORCED and TRIGGER mode.
+	<li>Pressing PL KEY4 when the oscilloscope is in FORCED mode will cause the 
+	oscilloscope to trigger and fill its channel 1 and 2 BRAMs.
+</ul>
+
+For testing purposes you will be sending some of the signals to the LEDs so that you
+can probe them with an oscilloscope to measure the performance of your circuit. The
+following table lists the names of the signals out of the top-level signalAcquire entity 
+and the LEDs they should be sent to.
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>LED	<td>signalAcquire PORT name
+<tr><td>PL LED1	<td>triggerCh1
+<tr><td>PL LED2	<td>triggerCh2
+<tr><td>PL LED3	<td>conversionPlusReadoutTime
+<tr><td>PL LED4	<td>sampleTimerRollover
+</table>
+
+
+<h2>Control Unit</h2>
+The control word will start to get really long.  We will use an excel file to
+keep things organized and to produce the VHDL code for the output logic of the
+FSM.  Stay tuned for this development.
+
+<h2>Datapath</h2>
+The datapath contains all the modules that you developed in labs 1 and 2.  In addition,
+you will need:
+<ul>	<li>A pair of BRAMs to store the AD7606 samples from channels 1 and 2.
+	<li>Logic to read the BRAM values and compare it against the current pixel position.
+	<li>Registers and comparators to look for a trigger on channels 1 and 2.
+	<li>Sampling rate counters to set the sampling rate period to one of four
+	preset rates.
+	<li>A SR flip flop to indicate if the oscilloscope is in looking storing samples
+	(only when the oscilloscope is in TRIGGER mode).
+</ul>
+The complete datapath is contained in ths <a href="./img/datapath.pdf">signalAcquire Datapath</a>
+pdf document.
+
+
+<h3>BRAM</h3>
+Start your instantiation of the BRAMs by clicking on the IP Catalog link in the
+project manager sub-window.  Enter BRAM in the search text box. Double click on
+the Block Memory Generator selection.  Then use the configuration given in the 
+following images to create the BRAM. Note, PORTA depth needs to be large enough
+to accomodiate the width of the active region of your display.  My display was 
+1000 pixels wide, so I gave the BRAMs 1024 storage locations. Yup that was 24 
+more than needed for no good reason.  This gave me a 10-bit address for the BRAM.
+Some of your oscillscopes have more than 1024 pixels in the active display region,
+so will have 11-bit addresses for the BRAM.  Plen accordingly.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>TAB<td> Configuration</tr>
+<tr><td>BASIC<td><img width=300 src="./img/bram/bram01.png"></td></tr>
+<tr><td>PORT A OPTIONS<td><img width=300 src="./img/bram/bram02.png"></td></tr>
+<tr><td>PORT B OPTIONS<td><img width=300 src="./img/bram/bram03.png"></td></tr>
+<tr><td>OTHER OPTIONS<td><img width=300 src="./img/bram/bram04.png"></td></tr>
+<tr><td>SUMMARY<td><img width=300 src="./img/bram/bram05.png"></td></tr>
+</table>
+
+<h2>VHDL Code</h2>
+
+<ul>	<li><a href="./code/acquireToHDMI_package.vhd">acquireToHDMI_package.vhd</a><br>
+	You will need to put all the constants associated with your control and status
+	words in this package.  You should also put the component descriptions of your
+	the top-level acquireToHDMI module along with the datapath and control units.
+
+	<li>hdmi_package.vhd<br>
+	I took at the constants out of my scopeFace file and placed them in their
+	owm package.  This makes it easier to share the constants associated with
+	the oscilliscope display.
+
+	<li>basicBuildingBlocks_package.vhd<br>
+	You will provide this package based on your previous lab work.
+
+	<li><a href="./code/an7606.vhd">an7606.vhd</a><br>
+	This is an improved version of the an7606 module.  It generates a 0V-centered
+	sine wave on channel 1.  This sine wave has an amplitude of &plusmn;2.5V and a 
+	period of 16 clock cycles. Channel 2 generates a square wave with an amplitude
+	of &plusmn;2.5V and a period of 4 clock cycles.
+
+	<li><a href="./code/acquireToHDMI.xdc">acquireToHDMI.xdc</a><br>
+	This is the important part of the pin assignment file.  You will be able to complete
+	the rest of this file using the xdc files from the previous labs.
+</ul>
+
+
+
+<h2>Simuation</h2>
+The datapath contains two modules, the rgb2dvi_0 and clk_wiz_0 that cannot be simulated.  In order
+to run a simulation you will need to comment both out. You will replace the functionality of the 
+clk_wiz_0 module with a pair of simulation-only process to generate videoClk and videoClk5x.  You will
+not replace the rgb2dvi_0 module and consquently the HDMI output will be invalid.
+<Br><br>
+
+In order to verify that the forced and triggered modes of your oscilloscope work you will 
+perform two seperate simulations; one in forced mode and one in trigger mode.  To do
+this you will need to modify that testbench by including or commenting out the following line
+of code in the acquireToHDMI_tb.vhd file:
+<br><img width=300 src="./img/switchBtwForcedTrigger.png"><br><br>
+
+Now that you have your files setup to run the simulation properly, you will want to setup your
+waveforms.  In order to accomodiate the more than 60 signals, you will use signal groups.
+A signal group is a related set of signals under a collapsable header that is opened/closed when
+you click on the ">" icon next to the group name.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Mode	<td>Time	<td>Configuration</tr>
+<tr><td>Forced	<td>600ns	<td><img width=300 src="./img/simulations/forced01To500ns.png"></td></tr>
+
+<tr><td>Forced	<td>1500ns	<td><img width=300 src="./img/simulations/forced02To1500ns.png"></td></tr>
+<tr><td>Forced	<td>7us	<td><img width=300 src="./img/simulations/forced03To7us.png"></td></tr>
+<tr><td>Forced	<td>13us	<td><img width=300 src="./img/simulations/forced04To13us.png"></td></tr>
+<tr><td>Forced	<td>700us	<td><img width=300 src="./img/simulations/forced05To700us.png"></td></tr>
+<tr><td>Forced	<td>6041us	<td><img width=300 src="./img/simulations/forced07At6041us.png"></td></tr>
+<tr><td>Forced	<td>2.88ms 	<td><img width=300 src="./img/simulations/forced06TopVideoBorder.png"></td></tr>
+<tr><td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>Trigger	<td>500ns	<td><img width=300 src="./img/simulations/trigger01To500ns.png"></td></tr>
+<tr><td>Trigger	<td>1000ns	<td><img width=300 src="./img/simulations/trigger02At1000ns.png"></td></tr>
+<tr><td>Trigger	<td>13us	<td><img width=300 src="./img/simulations/trigger04At13us.png"></td></tr>
+<tr><td>Trigger	<td>120us	<td><img width=300 src="./img/simulations/trigger05At120us.png"></td></tr>
+<tr><td>Trigger	<td>6143us	<td><img width=300 src="./img/simulations/trigger06At6143us.png"></td></tr>
+</table>
+
+
+
+
+<h2>Synthesis</h2>
+You will need to complete the XDC file provided the the codes section.  You should be able
+to get most of the pin assignments from your previous labs.  Consult the AX7010 technical
+documents for any other pin assignments you might need.
+<br><br>
+
+Before attempting synthesis, you will need to make the following changes to your code:
+<ul>	<li>Edit the datapath to:
+	<ul>	<li>Include rgb2dvi_0 and clk_wiz_0 
+		<li>Comment our the videoClk and videoClk5x processes
+	</ul>
+	<li>Edit signalAcquire_package to use the correct LONG_DELAY_50Mhz_COUNTS value
+</ul>
+
+Then you will connect the microphone to the AN7606 board using the connections shown in the
+following picture.  Note the oscillscope probes shown are not needed, I just added them so
+that I could compare the oscilloscope waveforms to those shown on my HDMI display for the 
+photograph shown at the top of this lab.
+
+<br><img width=300 src="./img/pics/applyAndMeasure.jpg"><br><br>
+
+I used <a href="https://cse.unl.edu/~jfalkinburg/husker-scope/">Husker Scope</a> to generate
+the waveforms shown in the photograph shown at the top of this lab.  I would suggest using this
+software to generate your waveforms on the audio output of your computer or phone and then send
+these waveforms into your oscillscope to be displayed o your HDMI display.
+
+
+</body>
+</html>

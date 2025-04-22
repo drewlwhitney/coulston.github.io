@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EENG 498</title>
+        <meta name="description" content="EENG 498 - Embedded Systems II.">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+    <body>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class = "nav">
+                        <li><a href="../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="./hw02.html">&ltPrev</a></li>
+                        <li><a href="./hw04.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+
+<h1>Homework #3</h1>
+
+<ol>
+<li> Draw a hardware schematic for the following circuits, similar to 
+that shown on page 88 of my textbook linked on the main page.
+Use comparators, muxes and adders and do not show their internal 
+organization.  Whenever possible reduce the number of devices 
+required to realize the design.  You should
+assume that X, Y, and Z are 8-bit std_logic_vectors.
+
+<ol type = "a">
+        <li> if (X==0) then Z = X else Z = Y
+        <li> if (X==Y) then Z = Y else Z = X+Y
+        <li> if (X &lt Y) then Z = X+4 else Z = Y+6
+        <li> if (X &gt Y) then Z = X+5 else Z = X+6
+</ol>
+
+<li>Write a VHDL architecture for each if/then statement in the 
+previous problem.  Do each seperatly.
+
+</ol>
+
+
+</body>
+</html>
+

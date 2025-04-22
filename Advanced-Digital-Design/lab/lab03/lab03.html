@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EENG 498</title>
+        <meta name="description" content="EENG 498 - Embedded Systems II.  Free and open FPGA course.">
+        <meta name="author" content="Todd Branchflower">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+		<META HTTP-EQUIV="refresh" CONTENT="600"> <!--added this line to force page refresh every 600 seconds-->
+    </head>
+    <body>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab01/lab01.html">&ltPrev</a></li>
+                        <li><a href="../lab04/lab04.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>		<td>3</td></tr>
+<tr><td>Status			<td bgcolor = #D0FFD0>In Progress</td></tr>
+</table>
+
+
+
+<h1>Lab 3 - Data Acquisition, Storage and Display</h1>
+
+<h2>Lab Overview</h2>
+The signal acquire module contains a datapath and control necessary
+to initiate and acquire all 8 channels of the AD7606 chip and store
+them into a register file.  And yes, we will only be using the first
+two channels on our oscilloscope, we will  gather the extra 6 channels.
+
+<br><img width=800 src="./img/timing.png"><br><br>
+
+<h2>Architecture</h2>
+You will build the signal acquisition engine using a datapath and control approach.
+
+<br><img src="./img/lab03architecture.png"><br><br>
+
+You will use a testbench to verify that your design works as a simulation.  In order
+to verify proper operation of the synthesized design, you will ask the register file
+for the value of register 0 and send the output to four comparators.  The comparators
+will compare the channel 1 converted value against the 16-bit 2's complement value
+for 1, 2, 3 and 4 volts.<br>
+The button process is similar to the last lab, it will look for a change in the logic
+level of one of the buttons (which I don't care).  When the button process sees a change
+in this button's logic level, it will enable the trigger status word for one clock cycle.
+
+<h2>Control Unit</h2>
+The control unit should follow the processes outlined in class.  Use a model where
+you separate the state process from the output process.  Liberally use constants 
+and alias to make your code more readable.  Use easy to understand state names as
+these are what you will see during your simulation.
+
+<h2>Datapath</h2>
+The datapath contains two counter/comparator pairs to generate a short
+and long delay.  You should configure the long delay to be around 
+1.3ms in your synthesized design.
+
+<pre>
+CONSTANT LONG_DELAY_50Mhz_COUNTS : STD_LOGIC_VECTOR(LONG_DELAY_50Mhz_CONST_WIDTH - 1 downto 0) := x"00FFFF";
+</pre>
+
+You should then include the package in your datapath.vhdl file and then you can use this constant in
+the long delay comparator instantation.  This should look something like the following.
+
+<pre>
+	longDelayCompare_inst: genericCompare
+        GENERIC MAP(24)
+        PORT MAP(   x =&gt; longDelayCounter,
+                    y =&gt; LONG_DELAY_50Mhz_COUNTS,
+                    g =&gt; open,
+                    l =&gt; open,
+                    e =&gt; sw(LONG_DELAY_DONE_SW_BIT_INDEX));
+</pre>
+
+In addition to the two counter/comparator pairs, your datapath will also need to include
+a register file to store the 16-bit values returned from the AD7606
+
+
+<h2>Register File</h2>
+
+You will use the register file to store the 16-bit data from all 8 channels.  Thus,
+your register file will have 8-storage location (registers), that can store 16-bits
+each.  The internal organization of the register file is shown in the following 
+figure.
+
+<br><img src="./img/regFile.png"><br><br>
+
+To write data into the register file, you:
+<ul>	<li>Assert data on the D input
+	<li>Assert the index of the register you want to store the data to on the
+	wrAddr input
+	<li>Assert the write control input
+</ul>
+
+Since the data output is separate from the data input, to read data all you need to
+do is assert the index of the register you want to read on the rdAddr input.  The
+relevant register output is selected by the 8:1 mux and will appear on the Q output.
+<br><br>
+
+
+<h2>VHDL Code</h2>
+The files below will give you a solid start on this lab.  Note package files are a bit 
+tricky to find.  To do so, go to the Sources pane and click on the 'libraries' tab.  
+You should find them under Design Sources -> VHDL -> xil_defaultlib
+<ul>	
+	<li><a href="./code/basicBuildingBlocksVhdl.zip"> basicBuildingBlocksVhdl.zip</a><br>
+	This folder contains all the VHDL basic building blocks you can use to build the
+	datapath elements as well as the package declaration that you will need to include
+	at the top of any file which uses one of these components.  Read the comments at the
+	top of the package file for instructions on how to use this package.  You should put
+	your register file in this folder and you will need to add the component declaration
+	for the register file in the package file.
+
+	<li><a href="./code/an7606.vhd">an7606.vhd</a><br>
+	This is a simulation only artifact that emulates the behavior of the AD7606 chip.
+	Use this component in your testbench simulation to verify operation of your 
+	design.
+
+	<li><a href="./code/signalAcquire_Package.vhd">signalAcquire_Package.vhd</a><br>
+	This package contains:
+	<ul>	<li>Project specific component declarations
+		<li>Project specific simulation clk_period
+		<li>Constants defining the width of control and status words
+		<li>Indexes for specific bits of the control and status words
+		<li>Constants for four voltages represented as 16-bit 2's complement values
+	</ul>
+	Anywhere you find a commented out line with "?", you should replace the question mark
+	with a constant value.  I would highly recommend annotating your values on a diagram
+	of your datapath so that you can understand your testbench simulation behavior.
+
+	<li><a href="./code/signalAcquire_tb.vhd">signalAcquire_tb.vhd</a><br>
+	This is the top-level simulation file.  There is nothing in here to edit.  You should
+	make your component declarations to match the naming in this file.  This will ensure
+	that your naming works with the xdc file (the pin assignment file).
+
+	<li><a href="./code/signalAcquire_tbWaveSetup.tcl">signalAcquire_tbWaveSetup.tcl</a><br>
+	This is the waveform setup file that you will use in your simulation.  Add this file to
+	your simulation sources and it will automatically load every time you run a simulation,
+	a great time saver.
+
+	<li><a href="./code/signalAcquireFsm.vhdl">signalAcquireFsm.vhdl</a><br>
+	This is the control unit.  You should look at the example code posted in the lecture
+	notes for pointers on the logic and code syntax.
+
+	<li><a href="./code/signalAcquireDatapath.vhdl">signalAcquireDatapath.vhdl</a><br>
+	This is the datapath.  You will need to instantiate basic building blocks and
+	route the status and control word signals correctly.  You should use lots of
+	constants in your signalAcquire package to make your VHDL code more 
+	intuitive and thus easier to debug.
+
+	<li><a href="./code/signalAcquire.vhd">signalAcquire.vhd</a><br>
+	This is the top-level synthesis module.  Use the signal acquire package to store
+	the component declarations for the datapath and control.
+
+	<li><a href="./code/signalAcquire.xdc">signalAcquire.xdc </a><br>
+	This is the pin assignment file for the signalAcquire module.  You will need to
+	use the ALINX AX7010 Board Schematic posted on the class web page to
+	determine the pins for the missing entries in this file.
+</ul>
+
+<h2>Simulation</h2>
+To help you in debugging, I've provided some excerpts from my testbench simulation. If you right-click on the images and open in a new window, they will enlarge.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr> <td>Up To 200ns</td>	<td><img width=400 src="./img/upTo200ns.png"></td></tr>
+<tr> <td>At 1,311,800ns</td>	<td><img width=400 src="./img/at1311800ns.png"></td></tr>
+<tr> <td>At 1,316,200ns</td>	<td><img width=400 src="./img/at1316200ns.png"></td></tr>
+<tr> <td>At 1,318,200ns</td> 	<td><img width=400 src="./img/at1318200ns.png"></td></tr>
+<tr> <td>At 1,321,700ns</td>	<td><img width=400 src="./img/at1321700ns.png"></td></tr>
+</table>
+
+<h2>Synthesis</h2>
+You will need to complete the xdc (pin assignment) file before you can successfully 
+synthesize your design.  This will require you to work through the schematic and 
+look for the connections between the devices and pins on the Zynq chip.  You will also
+need to open up the AN706 ADC board schematic to identity which pins on the 40-pin
+connector are connected to the AD7060.
+<br><br>
+
+Once you get the project to synthesize, you will need to connect the AN706+interface
+board to the J10 header.  Please take care when doing this as mis-alignment of the pins
+can cause the header pins to get damaged.<br><br>
+
+To use the interface board:
+<ul>	<li>Slide the ON/OFF switch into the ON position.  When you do this a nearby
+	(green) LED will illuminate.
+	<li>Switch the channel 1 selector into the "P" position.  P stands for 
+	potentiometer.  Note there is a small "CH1" silk screened next to the 
+	audio jack to help you determine which side of the board is channel 1.
+	<li>Adjust the channel 1 potentiometer while pressing the PL_KEY4. The
+	LEDs should change.
+</ul>
+
+The image below shows me adjusting the channel 1 potentiometer.  Since this is an 
+early revision of the interface board, you may notice small differences to the 
+interface board that you use in lab.
+
+<br><img width=400 src="./img/synthesized.jpg"><br><br>
+
+
+    </body>
+</html>
+

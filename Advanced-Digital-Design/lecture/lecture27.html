@@ -1,0 +1,162 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture26.html">&ltPrev</a></li>
+                        <li><a href="./lecture28.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>27</td></tr>
+<tr><td>Handout</td>    <td><a href="../handout/acquireToHdmi.pdf">acquireToHdmi.pdf</a>
+<tr><td>Class Objectives</td>	<td>Have a firm understanding of the 
+datapath and control needed to realize a circuit that can extract  pairs
+of samples from the AD7606 and display them on a HDMI monitor.
+</table>
+
+
+
+<h2>acquireToHDMI component</h2>
+<br><img src="./img/acquireToHdmi.PNG"><br><br>
+
+<h2>Architecture</h2>
+The following is a walk-through of the oscilloscope functionality.
+
+<ul>
+<li>The analog input is sampled at a regular interval called the sampling rate.
+<li>Each sample is a 16-bit 2's complement number.
+<li>The width of the oscilloscope display, in pixels, is called a frame.
+
+<li>Functionality
+<ul>
+	<li>The oscilloscope is either in FORCED or TRIGGER mode.
+	<li>FORCED mode, a button press starts sample acquisition.
+	<li>TRIGGER mode, wait for trigger even to start sample acquisition.
+</ul>
+
+<li>TRIGGER mode
+<ul>
+	<li>The trigger voltage is a voltage level.
+	<li>If (prevAD7606sample &lt; tigger) and (currAS7606sample &gt; trigger) then TRIGGERED = true
+	<li>If (TRIGGERED = true) then store a frame's worth of consectutive samples in the BRAM.
+</ul>
+
+<li>Displaying
+<ul>
+<li>The videoSignalGenerator output the (horz,vert) pixel cordinate that is being displayed.
+<li>If BRAM[horz] = vert then paint this pixel the waveform color
+<li>As an analogy, this process can be thought of as follows.  Imagine a 3D printer starting at the
+top of the display and moving the print head from left to right across the display one row at a time.
+When instructed, the printer head dispenses a waveform pixel.  When the printer head gets to the end
+of a row, it returns to the left side, one row further down.  In this analogy the position of the 
+printer head is given by the videoSignalGenerator component.  The print head "prints" when the
+BRAM contains a 2's complement value that is equal to the current vertical position of the head.
+</ul>
+</ul>
+
+<h2>Converting Data into Pixels</h2>
+You will need to convert the 16-bit 2's complement values from the AD7606 into pixel cordinates.
+This is the role of the "2sToPixel" box in the datapath below.  In truth, I did not create
+a component for this task, but instead wrote a few lines of VHDL code to complete this task.
+<br><br>
+
+The starting point for this conversion is establishing the mapping between the 2's complement 
+vtalues coming from the AD7606 and the screen cordinates these points will be plotted at.
+
+<br><img src="./img/sampleToPixels.png"><br><Br>
+
+The waveforms on the display, green trace, consists of 16-bit 2's complement values 
+where +5 volts correponds to 2<sup>15</sup> and -5 volts correponds to -2<sup>15</sup>.
+On my display, the top is at vertical pixel cordinate 100 and the bottom is at 700 pixels.
+The next step is to write a linear equation for the mapping, shown at right in red, between
+the 2's complement values and the pixel cordinates.
+<pre>
+y axis is pixel, denoted pixel
+x axis is 16-bit 2's complement values from AD7606, denoted ad7606
+
+So re-interperting y = mx + b, we have pixel = m*ad7606 + b
+
+m = slope = &#x394;y / &#x394;x = -600/2<sup>16</sup>
+b = y intercept = 400
+
+So pixel = -600*ad7606/2<sup>16</sup> + 400
+</pre>
+
+<h3>Libraries</h3>
+You will need the IEEE.NUMERIC library to convert between data types and
+perform operations.<Br><br>
+
+There are three major data types that you may want to utilized:
+<ul>	<li>STD_LOGIC_VECTOR
+	<li>SIGNED
+	<li>UNSIGNED
+</ul>
+All of these are vector types menaing that when you create instances
+of them you need to include the 
+<font face="courier">(X downto 0)</font> modifier to declare how many
+bits the signal requires.
+<br><br>
+
+In order to performed signed multiplication (-600 * ad7606) you need 
+to convert the ad7606 value into a signed value.  You will accomplish this
+using the following syntax.
+<font face="courier">ad7606Signed = (SIGNED) ad7606SLV;</font>
+The text <font face="courier">(SIGNED)</font> acts to convert the following
+objet into a signed type with the same number of bits.  You can do the same using the 
+<font face="courier">(STD_LOGIC_VECTOR)</font> to convert a SIGNED type
+in to a same length STD_LOGIC_VECTOR.  You can also create SIGNED constants using the 
+<font face="courier">TO_SIGNED(-600,16)</font> to convert a SIGNED type
+
+<br><br>
+
+Once you have a signed type, you can perform operations like  multiplication
+and bit shifting.  I've included some code snippets below that you may find
+helpful. Remeber that multiplying two 16 bit vectors together produces a 
+32-bit result.
+<pre>
+use IEEE.NUMERIC_STD.ALL;
+
+architecture structure of datapath is
+
+    a_SLV: STD_LOGIC_VECTOR(15 downto 0);
+    a_SIGNED16, b_SIGNED16, c_SIGNED16: SIGNED(15 downto 0);
+    x_SIGNED32, y_SIGNED32 : SIGNED(31 downto 0);
+
+begin
+
+    a_SIGNED16 &lt;= (SIGNED) a_ALV;
+    b_SIGNED16 &lt;= TO_SIGNED(-100, 16);
+    x_SIGNED32 &lt;= a_SIGNED16 * b_SIGNED16;
+    y_SIGNED32 &lt;= SHIFT_RIGHT(x_SIGNED32, 4);
+
+    c_SIGNED16 &lt;= y_SIGNED32(15 downto 0);
+
+end structure;
+</pre>
+
+
+<h2>Datapath</h2>
+<br><img src="./img/acquireToHdmi_datapath.PNG"><br><br>
+
+
+
+</html>

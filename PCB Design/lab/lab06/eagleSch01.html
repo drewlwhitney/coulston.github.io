@@ -1,0 +1,381 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 302 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 302</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab02.html">Lab 2</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 302</h1>
+
+In Lab 2 - EAGLE schematic and MOSFET</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams "inLab" assignment at the start of next weeks class.
+Word process your solutions.
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+
+<h1>Initial prototype</h1>
+In this lab you are going to put together the core functionality of
+your component tester.  This will consist of a voltage regulator and
+the main power switch that will apply the stimulus to the DUT.
+Before you start, please go through 
+
+<h2>Creating a schematic in EAGLE</h2>
+
+
+<h3>Software install</h3>
+Create a project directory
+<br>
+
+Create an autodesk account
+<br>
+
+Download and install EAGLE
+<br>
+
+Download and install SparkFun Eagle library
+<ul>
+<li>Goto
+<li>Click on the green  "Clone or download" button,
+<li>Select the "Download ZIP option,
+<li>Goto the download directory on your machine,
+<li>Right mouse click on the "SparkFun-Eagle-Libraries-master" zip file
+and select "Extra All" in the download folder,
+<li>Move the "SparkFun-Eagle-Libraries-master" folder (the inner-most one)
+to the root EENG302 directory,
+<li>Launch EAGLE
+<li>Right mouse click on the "Libraries" folder and select "Open
+Library Manager",
+<li>In the Library Manger pop-up, select "Browse",
+<li>Navigate to your project director and into the
+"SparkFun-Eagle-Libraries-master" directory,
+<li>Select the first lbr file "LilyPad-Wearables" and then scroll
+down to the last lbr filea"User-Submitted" and hold the shift key
+while left mouse clicking to select all the lbr files in the SparkFun
+Eagle library,
+<li>Click "Open",
+<li>You should see a message indicateing that all the libraries have
+been added (there were 31 at last count).
+</ul>
+
+
+<h2>Schematic Capture with Eagle</h2>
+
+<h3>Create a new project and schematic</h3>
+<ul>
+<li>Launch EAGLE ,
+<li>Click Options -> Directories…,
+<li>In the Directories pop-up, in Project add 
+C:\Users\chris\Dropbox\MyProjects; Click OK when done,
+<li>In the Control Panel, open the Projects folder by clicking on the 
+triangle to its left,
+<li>Right mouse click on "Projects", navigate to your lab02 directory,
+and select "New Project",
+<li>Fill in the project name as lab02 and hit enter,
+<li>Right mouse click on lab02 and select New &rarr; Schematic
+</ul>
+
+<h3>The user interface</h3>
+By PCB layout tool standards, the user interface for EAGLE is basic.
+Most of your interactions will be through the left toolbar shown in
+the image below.  The icons in this toolbar represent actions that
+you can perform in the main schematic drawing area.  You can
+discover the name of each tool in the toolbar as a pop-up by loitering 
+your cursor over the icon for a second or two.  The 9 tools highlighted
+in the image below are used in today's lab - you will be introduced
+to others in the coming labs.
+<br><br>
+
+The toolbar above the schematic area, called the "top toolbar" is
+tool specific.  In otherwords, selecting different tools in the left
+toolbar will change what is shown in the top toolbar.  For example,
+try selecting the Move and then the Wire tools from the left toolbar
+and notice how the top toolbar changes.
+
+<br><img src="./img/userInterface.bmp"><br><br>
+
+
+<h3>Add components to a schematic</h3>
+You will now add the elements of your simple power supply.  Before we start,
+I need to introduce you to the most used control in eagle, zooming.  By
+rotating the mouse scroll wheel forward you zoom into the schematic at the
+point you are pointing at with the mouse.  Rotating the mouse scroll wheel 
+backwards you zoom out of the schematic.  I never use the side scroll bars
+to move my view of the schematic; once you are familiar with the mouse 
+scroll wheel technique you will be able to fly around the schematic 
+gracefully.
+<br><br>
+
+In this section you will be adding elements to your schematic.  The ADD
+pop-up window will be an important menu element during this process.  There
+are several terms used in the following text that are defined in this 
+image.  Please review and reference as you go throught the following steps.
+<br><img src="./img/add.bmp"><br><br>
+
+<ul>
+<li>In the left toolbar, click "add part" tool,
+<li>In the Search area type *317*.  Note that the "*" character is a wildcard
+and can represent any number of unknown characters,
+<li>Find the SparkFun-IC-Power library.  If you cannot find this library,
+then you need to use the EAGLE library manager to add the SparkFun EAGLE
+library using the instructions above,
+<li>Open the V_REG_317 folder by clicking on the open folder symbol ">"
+that is to the left of "V_REG_317",
+<li>Left click on "V_REG_317SINK. Note:
+<ul>	<li>The schematic symbol is shown in the upper right pane.  This
+	is the symbol that will appear on your schematic,
+	<li>The layout footprint is shown in the adjacent pane.  This will
+	be the physical area occupied by the LM317 on the printed circuit
+	board,
+</ul>
+<li>Click Ok,
+<li>Your cursor should now change into the schematic representation of
+the LM317 voltage regulator,
+<li>Right mouse click to rotate the LM317,
+<li>Left mouse click to place a copy of the LM317,
+<li>Go ahead and place a couple more copies,
+<li>Press the escape key when you are done placing,
+<li>Press escape (again) to get out of the ADD pop-up,
+<li>In the left toolbar, click on the Delete tool,
+<li>Left click on (and remove) all but one of the LM317,
+<li>Press Ctrl-Z to undo a previous action,
+<li>Move a part:
+<ul>	<li>Click on the Move tool in the left toolbar,
+	<li>To select a part (to move) you must click on its "handle", 
+	the small plus symbol located on or near the part,
+	<li>Use the mouse to reposition the part,
+	<li>Right mouse click to rotate the part 90&deg;,
+	<li>Left mouse click to place the part,
+</ul>
+<li>Copy a part:
+<ul>	<li>Click on the Copy tool in the left toolbar,
+	<li>To select a part (to copy) you must click on its "handle", 
+	the small plus symbol located on or near the part,
+	<li>Use the mouse to reposition the part,
+	<li>Right mouse click to rotate the part 90&deg;,
+	<li>Left mouse click to place the part,
+</ul>
+<li>Continue to add the parts listed in the table below,
+<li>Don't worry about the component values, you will
+fix them in the next section.
+</ul>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td><font color=red>Search</font>
+<td><font color=orange>Library	</font>
+<td><font color=purple>Folder	</font>
+<td><font color=green>Name	</font>
+<td><font color=blue>Description </font>
+<td>Value
+<tr><td>*317*	<td>SparkFun-IC-Power	<td>&nbsp;	<td>V_REG317SINK
+		<td>TO220-ADJ		<td>&nbsp;
+<tr><td>*frame*	<td>frames		<td>&nbsp;	<td>FRAME_A_L
+		<td>FRAME A Size, 8 1/2 x 11...  <td>&nbsp;
+<tr><td>*resistor* <td>SparkFun-Resistors	<td>RESISTOR	<td>RESISTORAXIAL-03
+		<td>AXIAL-0.3		<td>10k&ohm;, 2.2k&ohm;, 68&ohm;
+<tr><td>*capacitor*	<td>rcl		<td>CPOL-US	<td>CPOL-USE5-13
+		<td>E5-13		<td>100uF, 10uF
+<tr><td>*SPDT*	<td>SparkFun-Switches	<td>SWITCH-SPDT	<td>SWITCH-SPST-PTH11.6x4.0MM-LOCK	
+	<td>SWITCH-SPST-PTH11.6x4.0MM-LOCK <td>ON/OFF
+<tr><td>*binding*	<td>SparkFun-Connectors	<td>&nbsp; <td>BINDING_POST
+		<td>Binding Post	<td>&nbsp;
+<tr><td>*pot*	<td>TRIM_US-	<td>TRIM_US-RJ9W	<td>RJ9W
+		<td>&nbsp;		<td>2k&ohm;
+<tr><td>*led*	<td>led		<td>led		<td>LED5MM
+		<td>LED5MM			<td>PWR
+<tr><td>*gnd*	<td>supply1	<td>&nbsp;	<td>GND
+		<td>SUPPLY SYMBOL		<td>&nbsp;
+<tr><td>*vcc*	<td>supply1	<td>&nbsp;	<td>VCC
+		<td>SUPPLY SYMBOL		<td>&nbsp;
+<tr><td>*vout*	<td>SparkFun-PowerSymbols	<td>&nbsp;	<td>VOUT
+		<td>VOUT Voltage Output		<td>&nbsp;
+<tr><td>*jack*	<td>SparkFun-Connectors		<td>POWER_JACK	
+	<td>POWER_JACKPTH	<td>POWER_JACK_PTH		<td>&nbsp;
+<tr><td>*LM324*	<td>linear	<td>LM324	<td>LM324N
+	<td>DIL14	<td>&nbsp;
+</table>
+
+When completed, my arrangement of parts looks like:
+<br><img src="./img/parts.bmp"><br><br>
+
+<h3>Change part values</h3>
+<ul>
+<li>Click on the Value tool in the left toolbar,
+<li>Click on the component's handle,
+<li>In the Value pop-up enter the new value. Use the values given in the 
+table above.  Hint, to get "&ohm;" to appear type "Alt 234", where the 
+234 is typed on your keypad - make sure Num Lock is on,
+<li>If you get a warning (like the one below) when trying to change a component
+value, just click on Yes and proceed to change the value,
+<br><img src="./img/warn.bmp"><br>
+</ul>
+
+<h3>Connect parts with wires/nets</h3>
+Now that you have your parts, it's time to connect them.  In reality,
+I typically iterate between adding parts and connecting them into the 
+circuit.  Let's start:
+
+<ul>
+<li>Click on the line tool,
+<li>Select "Wire bend style 1" from the top menu,
+<li>Left mouse click on the right terminal of the fuse,
+<ul>	<li>Move the mouse around and note that a wire is drawn betwen
+	the current mouse position and the right terminal of the fuse,
+	<li>Try using the mouse scroll wheel to zoom in and out while still
+	being attached to the right terminal of the fuse,
+	<li>Left mouse click on the leftmost terminal of the 
+	LM317 (labeled "IN"),
+	<li>Move the mouse and note that a wire is drawn betwen
+	the current mouse position and the left terminal of the 317.
+	This indicates that you can continue wiring,
+	<li>Press escape to stop wiring.  You could also have performed
+	a quick double left-click on the left terminal of the LM317 to 
+	indicate that you do not want to continue wires after connecting
+	to the LM317,
+</ul>
+<li>To test that the varicity of the connection:
+<ul>	<li>Click on the Move tool in the left toolbar,
+	<li>Click on the fuse 
+	<li>Wiggle the mouse and verify that the wire follows the fuse,
+	<li>Press escape to undo your move and exit the Move tool,
+</ul>
+<li>Connect the input voltage capacitor to the wire just drawn,
+<li>Contine connecting components until your schematic looks like 
+the one below. If you get a warning (like the one below) about 
+merging nets, just click Yes. 
+<br><img src="./img/warnMerge.bmp"><br><br>
+
+</ul>
+
+When complete, your schematic should look like the following.
+
+<br><img src="./img/wired.bmp"><br><br>
+
+<h2>Touch up</h2>
+A schematic is an objective representation of your design decisions
+and thoughts.  Being a person who takes pride in their work,
+I try to make sure that my schematics are easy to read.  An easy to
+read schematic makes it easier for the members of your engineering 
+team to verify your design and ensure that your teams efforts will
+succeed.  Here are a few things that you can do to improve the
+readability of your schematic.
+
+<ul>
+<li>Add junctions - When two wires cross or meet in a schematic, there
+is the question of whether or not they are connected.  The junction
+marker (a solid green circle) placed at the intersection of wires
+indicates that they are connected.  If the intesection of 2 wires
+does not have a junction you should assume that the wires are not
+connected.  To add a junction marker click on the Junction tool in 
+the left toolbar and then click on the intersection that you want
+to add a junction marker to.
+<br><img src="./img/junction.bmp"><br><br>
+
+<li>Move labels - By default, each component in EAGLE has a name and 
+value which are attached to the component using a default position.
+Sometimes this position gets in the way of important circuit elements.
+When this happen, use the Smash tool to seperate the name and value of
+a component from the component.  In the figure below, I want to 
+reposition the name of the LM317 because it runs over the wire.  I
+select the Smash tool from the left toolbar and click on the LM317's 
+handle (the small "+" symbol) which causes the "U1" and "V_REF_317SINK"
+to now have handles as shown in the middle figure.  I then use the 
+Move tool to grab the V_REG_317SINK by its handle and move it out
+of the way, above the LM317.
+<br><img src="./img/smash.bmp"><br><br>
+
+
+<li>Add credit - A schematic serves many different roles in addition
+to being a stepping stone towards the construction of a circuit board.
+As a consequence you need to assign attribution to your schematic in the 
+lower right document area of the schematic.  In our class attribution
+is assigned using the following format:
+<pre>
+	Name:		&lt;Your name&gt;		&lt;Today's date&gt;
+	Course:		EENG xxx - ICE Field Session
+</pre>
+To add text click on the Text tool in the left toolbar.  Type your
+attribution text in the "Enter Text" area using Shift+Enter to add
+new line.  When you have entered all the text in the Text pop-up,
+click OK.  With the text dangling off your mouse cursor, go to the 
+top toolbar and switch to the "94 Symbols" layer, position 
+your text and then left mouse click to place the text.  Hit escape 
+twice to exit.
+
+<li>Respect the orgin - When you placed your schematic frame, you may not have 
+payed attention to EAGLE's global cordinate system.  The origin in EAGLE's
+schematic is indicated by a "+" symbol fixed on the schematic (as shown
+in the image below).  If the lower left-hand corner of the schematic frame is
+not coincident to the origin you will need to move everything as follows:
+<ul>	<li>Zoom out to view the entire schematic,
+	<li>Select everything in the schematic by pressing Ctrl-a
+	<li>Select the Move tool in the left toolbar,
+	<li>Press Ctrl and then right mouse click to grab everthing
+	in your schematic as a group,
+	<li>Move everything until the frame and EAGLE origin coincide,
+	<li>Left mouse click to place the schematic.
+</ul>
+<br><img src="./img/origin.bmp"><br><br>
+
+
+<li>Export to PDF - At some point you will want to share your schematic
+in a non-EAGLE format; we will use PDF.  To export your schematic in 
+PDF, I have found it easiest to print to a PDF. To do this:
+<ul>	<li>File &rarr; Print &helips;
+	<li>In the Print pop-up
+	<ul>	<li>Printer: &rarr; Print to File (PDF)
+		<li>Output file: &rarr; click on &helips; (at right),
+		navigate to a directory, name the output file, and 
+		then click Save,
+		<li>Orientation: &rarr; Landscape
+		<li>Scale factor: &rarr; 0.92
+		<li>Click OK
+	</ul>
+</ul>
+
+<li>When complete your schematic should look something like the following:
+<br><img src="./img/complete.bmp"><br><br>
+
+<h2>MOSFET</h2>
+
+
+<h2>Our circuit</h2>
+We will continue the construction of the device by incoerperating the
+MOSFET switch.
+
+
+
+
+
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - FE ICE Practicum">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab01/lab01.html">&lt;Prev</a></li>
+                        <li><a href="../lab03/lab03.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+<center>
+<h1>EENG 393</h1>
+Lab 2 - VU Meter Layout
+</center><br><br>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>2</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 2</h2>
+Some self-guided <a href="./inlab02.html">activities</a>.
+
+<h2>Objectives</h2>
+	<li>PCB structure
+	<li>EAGLE CAD layout basics
+	<ul>	<li>Layers and layer tool
+		<li>Moving around the layout
+		<li>Move tool
+		<li>Route and Ripup tool
+		<li>Polygon and Ratsnest tool
+	</ul>
+</ul>
+
+<h2>Lab 2 assignment</h2>
+You may complete this assignment in teams of two.
+Complete the layout of the VU meter by moving components
+and then routing the nets.
+<ul>	<li>Move resistors into the two boxes labeled "Put Ra-Rb in here",
+	<li>Leave the LM324, LEDs, and potentiometer where they are.
+	<li>Orient resistors to minimize trace length,
+	<li>Route the nets using 16 mil traces,
+	<li>Avoid right angles on traces,
+	<li>Do not route wires on bottom layer (no vias),
+	<li>Delete my instructions and boxes,
+	<li>Keep component designators (e.g. R1) and component values,
+	<li>Run the DRC with the vuMeter Design Rules rule set provided
+	to you in the inLab.  Clear all warning and errors.
+	<li>(Bonus) Add Blaster to layer 21 using the import-bmp ULP.  
+	Make sure to remove his background, just Blaster.
+	<li>Print your layout to PDF as follows:
+	<ul>	<li>File &rarr; Print,
+		<li>In the Print pop-up, 
+		<ul>	<li>Printer: Microsoft Print to PDF
+			<li>Orientation: Landscape
+			<li>Alignment: Center
+			<li>Area: Full
+			<li>Scale factor: 3
+		</ul>
+	<li>Click OK,
+	<li>In the "Save Print Output As" pop-up, navigate to your lab02
+	directory and give your file a meaningful name.
+	</ul>
+	<li>Upload your PDF to Canvas in the "Lab 2 - VU meter layout" assignment.
+	</ul>
+</ul>
+
+</html>

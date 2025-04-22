@@ -1,0 +1,300 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture04.html">&ltPrev</a></li>
+                        <li><a href="./lecture06.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>5</td></tr>
+<tr><td>Code </td>	<td>
+	<ul><li><a href="./code/mod10Counter_tb.vhd">mod10Counter_tb.vhd</a>
+	    <li><a href="./code/genericRegister.vhd">genericRegister.vhd</a>
+	</ul></td></tr>
+<tr><td>Class Objectives</td>	<td>Testbench, Libraries, signed, unsigned, operator overloading </tr>
+</table>
+
+
+
+<h2>Testbench</h2>
+Before you download your design onto the FPGA, a process called synthesis, you need to 
+verify that your design functions properly.  To do this you will simulate your circuit.
+This simulation must provide inputs to your circuit.  We will use a structure called a
+testbench to accomplish this.  Inside the testbench you will:
+<ul>	<li>Create an instance of your circuit, the unit under test (UUT)
+	<li>Create an oscillating clock signal
+	<li>Control the reset signal
+	<li>Control the inputs to your circuit
+</ul>
+In turn the simulator will allow you to look at selected signal on a timing diagram and,
+if needed, allow you to transcend the design hierarchy and look at any signal in your 
+design.  To make these ideas more concrete, let's perform a verification of the 
+mod10Counter that we were working with last lecture.
+<br><br>
+
+
+The ideas in the previous paragraph are captures in the image of the 
+mod10Counter testbench shown below.  T
+
+<br><img src="./img/mod10TestBench.bmp"><br><br>
+
+To simplify the following discussion I will call the mod10Counter_tb component
+the testbench.
+<ul>	<li>An instance of the mod10Counter is created inside testbench
+	<li>The signals inside the testbench which connect to the mod10Counter
+	have a "_t" postfix (added to their end).  This "_t" is short hand for
+	"testbench".
+	<li>The testbench has no external inputs or outputs.  It's entity declaration
+	look like:
+<pre>
+entity mod10Counter_tb is
+end entity mod10Counter_tb;
+</pre>
+	<li>We will have to create a process to manipulate <b>clk_t</b> and another
+	process to manipulate <b>enb_t</b> and <b>synch_t</b>.  The code to 
+	manipulate <b>reset_t</b> is shown in the diagram.
+</ul>
+
+The clock process, named "clk_process" goes through the following steps:
+<ol start=3>	<li>assigns clk_t to 0, 
+		<li>waits 5ns, 
+		<li>assigns clk_t to 1, 
+		<li>waits 5ns and then 
+		<li>ends.
+</ol>
+When any VHDL process execution reaches the "end process" statement,
+the process immediately returns execution to the begin statement at 
+the start of the process.  This forms an  infinite loops which helps 
+keep the clock running.
+<pre>
+1.	clk_process: process
+2.	begin
+3.		clk_t &lt;= '0';
+4.		wait for 5nS;
+5.		clk_t &lt;= '1';
+6.		wait for 5nS;
+7.	end process;
+</pre>
+
+The clock generated in this process has a period of 10ns.  Keep this in mind
+when you examine the code to generate the <b>enb_t</b> and <b>synch_t</b>
+signals in the following test_process.
+
+<pre>
+test_process: process
+begin
+	enb_t <= '1';
+	synch_t <= '0';
+	wait for 100nS;
+
+	enb_t <= '0';
+	synch_t <= '0';
+	wait for 10nS;		
+
+        enb_t <= '1';
+	synch_t <= '0';		
+	wait for 20nS;
+		
+	enb_t <= '0';
+	synch_t <= '0';
+	wait for 10nS;		
+		
+	enb_t <= '0';
+	synch_t <= '1';
+	wait for 10nS;
+		
+	enb_t <= '1';
+	synch_t <= '0';
+	wait;
+		
+end process;
+</pre>
+
+The last statement in the process is <b>wait;</b>.  A wait statement
+with no <b>for</b> modifier creates an infinite delay.  This causes the
+test cases in the process to run a single time.
+<br><br>
+
+The pattern of test signals in this proces may look familiar; it's the same input 
+pattern that we used in our last lecture to check that we understood 
+the behavior of the mod10Counter.  This timing diagram is shown below.
+
+<br><img src="./img/mod10CounterTimingBlank.png"><br><br>
+
+The reset signal is given in the testbench image above and holds the 
+<b>reset_t</b> signal low through a positive edge of the clock and 
+raises the reset signal on a negative edge of the clock.
+
+<h3>Simulation</h3>
+
+Its been a long time coming, let's discuss simulating our VHDL code.
+There are a lot of tool-specific mouse-clicks, project configurations,
+and error message that we could cover here.  But, for the time
+being I'll skip most of this and focus on the major steps.<br><br>
+
+After launching the simulator from the tool, you will need to decide
+which signals to view on the timing diagram.  You will almost always
+put the UUT entity signals on the timing diagram. You will need to
+define the color of the signal and the radix.  Both of these make
+verification easier.  Later in the semester,
+we will use a TCL script to automate this process, but for the first
+lab, you will do this manually. <br><br>
+
+The following shows the timing diagram for my mod10Counter.  Does
+this output look correct?
+<br><img src="./img/mod10CounterTimeSimulation.png"><br><br>
+
+<h2>Libraries</h2>
+Up to this point we have used STD_LOGIC_1164 library to define logic values
+and logical operators.  To get all this capability, we need to include 
+the following two lines at the top of your file.  
+
+<pre>
+library IEEE;		
+use IEEE.STD_LOGIC_1164.all; 
+</pre>
+
+Let's look at a few excerpts from the contents of the STD_LOGIC_1164 library.  You 
+can see the entire contents at 
+<a href="http://www.csee.umbc.edu/portal/help/VHDL/packages/std_logic_1164.vhd">this</a>
+link.  
+<br><br>
+
+<h3>std_logic_vector</h3>
+The datatype that we have been using for our logic values is fully revealed on line
+56.  You might have noticed a "U" for the value of currentCount in the previous 
+simulation output.  Look at the definition of std_logic below and you will get
+an interpretation for this output.  Note that std_ulogic is defined as std_logic
+on line 87.
+
+<pre>
+line 56:
+    TYPE std_ulogic IS ( 'U',  -- Uninitialized
+                         'X',  -- Forcing  Unknown
+                         '0',  -- Forcing  0
+                         '1',  -- Forcing  1
+                         'Z',  -- High Impedance   
+                         'W',  -- Weak     Unknown
+                         'L',  -- Weak     0       
+                         'H',  -- Weak     1       
+                         '-'   -- Don't care
+                       );
+</pre>
+
+Note that the std_logic type has 9 different values.  This is the real reason
+that your when/else statements should use a final unconditional <b>else</b> 
+statement so that every unspecified, weird, combination of the remaining
+7 std_logic values is covered.
+
+<h3>Operator Overloading</h3>
+Looking at the first hundred lines you will see several different definitions
+for the function AND, shown below.  Note, you can get Chrome to show line numbers
+by typing Ctrl-u.
+
+<pre>
+line 106:	FUNCTION "and"  ( l : std_ulogic; r : std_ulogic ) RETURN UX01;
+line 117:	FUNCTION "and"  ( l, r : std_logic_vector  ) RETURN std_logic_vector;
+line 118:	FUNCTION "and"  ( l, r : std_ulogic_vector ) RETURN std_ulogic_vector;
+</pre>
+
+The AND function is said to be <u>overloaded</u> because there are 
+several different functions called AND.  The choice of which AND
+function is used depends on the datatype of the arguments to AND.  For 
+example, if you write the CSA <font face="courier">c &lt;= a and b</font>.  
+and a and b have type std_logic_vector, then the AND defined on line 117
+will be used to evaluate the result.
+<br><br>
+
+
+<h3>Truth Tables</h3>
+While a bit academic, this library tells us how the AND function (and all
+the other logic operators)
+works with the 9 different values available to std_logic.  For example
+say you are evaluating the CSA <font face="courier">c &lt;= a and b</font>
+where a, b, and c are std_logic.  Let a be 'U' and b be '1', what value
+will c assume?  Go to the column U and the row 1 to find the answer;
+its 'U'.  Note that the table is symmetric about its major diagonal 
+because the AND operator has the 
+<a href="https://en.wikipedia.org/wiki/Commutative_property">commutative property</a>.
+
+
+<pre>
+Line 306:
+    -- truth table for "and" function
+    CONSTANT and_table : stdlogic_table := (
+    --      ----------------------------------------------------
+    --      |  U    X    0    1    Z    W    L    H    -         |   |  
+    --      ----------------------------------------------------
+            ( 'U', 'U', '0', 'U', 'U', 'U', '0', 'U', 'U' ),  -- | U |
+            ( 'U', 'X', '0', 'X', 'X', 'X', '0', 'X', 'X' ),  -- | X |
+            ( '0', '0', '0', '0', '0', '0', '0', '0', '0' ),  -- | 0 |
+            ( 'U', 'X', '0', '1', 'X', 'X', '0', '1', 'X' ),  -- | 1 |
+            ( 'U', 'X', '0', 'X', 'X', 'X', '0', 'X', 'X' ),  -- | Z |
+            ( 'U', 'X', '0', 'X', 'X', 'X', '0', 'X', 'X' ),  -- | W |
+            ( '0', '0', '0', '0', '0', '0', '0', '0', '0' ),  -- | L |
+            ( 'U', 'X', '0', '1', 'X', 'X', '0', '1', 'X' ),  -- | H |
+            ( 'U', 'X', '0', 'X', 'X', 'X', '0', 'X', 'X' )   -- | - |
+    );
+</pre>
+
+<h3>std_logic_unsigned</h3>
+For all its power, the STD_LOGIC_1164 library does not support numerical
+values and numerical operations like addition, and comparisons.  You 
+can see examples of these two operations in the 
+<a href="./code/genericAdder.vhd">genericAdder.vhd</a> and
+<a href="./code/genericComparator.vhd">genericComparator.vhd</a>
+basic building blocks.  Open these files and you will see that they
+both include 
+<font face=courier">use IEEE.STD_LOGIC_UNSIGNED.ALL;</font>. 
+The STD_LOGIC_UNSIGNED library supports operations like addition and magnitude
+comparisons on STD_LOGIC_VECTORs treated as unsigned binary numbers.  You can
+inspect the contents of this library at
+<a href="https://www.csee.umbc.edu/portal/help/VHDL/packages/std_logic_unsigned.vhd">this</a>
+link.  
+<br><br>
+
+<h3>Converting integers to STD_LOGIC_VECTORS</h3>
+There are times when it will be handy to convert a decimal number into 
+a STD_LOGIC_VECTOR.  For example, perhaps you would like to define the
+active width of a 1280x720 monitor in your VHDL file.
+<br><br>
+
+In order to do this, you will need to include "use IEEE.NUMERIC_STD.ALL;" 
+at the top of your file (along with the other includes). This library gives
+you access to the "to_unsigned" function given in the code snippet below.
+Then inside your VHDL architecture, before the "begin" statement, include
+the following code:
+
+<pre>
+constant H_ACTIVE : STD_LOGIC_VECTOR(11 downto 0) := std_logic_vector(to_unsigned(1280, 12));
+</pre>
+
+This line of code is pretty complex, so let's take a moment to look it
+over.  The keyword constant does what you'd expect, it makes H_ACTIVE an
+12-bit constant in your program.  The right hand side of the ":=" assignment
+operator creates the 12-bit value for 1280 using the "to_unsigned" operator
+and then converts this into a STD_LOGIC_VECTOR.  
+<br><br>
+
+This is a pretty handy code-snippet that you may want to use later on.
+</html>

@@ -1,0 +1,216 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture11.html">&ltPrev</a></li>
+                        <li><a href="./lecture16.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>15</td></tr>
+<tr><td>Class Objectives</td>	<td>Understand the elements and timing of a
+circuit built using datapath and control.</td></tr>
+</table>
+
+
+
+<h2>Datapath and Control</h2>
+
+The datapath and control design methodology break the design of digital
+systems into two components: a datapath and a control unit. The datapath
+is responsible for all the data manipulations and the control unit is 
+responsible for sequencing the actions of the datapath. The datapath is 
+constructed from the basic building blocks.
+<br><br>
+
+A digital system built using the datapath and control design approach is
+still a digital system whose inputs and outputs can be categorized into
+Data input, Data output, Control and Status. The digital system shown 
+below consists of two components, a datapath and a control unit.
+
+<figure>
+<img src="./img/dpAndControlArchitecture.gif">
+<figcaption>A digital system constructed from a datapath and a control unit.</figcaption>
+</figure>
+
+The datapath has the ability to perform a wide variety of data transformations. 
+The control unit instructs the datapath which transformation to perform using a set
+of signals called the control word. An often overlooked portion of
+the control word are signals provided by the external world such as the
+acknowledge signal in a two-line handshake. The datapath provides status
+information to the control unit.  
+
+
+<h3>Datapath Architecture and Timing</h3>
+A datapath is constructed from combinational and sequential bulding 
+block.  In many cases you can use the basic building blocks provided
+in the VHDL library used in previous assignments and summarized
+in the following table.
+
+<figure>
+<img src="./img/basicBuildingBlockList.gif">
+<figcaption>The list of all the basic building blocks and 
+some of their attributes.  
+</figcaption>
+</figure>
+
+In some cases, you will have to build your own building blocks like
+the videoSignalGenerator or scopeFace.  Regardless, the datapath 
+needs the ability to perform all the actions required of the digital
+system.  In dividing the design into a datapath and control, when
+constructing the datapath, you should focus solely on the actions 
+that need performed and NOT their sequencing. 
+<br><br>
+
+Each building block that you include in the datapath will have 
+some control bits.  You will concationate all of these control bits
+into a vector and make them an input to the datapath.  It will be
+the control units job to assert the correct control bits at the
+correct time.  To help the control unit accomplish this task, the
+control unit will need information in the form of status bits from
+the building blocks inside the datapath.  You will concationate all
+the status bits into a vector and make them an output of the 
+datapath.
+
+
+<h3>Control Unit Architecture and Timing</h3>
+The control unit is a finite state machine (FSM), the most general form of 
+sequential circuit, a circuit whose output is a function of the input and 
+an internal state.  In terms of the Figure below, the input is the 
+X vector, the state is the Q vector and the output, the Z vector.
+
+<br><img src="./img/fsmArchitecture.gif"><br><br>
+
+Each of the signals X, Y,Q,Z is a vector, consisting of zero or more bits.
+<ul>	<li>The X signal is the status word input from the datapath
+	<li>The Z signal is the control word output to the datapath
+	<li>The Q signal is the state of the control unit.  Each bit of Q is
+	the output of a D flip flop. Thus, if Q is six bits wide, then the FSM has
+	six D flip flops.
+	<li>The Y signals are called the memory inputs; they are the
+	data inputs to the D flip flops. The combinational logic circuit generating
+	the Y signals is called the memory input equations (MIEs). In order to
+	improve the readability of circuit diagrams, from now on, the clock signal
+	will not be shown. 
+<br><br>
+
+In order to define a finite state machine in VHDL, you will need to describe the 
+logic to generate the memory inputs Y and the logic to generate the outputs Z. 
+We will see how to accomplish this soon.
+
+
+<h2>FSM Timing</h2>
+The events occurring in the FSM are referenced to the clock input of
+the D flip flops inside the FSM.  The timing diagram below lists events
+(numberd in circles) with respect to the clock signal being applied to
+the Figure above.  The following list explains what happens at each of
+the points in time in the Figure below with respect to the circuit at the
+top of the page.
+
+<dl>
+<dt>Event 1</dt>
+<dd> Since flip flops sample their
+inputs on the positive edge of the clock, this point is the beginning of the
+timing analysis.
+</dd>
+
+<dt>Event 2</dt>
+<dd>The propagation delay of
+the flip flops means a small delay occurs between the clock edge and the flip
+flop outputs, Q, becoming valid.  This is the called the propagation delay of
+the flip flop and denoted T_ff in the diagram below.
+</dd>
+
+<dt>Event 3</dt>
+<dd>In order to maximize the clocking
+frequency of the FSM, the new inputs, X, to the FSM should be applied at
+the same moment that the flip flop outputs become valid. 
+
+<dt>Event 4</dt>
+<dd>According to Figure above, changing Q and X causes the memory inputs 
+to change (the Y signal above). The delay
+between the application of the new inputs to the MIE logic and Y becoming valid
+is the propagation delay of the combination logic, denoted Tcombo.
+</dd>
+
+<dt>Event 5</dt>
+When the Y values are valid, a small delay occurs while the flip flops 
+register their new inputs, denoted Tsu. After this setup time, the FSM 
+is ready for another clock edge.
+</dl>
+
+
+<br> <img src="./img/fsmTiming.gif"><br><br>
+
+
+<h2>Datapath and control - timing</h2>
+There are several important reasons to examine the timing behavior of a datapath
+and control circuit.  First, so that we can make informed predictions about
+the expected clocking frequency of our circuits.  Second, so that we can 
+identify critical paths in our circuit.  Third, so that we can develop our
+intuition about the operation of these complex circuits.<br><br>
+
+To facilitate a discussion of the timing behavior of the datapath and control
+circuit, lets examine the circuit from last lecture, the search algorithm for
+a minimum shown below.
+
+<br><img src="./img/detailedDpAndCu.gif"><br><br>
+
+Like we did in our last lecture, we will examine the time its takes, starting from
+a positive clock edge, to get the next state setup on the flip flops in the FSM.
+The positive clock edge has two
+primary effects: It causes the FSM to transition into a new state and it
+causes the registers in the datapath to latch new values. The propagation
+delay of the flip flops is referred to as Tp(A). Since the datapath
+requires a valid control word before it can begin, the critical path includes
+the output equation logic.<br><br>
+
+The D flip flops which store the state of the control unit are the
+input of the OEs. The delay between the application of a
+valid Q to when the OEs assert their new values is referred to as Tp(B).<br><br>
+
+The OEs of the FSM are the control word to the datapath 
+telling the elements in the datapath what operation to perform.
+Sequential logic components do not actually perform their instructed operations
+until the next clock edge arrives. On the other hand, combinational
+logic components perform their operations immediately.  It is easy to construct
+  datapath instances where the control word effects the status input to
+the control unit. For example, the control word selects an input of a mux,
+whose output is routed to a comparator, whose status output is sent to the
+control unit. Thus, the combinational logic is on the critical path because
+its delay constrains the maximum clocking frequency. The time difference
+between the application of a valid control word to the datapath and the
+status input to the control unit becoming valid is referred to as Tp(C). <br><br>
+
+The status input to the control unit are routed to the MIE logic.
+The delay between the status inputs becoming valid and the
+MIEs becoming valid is referred to as Tp(D).<br><Br>
+
+Once the memory inputs have stabilized, they must be allowed some
+setup time before the next clock edge. The setup time is referred to as Tp(E).<br><br>
+
+
+<br><img src="./img/dpAndCuTiming.gif"><br><br>
+
+
+
+</html>

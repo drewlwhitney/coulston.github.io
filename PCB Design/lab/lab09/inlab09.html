@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab09.html">Lab 9</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+In Lab 9 - Board review</center>
+
+<h2>Requirements</h2>
+Review three designs, assigned to you in class, using
+the file <a href="./boardReview.docx">boardReview.docx</a>.  After
+reviewing a design, upload the completed word document to that 
+person's Google Drive folder.
+
+
+<h1>Objective</h1>
+Critically examine a PCB layout and provide feedback.   Utilize feedback
+on your layout to improve the design.
+
+<h3>Parts review</h3>
+Please generate a bill of materials using the schematic and check it off 
+against the following table.
+The following table and schematic (scroll down) should resolve any questions
+that you may have about what footprint to use.  You can also look through 
+your bag of parts to see what parts have been provided.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td><b>Qty</b></td><td><b>Value</b></td><td><b>Device</b></td><td><b>Package</b></td><td><b>Parts</b></td><td><b>Description</b></td></tr>
+<tr><td>9</td><td></td><td>LEDCHIPLED_1206</td><td>CHIPLED_1206</td><td>LED1, LED2, LED3, LED4, LED5, LED6, LED7, LED8, LED9</td><td>LED</td></tr>
+<tr><td>2</td><td></td><td>SWITCH-DPDT-SMD-AYZ0202</td><td>SWITCH_DPDT_SMD_AYZ0202</td><td>S1, S2</td><td>Double-Pole, Double-Throw (DPDT) Switch</td></tr>
+<tr><td>1</td><td>100SP1</td><td>100SP1</td><td>100SP1</td><td>SW1</td><td></td></tr>
+<tr><td>4</td><td>10k</td><td>R-US_R1206</td><td>R1206</td><td>R12, R13, R15, R20</td><td>RESISTOR, American symbol</td></tr>
+<tr><td>2</td><td>10n</td><td>C-USC1206</td><td>C1206</td><td>C4, C5</td><td>CAPACITOR, American symbol</td></tr>
+<tr><td>3</td><td>10u</td><td>CPOL-USB</td><td>PANASONIC_B</td><td>C1, C2, C3</td><td>POLARIZED CAPACITOR, American symbol</td></tr>
+<tr><td>22</td><td>1k</td><td>R-US_R1206</td><td>R1206</td><td>R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R16, R17, R18, R19, R21, R22, R23, R24, R25, R26, R27</td><td>RESISTOR, American symbol</td></tr>
+<tr><td>1</td><td>1Ω</td><td>R-US_0411/15</td><td>0411/15</td><td>R14</td><td>RESISTOR, American symbol</td></tr>
+<tr><td>2</td><td>2.2U</td><td>C-USC1206</td><td>C1206</td><td>C6, C7</td><td>CAPACITOR, American symbol</td></tr>
+<tr><td>1</td><td>2N2222</td><td>TRANS_NPN-MMBT2222AL</td><td>SOT23-3</td><td>Q1</td><td>NPN transistor</td></tr>
+<tr><td>1</td><td>68</td><td>R-US_R1206</td><td>R1206</td><td>R28</td><td>RESISTOR, American symbol</td></tr>
+<tr><td>1</td><td>GND</td><td>JP1E</td><td>JP1</td><td>JP1</td><td>JUMPER</td></tr>
+<tr><td>2</td><td>LM324D</td><td>LM324D</td><td>SO14</td><td>IC1, IC2</td><td>Quad Op Amp 2.7V to 6.0V Single Supply CMOS</td></tr>
+<tr><td>1</td><td>LM334Z</td><td>LM334Z</td><td>TO92</td><td>IC4</td><td>3-Terminal Adjustable Current Sources</td></tr>
+<tr><td>1</td><td>LP2983IM5-1.0/NOPB</td><td>LP2983IM5-1.0/NOPB</td><td>MF05A</td><td>U2</td><td></td></tr>
+<tr><td>1</td><td>LP2985-10DBVR</td><td>LP2985-10DBVR</td><td>DBV5</td><td>U1</td><td></td></tr>
+<tr><td>1</td><td>LT3080</td><td>LT3080</td><td>TO-220-5R</td><td>REG1</td><td></td></tr>
+<tr><td>1</td><td>MFKDSP</td><td>MFKDSP</td><td>MFKDSP</td><td>JACK1</td><td></td></tr>
+<tr><td>3</td><td>MOUNT-HOLE2.8</td><td>MOUNT-HOLE2.8</td><td>2,8</td><td>H1, H2, H3</td><td>MOUNTING HOLE with drill center marker</td></tr>
+
+<tr><td>1</td><td>&nbsp</td><td>JACK-PLUG0</td><td>SPC4077</td><td>J2</td><td>DC POWER JACK</td></tr>
+<tr><td>2</td><td>EVUF2A</td><td>EVUF2A</td><td>EVUF</td><td>R30,R31</td><td>9mm Sqaure Rotary Potentiometers</td></tr>
+<tr><td>1</td><td>SK104-PAD</td><td>SK104-PAD</td><td>SK104-PAD</td><td>KK1</td><td>HEATSINK manufacturer Fischer/distributor Buerklin</td></tr>
+<tr><td>1</td><td>TLC274D</td><td>TLC274D</td><td>SO14</td><td>IC3</td><td>OP AMP</td></tr>
+<tr><td>4</td><td>TPPAD1-13</td><td>TPPAD1-13</td><td>P1-13</td><td>TP1, TP2, TP3, TP4</td><td>Test pad</td></tr>
+</table>
+
+
+<br><img src="./img/schematic.bmp"><br><br>
+
+
+<h3>Net review</h3>
+There are a variety of methods that you can employ to help ensure that
+your layout will be correct.  One of these is a net-by-net review of
+the schematic and layout.  The goal is to insure that every signal 
+you placed on the schematic, to connect components, is connecting the 
+corresponding components in the layout.
+<br><Br>
+
+Perform a net-by-net review of your design for next week.  This will require 
+a computer running EAGLE CAD, a paper copy of your schematic, a
+pencil and highlighter.  Perform the following steps to get ready
+for this process.
+
+<ul>	<li>Launch EAGLE CAD,
+	<li>Open your project,
+	<li>Open the schematic and layout side-by-side so that they
+	occupy the entire screen,
+	<li>In both the schematic and layout, click Zoom to fit, the 
+	magnifying glass with a black rectangle,
+	<li>In the schematic, select the information tool,
+	<li>Click on a part,
+	<li>The Properties pop-up for that part is highlighted in the 
+	layout,
+	<li>Click Ok to remove the Properties pop-up,
+	<li>In the schematic click on the Name tool,
+	<li>In the schematic click on a wire,
+	<li>The Name pop-up for the wire (showing its name) is
+	highlighted in the layout,
+	<li>Click OK to remove the Name pop-up.
+</ul>
+
+Remember that a net is a named interconnection of electrical devices.
+A net is a logical circuit element, meaning that we use it as a place-holder
+for something real.  When you "route a net", you transform the logical
+net connections into physical connections with wires.  In any first 
+generation design, it is a good idea to verify that the each net is 
+routed correctly.  In other words, verify that the physical wires 
+corresponding to the net connected to all the intended devices.
+<br><br>
+
+To do perform the following set of steps for each net in the schematic.
+<ul>	<li>Select it using the Name tool,
+	<li>Write the net's name on its wire in the schematic,
+	<li>If the net has a defined name, then place a check next to the
+	given name,
+	<li>For each device that the net (in the schematic) connects to:
+	<ul>	<li>Verify that it is connected in the layout,
+		<li>Highlight the schematic pin corresponding to this
+		connection.</ul>
+	<li>Repeat for all the nets in the schematic.
+</ul>
+
+</html>

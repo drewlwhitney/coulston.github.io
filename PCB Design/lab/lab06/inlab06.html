@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab06.html">Lab 6</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 6 - EAGLE schematic</center>
+
+<h2>Requirements</h2>
+There is no turn-in associated with this inLab.  You will need to follow
+the instructions given below in order to create your schematic.  Since
+each student needs to complete their own schematic (for your own PCB),
+you should complete the walk-through in this lab on your own.  When you
+complete this walk-through you will have completed a good portion of
+the assignment due next week. 
+
+
+<h2>Creating a schematic in EAGLE</h2>
+Today you will be creating a schematic for the constant voltage
+regulator portion of the uSupply.  We will substitute the 
+LM317 in place of your LT3080 because we do not have the footprint
+for this component, yet. You will rectify this in the next lab.
+
+
+<h3>Software install</h3>
+Create a project directory
+<br>
+
+Create an autodesk account at https://accounts.autodesk.com/
+<br>
+
+Download and install EAGLE from 
+https://www.autodesk.com/products/eagle/free-download
+<br>
+
+Download and install SparkFun Eagle library
+<ul>
+<li>Goto https://github.com/sparkfun/SparkFun-Eagle-Libraries
+<li>Click on the green  "Code" button, select "Download Zip",
+<li>Select the "Download ZIP option,
+<li>Goto the download directory on your machine,
+<li>Right-mouse click on the "SparkFun-Eagle-Libraries-master" zip file
+and select "Extra All" in the download folder,
+<li>Move the "SparkFun-Eagle-Libraries-master" folder (the inner-most one)
+to the root EENG393 directory,
+<li>Launch EAGLE
+<li>Right-mouse click on the "Libraries" folder and select "Open
+Library Manager",
+<li>In the Library Manger pop-up, select "Browse",
+<li>Navigate to your project director and into the
+"SparkFun-Eagle-Libraries-master" directory,
+<li>Select the first lbr file "LilyPad-Wearables" and then scroll
+down to the last lbr filea"User-Submitted" and hold the shift key
+while left mouse clicking to select all the lbr files in the SparkFun
+Eagle library,
+<li>Click "Open",
+<li>You should see a message indicating that all the libraries have
+been added (there were 31 at last count).
+</ul>
+
+<b>If you are on a lab computer, you will need to follow these steps to 
+install the SparkFun library.</b>  Thanks to our friends in the Computer
+Center for these.
+<ul>
+<li>Launch EAGLE 9.1.2, sign in using Autodesk account, close EAGLE
+<li>This should have created application folders in Z:\adit\My Documents\eagle
+<li>Browse to C:\sw\EAGLE-9.1.2\lbr
+<li>R-click on "SparkFun-Eagle-Libraries-master", Copy
+<li>Browse to Z:\adit\My Documents\eagle\libraries
+<li>R-click, Paste
+<li>Launch EAGLE, expand Libraries, libraries (User Libraries), confirm that Sparkfun libraries are now available
+</ul>
+
+
+<h2>Schematic Capture with Eagle</h2>
+
+<h3>Create a new project and schematic</h3>
+<ul>
+<li>Launch EAGLE ,
+<li>Click Options -> Directories…,
+<li>In the Directories pop-up, in Project add your course directory
+followed by a semicolon.  Click OK when done,
+<li>In the Control Panel, open the Projects folder by clicking on the 
+triangle to its left,
+<li>Right-mouse click on "Projects", navigate to your lab06 directory,
+and select "New Project",
+<li>Fill in the project name as lab06 and hit enter,
+<li>Right-mouse click on lab06 and select New &rarr; Schematic
+</ul>
+
+<h3>The user interface</h3>
+By PCB layout tool standards, the user interface for EAGLE is basic.
+Most of your interactions will be through the left toolbar shown in
+the image below.  The icons in this toolbar represent actions that
+you can perform in the main schematic drawing area.  You can
+discover the name of each tool in the toolbar as a pop-up by loitering 
+your cursor over the icon for a second or two.  The 9 tools highlighted
+in the image below are used in today's lab - you will be introduced
+to others in the coming labs.
+<br><br>
+
+The toolbar above the schematic area, called the "top toolbar" is
+tool specific.  In other words, selecting different tools in the left
+toolbar will change what is shown in the top toolbar.  For example,
+try selecting the Move and then the Line tools from the left toolbar
+and notice how the top toolbar changes.
+
+<br><img src="./img/userInterface.bmp"><br><br>
+
+
+<h3>Add components to a schematic</h3>
+You will now add the elements of your simple power supply.  Before we start,
+I need to introduce you to the most used control in eagle, zooming.  By
+rotating the mouse scroll wheel forward you zoom into the schematic at the
+point you are pointing at with the mouse.  Rotating the mouse scroll wheel 
+backwards you zoom out of the schematic.  I never use the side scroll bars
+to move my view of the schematic; once you are familiar with the mouse 
+scroll wheel technique you will be able to fly around the schematic 
+gracefully.
+<br><br>
+
+In this section you will be adding elements to your schematic.  The ADD
+pop-up window will be an important menu element during this process.  There
+are several terms used in the following text that are defined in this 
+image.  Please review and reference as you go through the following steps.
+<br><img src="./img/add.bmp"><br><br>
+
+<ul>
+<li>In the left toolbar, click "add part" tool,
+<li>In the Search area type *317*.  Note that the "*" character is a wildcard
+and can represent any number of unknown characters,
+<li>Find the v-reg. 
+<li>Left click on "LM317TS. Note:
+<ul>	<li>The schematic symbol is shown in the upper right pane.  This
+	is the symbol that will appear on your schematic,
+	<li>The layout footprint is shown in the adjacent pane.  This will
+	be the physical area occupied by the LM317 on the printed circuit
+	board,
+</ul>
+<li>Click Ok,
+<li>Your cursor should now change into the schematic representation of
+the LM317 voltage regulator,
+<li>Right-mouse click to rotate the LM317,
+<li>Left mouse click to place a copy of the LM317,
+<li>Go ahead and place a couple more copies,
+<li>Press the escape key when you are done placing,
+<li>Press escape (again) to get out of the ADD pop-up,
+<li>In the left toolbar, click on the Delete tool,
+<li>Left click on (and remove) all but one of the LM317,
+<li>Press Ctrl-Z to undo a previous action,
+<li>Move a part:
+<ul>	<li>Click on the Move tool in the left toolbar,
+	<li>To select a part (to move) you must click on its "handle", 
+	the small plus symbol located on or near the part,
+	<li>Use the mouse to reposition the part,
+	<li>Right-mouse click to rotate the part 90&deg;,
+	<li>Left mouse click to place the part or escape to abort the move,
+</ul>
+<li>Copy a part:
+<ul>	<li>Click on the Copy tool in the left toolbar,
+	<li>To select a part (to copy) you must click on its "handle", 
+	the small plus symbol located on or near the part,
+	<li>Use the mouse to reposition the part,
+	<li>Right-mouse click to rotate the part 90&deg;,
+	<li>Left mouse click to place the part or escape to abort the move,
+</ul>
+<li>Save your schematic:
+<ul>	<li>Click on File &rarr; Save,
+	<li>In the Save as pop-up use lab04 as the file name,
+	<li>Click the Save button
+</ul>
+<li>Close your schematic.  While it will be tempting to close your 
+	schematic using the "X" in the upper right of the schematic 
+	window, break this habit now. Because as you start manipulating 
+	both a schematic and a layout for a circuit, closing one file before
+	saving the other will create file inconsistencies between the
+	schematic and layout. <u>File inconsistencies will almost 
+	always result in the complete loss of all your work!</u>
+	So, follow these steps to properly close a project schematic and
+	layout pair,
+<ul>	<li>Switch from the schematic window to the Control Panel window,
+	<li>Right-mouse click on the orange "E" to the left of lab04,
+	<li>Select Close Project
+</ul>
+<li>Open your project by right clicking on the orange "E" to the left of
+	lab04 and selecting Open Project,
+<li>Continue to add the parts listed in the table below,
+<li>BE aware that you may need multiple copies of some parts,
+<li>Don't worry about the component values for now, you will
+fix them in the next section.
+</ul>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td><font color=red>Search</font>
+<td><font color=orange>Library	</font>
+<td><font color=purple>Folder	</font>
+<td><font color=green>Name	</font>
+<td><font color=blue>Description </font>
+<td>Value
+<tr><td>*317*	<td>v-reg		<td>&nbsp;	<td>LM317TS
+		<td>VOLTAGE REGULATOR	<td>&nbsp;
+<tr><td>*frame*	<td>frames		<td>&nbsp;	<td>FRAME_A_L
+		<td>FRAME A Size, 8 1/2 x 11...  <td>&nbsp;
+<tr><td>*resistor* <td>RCL	<td>R-US	<td>R-US_R1206
+		<td>R1206		<td>2.2k&ohm;, 1k&ohm; 68&ohm;
+<tr><td>*capacitor*	<td>rcl		<td>CPOL-US	<td>CPOL-USB
+		<td>PANASONIC_B		<td>10uF
+<tr><td>*switch* <td>Switch	<td>&nbsp;	<td>TL32PO
+	<td>TINY SWITCH ON - MOM <td>ON/OFF
+<tr><td>*pot*	<td>pot		<td>EVU		<td>EVUF2A
+		<td><b>EVUF</b> 	<td>20k&ohm;
+<tr><td>*led*	<td>led		<td>LED		<td>LEDCHIPLED_1206
+		<td>CHIPLED_1206	<td>green
+<tr><td>*gnd*	<td>supply1	<td>&nbsp;	<td>GND
+		<td>SUPPLY SYMBOL		<td>&nbsp;
+<tr><td>&lt;blank&gt;	<td>supply1	<td>&nbsp;	<td>V+
+		<td>Supply Symbol		<td>&nbsp;
+<tr><td>&lt;blank&gt;	<td>supply1	<td>&nbsp;	<td>VCC
+		<td>Supply Symbol	<td>&nbsp;
+<tr><td>*jack*	<td>con-jack	<td>JACK-PLUG
+	<td>JACK-PLUG0	<td>SPC4077 	<td>PWR_JACK
+<tr><td>*TLC274*<td>linear	<td>TLC274	<td>TLC274D
+	<td>SO14	<td>&nbsp;
+<tr><td>*LM334*	<td>linear	<td>LM*34	<td>LM334Z
+		<td>TO92	<td>&nbsp;
+</table>
+
+When completed, my arrangement of parts looks like:
+<br><img src="./img/parts.bmp"><br><br>
+
+<h3>Show op-amp power pins</h3>
+To see the power supply, you need to invoke it. Do this:
+<ul>
+<li>Click on the Invoke tool,
+<li>Click on the TLC274D in your schematic,
+<li>In the Invoke: IC3 (P) pop-up click on: "P PWR+- request 0 0" row,
+<li>Click OK,
+<li>Your cursor should change to a pair of vertical lines. These are the power supply wires for the TLC274P op-amp. Place the pair on lines on the nose of the TLC274 so that they just fit,
+<li>When you click the power pins onto the op-amp you will see their pin numbers,
+<li>Connect V+ to pin 4 and GND to pin 11.
+</ul>
+
+<h3>Change part values</h3>
+<ul>
+<li>Click on the Value tool in the left toolbar,
+<li>Click on the component's handle,
+<li>In the Value pop-up enter the new value. Use the values given in the 
+table above.  Hint, to get "&ohm;" to appear type "Alt 234", where the 
+234 is typed on your keypad - make sure Num Lock is on,
+<li>If you get a warning (like the one below) when trying to change a component
+value, just click on Yes and proceed to change the value,
+<br><img src="./img/warn.bmp"><br>
+</ul>
+
+<h3>Connect parts with wires/nets</h3>
+Now that you have your parts, it's time to connect them.  In reality,
+I typically iterate between adding parts and connecting them into the 
+circuit.  Let's start:
+
+<ul>
+<li>Click on the line tool,
+<li>Left mouse click on the lower right terminal of the ON/OFF switch,
+<ul>	<li>Move the mouse around and note that a wire is drawn between
+	the current mouse position and the right terminal of the switch,
+	<li>Try using the mouse scroll wheel to zoom in and out while still
+	being attached to the right terminal of the switch,
+	<li>Left mouse click on the leftmost terminal of the 
+	LM317 (labeled "IN"),
+	<li>Move the mouse and note that a wire is drawn between
+	the current mouse position and the left terminal of the 317.
+	This indicates that you can continue wiring,
+	<li>Press escape to stop wiring.  You could also have performed
+	a quick double left-click on the left terminal of the LM317 to 
+	indicate that you do not want to continue wires after connecting
+	to the LM317,
+</ul>
+<li>To test that the veracity of the connection:
+<ul>	<li>Click on the Move tool in the left toolbar,
+	<li>Click on the LM317,
+	<li>Wiggle the mouse and verify that the wire follows the LM317,
+	<li>Press escape to undo your move and exit the Move tool,
+</ul>
+<li>Continue connecting components until your schematic looks like 
+the one below. If you get a warning (like the one below) about 
+merging nets, just click Yes. 
+<br><img src="./img/warnMerge.bmp"><br><br>
+
+</ul>
+
+When complete, your schematic should look like the following.
+I did not show the frame in this image; we'll address this in
+a coming section.
+
+<br><img src="./img/wired.bmp"><br><br>
+
+<h2>Schematic Best Practices</h2>
+A schematic is an objective representation of your design decisions
+and thoughts.  Being a person who takes pride in their work,
+I try to make sure that my schematics are easy to read.  An easy to
+read schematic makes it easier for the members of your engineering 
+team to verify your design and ensure that your teams efforts will
+succeed.  Here are a few things that you can do to improve the
+readability of your schematic.
+
+<ul>
+<li>Add junctions - When two wires cross or meet in a schematic, there
+is the question of whether or not they are connected.  The junction
+marker (a solid green circle) placed at the intersection of wires
+indicates that they are connected.  If the intersection of 2 wires
+does not have a junction you should assume that the wires are not
+connected.  To add a junction marker click on the Junction tool in 
+the left toolbar and then click on the intersection that you want
+to add a junction marker to.
+<br><img src="./img/junction.bmp"><br><br>
+
+<li>Move labels - By default, each component in EAGLE has a name and 
+value which are attached to the component using a default position.
+Sometimes this position gets in the way of important circuit elements.
+When this happen, use the Smash/Resposition Attributes tool to separate 
+the name and value of
+a component from the component.  In the figure below, I want to 
+reposition the value of the POT.
+select the Smash/Resposition Attributes tool from the left toolbar 
+and click on the POT's 
+handle (the small "+" symbol) which causes the "R2" and "20k&ohm;"
+to now have handles as shown in the middle figure.  I then use the 
+Move tool to grab R2 by its handle and move it out
+of the way, above the POT.
+<br><img src="./img/smash.bmp"><br><br>
+
+
+<li>Add credit - A schematic serves many different roles in addition
+to being a stepping stone towards the construction of a circuit board.
+As a consequence you need to assign attribution to your schematic in the 
+lower right document area of the schematic.  In our class attribution
+is assigned using the following format:
+<pre>
+	Name:		&lt;Your name&gt;		&lt;Today's date&gt;
+	Course:		EENG xxx - ICE Field Session
+</pre>
+To add text click on the Text tool in the left toolbar.  Type your
+attribution text in the "Enter Text" area using Shift+Enter to add
+new line.  When you have entered all the text in the Text pop-up,
+click OK.  With the text dangling off your mouse cursor, go to the 
+top toolbar and switch to the "94 Symbols" layer, position 
+your text and then left mouse click to place the text.  Hit escape 
+twice to exit.
+
+<li>Mirror part - optional
+Sometimes a part's orientatation interferes with your ability to 
+convey some design concept.  When this happens you can use the
+mirror to change the perspective of a part.  To do this....
+<ul>	<li>Click on the information tool (in upper left of the toolbar),
+	<li>Click on the parts's handle,
+	<li>In the Properties pop-up, check mirror,  
+	<li>Click OK
+</ul>
+<br><img src="./img/mirror.bmp"><br><Br>
+After clicking OK, you can use the move tool to select the part and move
+it into position in its new perspective.
+
+<li>Respect the origin - When you placed your schematic frame, you may not have 
+payed attention to EAGLE's global coordinate system.  The origin in EAGLE's
+schematic is indicated by a "+" symbol fixed on the schematic (as shown
+in the image below).  If the lower left-hand corner of the schematic frame is
+not coincident to the origin you will need to move everything as follows:
+<ul>	<li>Zoom out to view the entire schematic,
+	<li>Select everything in the schematic by pressing Ctrl-a
+	<li>Select the Move tool in the left toolbar,
+	<li>Press Ctrl and then right-mouse click to grab everything
+	in your schematic as a group,
+	<li>Move everything until the frame and EAGLE origin coincide,
+	<li>Left mouse click to place the schematic.
+</ul>
+<br><img src="./img/origin.bmp"><br><br>
+
+<!--
+
+<li>Export to PDF - At some point you will want to share your schematic
+in a non-EAGLE format; we will use PDF.  To export your schematic in 
+PDF, I have found it easiest to print to a PDF. To do this:
+<ul>	<li>File &rarr; Print &hellip;
+	<li>In the Print pop-up
+	<ul>	<li>Printer: &rarr; Print to File (PDF)
+		<li>Output file: &rarr; click on &helips; (at right),
+		navigate to a directory, name the output file, and 
+		then click Save,
+		<li>Orientation: &rarr; Landscape
+		<li>Scale factor: &rarr; 0.92
+		<li>Click OK
+	</ul>
+-->
+</ul >
+
+<li>When complete your schematic should look something like the following:
+<br><img src="./img/complete.bmp"><br><br>
+
+<h3>Multi-device components</h3>
+When you add a device with several identical functional units,
+you may see the device represented as individual functional
+units.  This capability comes with some special commands that
+we will now cover.
+<br><Br>
+
+Our power supply uses a quad operational amplifier.  When
+the term "quad" is used to describe an operational amplifier, it
+means that there are four operational amplifiers inside the single
+integrated circuit package.  EAGLE can treat each one of the four
+operation amplifiers like its own component on the schematic even
+through they all belong on a single integrated circuit.  To see
+what I mean do the following:
+
+<ul>
+	<li>Select the ADD tool from the left toolbar
+	<li>Search for *TLC274*, go to the "linear" library, 
+	open the "TLC274" folder, and select the "TLC274D"
+	in the "SO14" package,
+	<li>Your pointer will change to a operational amplifier
+	symbol,
+	<li>Left mouse click somewhere on the schematic,
+	<li>Add five more operational amplifiers.
+</ul>
+You should end up with something that looks like the following.
+
+<br><img src="./img/opAmp.bmp"><br><Br>
+
+Notice that the first four operational amplifiers that you placed all
+had names "IC1*" where * was A-D.  The letter designates which operational
+amplifier on the chip (shown at right) is being used.  
+
+<br><br>
+
+Start by deleting all the additional op-amps that you just created.
+To see the power supply, you need to invoke it.  Do this:
+<ul>	<li>Click on the Invoke tool,
+	<li>Click on the TLC274D in your schematic,
+	<li>In the Invoke: IC (P) pop-up click on: 
+	"P PWR+- request 0 0" row,
+	<li>Click OK,
+	<li>Your cursor should change to a pair of vertical lines.
+	These are the power supply wires for the TLC274P op-amp.
+	Place the pair on lines on the nose of the TLC274 so that 
+	they just fit,
+	<li>When you click the power pins onto the op-amp you will
+	see their pin numbers,
+	<li>Connect V+ to pin 4 and GND to pin 11.
+</ul>
+
+<h3>Swapping op-amps</h3>
+Since all the op-amps in the TLC274D are the same, it does not
+matter which is associated with a particular function.  In some
+cases it may make your layout much nicer if you could swap which
+op-amp on the chip is associated with a particular function. 
+EAGLE CAD has a swap function which allows you to swap which 
+of the four op-amps inside the chip is being used.
+
+<ul>	<li>Click the add part tool,
+	<li>Add two extra TLC274D op-amps off to the side of the 
+	schematic,
+	<li>Click on the Gateswap tool,
+	<li>Click on the first extra op-amp,
+	<li>The op-amp should be highlighted,
+	<li>Click on the second extra op-amp,
+	<li>The op-amps should have swapped locations.
+</ul>
+
+
+<h3>Nameing nets</h3>
+Often there is a special function associated with a signal in
+your schematic that you would like others, who are reading
+your schematic, to understand.  In this case, you will want
+to name the signal.  A signal in EAGLE is called a net to 
+elicit the idea of a network of wire.  By "network" I mean
+a connected collection of wire, everywhere having the same
+potential.  This network can have branches that go to
+different destinations.  For example, in the image below,
+the region circled in purple is a single net that is connected
+to the switch, VIN, resistor R1, capacitor C4 and IC2 is a single
+net.
+<br><img src="./img/net.bmp"><br><br>
+
+The EAGLE CAD schematic capture software will <u>always</u>
+assign a name a name.  If the net is connected to a supply signal
+(like VIN, VCC and GND), the net will be named with the supply 
+name.  Otherwise, EAGLE will name generate a generic name 
+"N$&lt;NET_NUMBER&gt;" where NET_NUMBER is an integer value
+that is incremented everytime you create a new net.
+<br><Br>
+
+You can replace the name of a generic net using the Name tool 
+(just to the left of the Value tool).  To do this, select the
+Name tool, then click on the net you want to rename.  In the
+Name pop-up, type in the name of the net and then click OK.
+The cursor will be replaced with the name of the net.  Move the
+net name to where you want it placed (probablly adjacent to the 
+net you are naming) and left click to place.
+<Br><Br>
+There will be times when the net name is not being displayed
+displayed on schematic, but you would like to see it.  In this case,
+you need to use the Label tool, just above the Value tool (it 
+looks like a tag with the letters "AB" inside it).  To show a net
+name, click on the Label tool then click on the net.  The cursor 
+will change to the net name, then position the name where you would
+like it shown on the schematic then left mouse click to place the
+name. 
+
+
+<h3>Air wires</h3>
+There are times when drawing every wire on a schematic can lead to 
+confusion on the part of someone reading the schematic due to all
+the crossing wires.  While it may seem inevitable that there are
+going to be crossing wires, you can use air wires to eliminate 
+the clutter.  An air wire creates a physical connection between
+two wires by naming the wires with the same name.  You have already
+done this several times in your schematic when you placed GND at
+several different locations - you didn't physically wire all those
+grounds to the same node, you just naturally assumed that they were
+connected to the same common ground. 
+<br><br>
+
+<h3>Renumber</h3>
+Often, in the process of drawing a schematic, you will add and subtract
+parts.  This will often lead to gaps in same part names (R1, R2, R4 &hellip;)
+and same parts that are next to each other with a large difference in 
+part names (part R3 being adjacent to part R17).  While these may seem
+annotances, they can be considered defects in the schematic - parts that
+are near one another are typcailly logically related and, as a consequence,
+should have "nearby" part names.  The EAGLE schematic capture software 
+has a User Library Program that can renumber a schematic for you.  To do
+this, follow this procedure.
+
+<ul>	<li>File -> Run ULP...
+	<li>In the ULP pop-up, click the Browse... button
+	<li>In the Run pop-up navigate to:
+		C:\sw\EAGLE 9.1.3\examples\ulps\examples
+	<li>Select "renumber-sheet.ulp" and click Open
+	<li>In the "Eagle: Renumber Schematic" pop-up, 
+	<ul>
+		<li>Uncheck "Renumber parts without package"
+		<li>click OK
+	</ul>
+</ul>
+
+<br><img src="./img/renumber.bmp"><br><br>
+
+
+You are now well on your way to completing the assigned Lab work for
+this week.  Chec back on the main lab page for specific deliverables.
+You may also want to check the Canvas page for the rubric used to 
+evaluate your work.
+
+</html>

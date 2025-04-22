@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 302 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 302</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab10.html">Lab 10</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 302</h1>
+
+In Lab 10 - Bill of Materials</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams "inLab" assignment at the start of next weeks class.
+Word process your solutions.
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+
+<h1>Objective</h1>
+Learn how to build a BOM derrived from the PCB schematic.
+
+
+<h3>Copy Lab 9 EAGLE files into Lab 10</h3>
+I would like to you to keep a copy of the work completed so far
+in lab09 and use it as a starting point for lab10.  To do this:
+<ul>	<li>Create a lab10 folder, 
+	<li>Launch EAGLE CAD,
+	<li>Navigate to the lab09 directory so that you can see the
+	orange "E" for lab09,
+	<li>Right mouse click on the orange "E" to the left of lab09,
+	<li>Select Copy
+	<li>In the Copy directory pop-up, navigate into the lab10 directory,
+	<li>Click "Select Folder",
+	<li>In the Control Panel, right mouse click on the orange "E" to
+	the left of lab10 (in the lab10 project),
+	<li>Select rename,
+	<li>Change the name of the project to lab10
+	<li>Rename lab10.sch to lab10.sch in the same way,
+</ul>
+
+<h3>Eagle BOM</h3>
+
+It seems that I spend as much time selecting components for my PCBs than
+I do laying out the PCB.  I guess what I am trying to say is that the
+parts list for a PCB, called the bill of materials (BOM), represents 
+a significant investiment of time putting a PCB together.  So we will
+put together the BOM for your power supply using the following steps.
+Before starting, download the <a href="./383BOM.xlsx">383BOM.xlsx</a>
+file and store it in your lab10 folder.
+
+<ul>	<li>Open your BOM excel file,
+	<li>Add a new tab and call it EAGLE BOM,
+	<li>Launch EAGLE,
+	<li>Open the project and open the schematic,
+	<li>File &rarr; Run ULP&hellip;
+	<li>In the ULP pop-up:
+	<ul>	<li>Click "Browse&hellip;
+		<li>Navigate to "C:\EAGLE 9.1.3\examples\ulps\examples"
+		<li>select "bom.ulp"
+		<li>click Open		</ul>
+	<li>In the EAGLE: Bill of Material pop-up select
+	List type: Values, Output format: CSV,
+	<li>Click View,
+	<li>In the Eagle: Bill Of Material - Preview pop-up
+	click on any portion of the text and press 
+	Ctrl-A to select all the text then press
+	Ctrl-C to copy all the text into a buffer,
+	<li>Open Excel,
+	<li>Right mouse click on cell A1 (in the EAGLE BOM tab),
+	<li>Select Paste - Match Destination Formating (M).  This is the
+	clipboard with paper icon,
+	<li>Data &rarr; Text to Columns,
+	<li>In the Convert Text to Columns Wizard Step 1 pop-up, select
+	the Delimited radio button,
+	<li>Click next,
+	<li>In the Convert Text to Columns Wizard Step 2 pop-up, select
+	Semicolon,
+	<li>Click Finish.
+</ul>
+
+You should end-up with something that looks like the following image.
+You can and should cut off the columns to the right of "Description"
+(Column F), leave the Description column.
+
+<br><img src="./img/eagleBOMoutput.bmp"><br><Br>
+
+<h3>Digikey BOM</h3>
+Each of the items in the Eagle BOM represents an item that you may need
+to purchase.  Note that some of the items in the BOM, like mounting holes,
+are contained on the finished PCB, so do nbot need purchased.
+<br><br>
+
+There are significant variations in how BOM's are documented across 
+industry and even for different vendors.  My BOM's have a 
+header for each vendor that parts are ordered from.  Below the vendor
+name are the fields that identify cruical information for each part.
+These include:
+<ul>	<li>Description	
+	<li>Manf	
+	<li>Manf Part #	
+	<li>DigiKey Part #	
+	<li>Foot	
+	<li>Unit Cost	
+	<li>Qty/Board	
+	<li>Total
+</ul>
+
+<br><img src="./img/digikeyBOMoutput.bmp"><br><Br>
+
+Let's look at one item on our BOM, the TLC274D, and fill in the 
+information using Digikey's parametric serarch.  Start by opening
+a browser and navigating to digikey.com.  Enter "TLC274D" into the
+main search box and hit enter.
+
+<br><img src="./img/mainDigi.bmp"><br><br>
+
+No results!?  Usually when you get a no-result from Digikey, it means
+that you have been too specific.  So let's simplify the search to the
+more general "TLC274", leaving off the last character.  You should get
+something that looks like the following image - the particular result
+you get wil probablly be slightly different as Digikey's inventory
+changes day-to-day.
+
+<br><img src="./img/searchDigi.bmp"><br><br>
+
+Work in super teams of four to divide the task of completing the BOM
+for our power supply up.    Make sure to:
+<ul>	<li>Get all the resistors from the same vendor and same series,
+	<li>Get all parts with the correct footprint,
+	<li>Use vernier's to measure the diameter of your capacitors,
+	<li>Use Lab 6 and 7 to help get the Digikey part numbers,
+	<li>Check if part number information is embedded in the EAGLE
+	part information,
+	<li>Make sure that the hex standoff's are just tall enough for the 
+	tallest part under the upper acrylic,
+	<li>Organize the BOM from top to bottom by ICs, LED, mechanical, 
+	capacitors, and resistors,
+	<li>Compete a total cost of the board at the bottom of column H.
+</ul>
+
+</html>

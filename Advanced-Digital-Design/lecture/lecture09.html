@@ -1,0 +1,235 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture06.html">&ltPrev</a></li>
+                        <li><a href="./lecture10.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>9</td></tr>
+<tr><td>Code	<td>
+<tr><td>Class Objectives	<td>Be able to write a constraint file given an 
+	entity description and the AX7010 schematic.
+</table>
+
+
+When reflecting on this lesson, I am reminded of the famous words of 
+astronomer Carl Sagan, "If you wish to make an apple pie from scratch
+you must first invent the universe".  By this I think that something
+straight forward like synthesizing a component invokes a whole universe
+of topics, all of which are require your understanding.  
+
+
+
+<h2>FPGA Fabric</h2>
+Up to now you have learned and practiced simulating a digital circuit.  This is an
+important first step in the deployment of your digital circuit inside a FPGA, a
+processed called synthesis.  The software used must convert your VHDL file into
+something that maps onto the internal structure of the FPGA.  <br><br>
+
+The Xilinx FPGA has an array of configurable logic block (CLB) that are 
+interconnected by a configurable interconnection network that enables 
+signals to travel between CLBs.  Yo could think of the CLBs as small
+panels of fabric and the interconnection network as threads that connect
+adjacent CLBs.  From this analogy comes the term "FPGA Fabric".
+<br><br>
+
+The following figure shows the logical elements that make up one CLB.  
+<ul>	<li>purple = 5-input, 2-output look up tables (LUTs). The LUT is
+	just random access memory with 5-bits of address, with a 2-bit
+	word.
+	<li>blue = D flip flops
+	<li>green = multiplexers
+</ul>
+This image can be found on page 20 of 
+<a href="https://www.eng.auburn.edu/~nelson/courses/elec4200/FPGA/ug474_7Series_CLB.pdf">
+UG474</a>
+
+<br><img src="./img/fpgaSlice.bmp"><br><br>
+
+<h3>LUT utilization</h3>
+The LUTs are used to store combinational logic, things that can be described
+with truth tables.  As an example, let's say you wanted
+to synthesize the majority circuit discussed in the first couple lectures
+into the FPGA fabric.
+The truth table for the majority circuit looks like:
+
+<pre>
+a b c | f
+------|--
+0 0 0 | 0
+0 0 1 | 0
+0 1 0 | 0
+0 1 1 | 1
+1 0 0 | 0
+1 0 1 | 1
+1 1 0 | 1
+1 1 1 | 1
+</pre><br><Br>
+
+The synthesis software would store the bits 0, 0, 0, 1, 0, 1, 1, 1 in the
+first 8 memory locations of the LUT and wire the least significant 3 
+address lines to the variables a, b, c.  The most significant 2 address
+lines would be hard-wired to "00", so only the lower 8 words would be
+accessible.
+<br><br>
+
+How can you realize a function with more than 5-inputs?  Use multiple LUTs
+and then combine their outputs.  For example, let's say you have a 6-input
+function F(a,b,c,d,e,g) that you want to store.  The truth table for this 
+function will have 2<sup>6</sup>=64 rows.  Store the first 32 rows in the
+A LUT and the last 32 rows in the B LUT.  Send the inputs b,c,d,e,g into the 
+address lines of A and B LUTs.  The output from these two LUTs will leave the 
+CLB through the AMUX and BMUX outputs.  Configure the interconnection network
+to run these two outputs into a third LUT with a, AMUX and BMUX as the 
+address bits.  This third LUT acts like a multiplexer with the a input acting
+like the select and the AMUX and BMUX values as y1 and y0.  I've put the
+truth table below for reference.
+
+<pre>
+a AMUX BMUX | F
+------------|--
+0 0    0    | 0
+0 0    1    | 0
+0 1    0    | 1
+0 1    1    | 1
+1 0    0    | 0
+1 0    1    | 1
+1 1    0    | 0
+1 1    1    | 1
+</pre><br><Br>
+
+Neat :)
+
+
+<h3>Pinout</h3>
+We are using the Xilinx Zynq 7010 chip.  This ball grid array (BGA) chip has 400 pins.
+Like most chips, some pins have dedicated purposes, like power, clocks, and access to
+external DDR RAM.   The complete list of pin 
+
+<a href="https://www.xilinx.com/content/dam/xilinx/support/packagefiles/z7packages/xc7z010clg400pkg.txt">Zynq 7010 CLG 400</a>
+
+
+
+The pins that you will want to focus on are those labeled "HR" in the
+"I/O Type" column. These pins all have labels in the "Pin Name" 
+column like "IO_L19N", abbreviated to "N15" in the "Pin" column.
+The abbreviation "R17" means that the pin is in row R and column 17
+in the following diagram (page 33 in
+<a href="https://cdn.hackaday.io/files/19354828041536/ug865-Zynq-7000-Pkg-Pinout.pdf">UG865</a>).
+
+<br><img src="./img/clg400PinLocation.bmp"><br><br>
+
+
+<h3>ALINX AX7010 Schematic</h3>
+Let's return to our example of the majority circuit.  Say I asked you to 
+connect the a,b,c inputs to three of the push buttons on the ALINX board
+shown outlined in red and output the result on the LED
+outlined in green.
+
+<br><img src="./img/alinxButtons.bmp"><br><br>
+
+Notice, if you can, the silk screen the names for these button and LED.
+<ul>	<li>PLKEY2
+	<li>PLKEY3
+	<li>PLKEY4
+	<li>PLLED4	</ul>
+
+These names appear in the 
+<a href="../AX7010 Board Schematic V2.0.pdf ">AX7010 schematic</a>.  I have
+found the following step-by-step procedure most effective when using this
+complex schematic.
+<ul>	<li>Relate your entity to the devices on the AX7010 board
+	<li>Look at the AX7010 silk screen and identify the names
+		of the devices.
+	<li>Open the AX7010 schematic and search for the silk screen names.
+	<li>Verify the names match the component that you are looking at
+		on the board.
+	<li>Look for the silk screen name on Bank 34 or 35 on page 5 of
+		the schematic.
+	<li>Find the corresponding pin name.
+</ul>
+
+For example, let's look for the pin associated with the PLKEY4.
+
+<br><img width=600 src="./img/findPin.bmp"><br><br>
+
+From the images above, you can see that PLKEY4 is connected to 
+pin R17.  If you have been following the discussion, we wanted to associate the
+c input with PLKEY4 and by association pin R17.  This association between
+the c input and pin R17 is captured in the .XDC file.
+
+<h2>XDC file</h2>
+We now come to the apple pie.  You will create a Xilinx Design Constraint (XDC)
+file that contains the association between the signals of the entity and the 
+pins of the FPGA.  For example, the person who designed the ALINX AX7010 board 
+made a decision to run the PLKEY4 push buttons to pin R17.  We want that push 
+button to be associated with the c input of the majority circuit.  The
+remaining associations between the signal of the majority entity and the
+pins of the Zynq 7010 FPGA are shown in the following image.
+
+<br><img src="./img/xsaFile.bmp"><br><Br>
+
+This interface between the FPGA pins and entity signals is captured 
+in the following XDC file.  Each signal in
+the entity has two rows, one defining the pin associated with the 
+signal and the second defining the logic type of the signal.
+
+<pre>
+set_property PACKAGE_PIN N16 [get_ports a]
+set_property IOSTANDARD LVCMOS33 [get_ports a]
+
+set_property PACKAGE_PIN T17 [get_ports b]
+set_property IOSTANDARD LVCMOS33 [get_ports b]
+
+set_property PACKAGE_PIN R17 [get_ports c]
+set_property IOSTANDARD LVCMOS33 [get_ports c]
+
+
+set_property PACKAGE_PIN J16 [get_ports f]
+set_property IOSTANDARD LVCMOS33 [get_ports f]
+</pre>
+
+A question that might pop-up is, "How to handle signals
+that have a STD_LOGIC_VECTOR type"?  All you have to is to
+assign each bit in the vector to its own pin and use 
+square brackets to index the bits of the vector.  For example
+say that we had an entity with 
+<font face="courier">data: in STD_LOGIC_VECTOR(7 downto 0);</font>
+You would have the following lines in your XDC file.
+
+<pre>
+set_property PACKAGE_PIN U17 [get_ports data[7]]
+set_property IOSTANDARD LVCMOS33 [get_ports data[7]]
+
+...
+
+set_property PACKAGE_PIN T17 [get_ports data[0]]
+set_property IOSTANDARD LVCMOS33 [get_ports data[0]]
+</pre>
+
+In this example, the pins U17 and T17 would have to be some hardware
+device that was capable of accepting 8-bit values.  We will explore
+such devices in later labs.
+
+</html>

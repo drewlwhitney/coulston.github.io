@@ -1,0 +1,96 @@
+
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture32.html">&ltPrev</a></li>
+                        <li><a href="./lecture37.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>33</td></tr>
+<tr><td>Class Objectives</td>	<td>Have a firm understanding of the 
+software needed to be designed to operate the enhancedPwm module.
+</table>
+
+
+<h2>Hardware/Software System</h2>
+
+
+<h2>Fixed point arithmetic</h2>
+The fixed point representation of a decimal number is realized by
+moving the decimal point from its usual position, just after the 
+least significant bit, to somewhere between the MSB and LSB.  The
+position of the decimal point is given by the number of bits to 
+the left and right of the decimal point.  So a 6.10 fixed point
+format binary number has 6 integer bits and 10 fractional bits
+for a total of 16 bits.  <br><Br>
+
+Before we start, we need to understand the term index when applied
+to a binary string. The index of a bit is its position
+relative to the decimal point with the index of 0 being 
+assigned to the bit immediatly to the left of the decimal
+point. The indexes increase to the left and decrease to the
+right, making the bit immediatly to the right of the decimal
+point have an index of -1.<br><br>
+
+The following example shows how to interpert
+fixed point values.
+<pre>
+Interpert 0000 1001 0000 0000 as a 6.10 FPF number
+In other words find the value of 0000 10.01 0000 0000 
+The integer is 000010 = 2<sup>10</sup>
+The fraction is .0100000000 = 2<sup>-2</sup> = 0.25<sub>10</sub>
+</pre>
+
+When converting back and forth between FPF and decimal it is easier 
+to move the FPF decimal point to the LSB bit position, converting the
+FPF value into a regular integer binary number first.  This technique
+is illustrated in the following example.
+
+
+<pre>
+Interpert 0000 0000 0000 1010 as a 6.10 FPF number
+In other words find the value of 0000 00.00 0000 1010 
+
+The easy-hard way to do this is:
+The integer is 000000 = 0<sup>10</sup>
+The fraction is .0000001010 = 2<sup>-7</sup> + 2<sup>-9</sup> = 9.765625*10<sup>-3</sup>
+
+The hard-easy way to do this is:
+Let's call our final answer x.
+x = 000000.0000001010 
+Move the decimal point of the FPF right 10 bits by multiplying both sides by 2<sup>10</sup>
+x*2<sup>10</sup> = 0000000000001010. 
+
+The right side is an integer value, 10<sub>10</sub>.  So now we have 
+x*2<sup>10</sup> = 10<sub>10</sub>
+Dividing both sides by 2<sup>10</sup> yields
+
+x = 10<sub>10</sub> / 2<sup>10</sup> = 9.765625*10<sup>-3</sup>
+</pre>
+
+<h2>Direct Digital Synthesis</h2>
+To be completed....
+
+
+</html>

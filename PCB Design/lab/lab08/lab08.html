@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Elements of PCB design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab07/lab07.html">&lt;Prev</a></li>
+                        <li><a href="../lab09/lab09.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 393</h1>
+Lab 8 - uSupply Layout 
+</center>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>8</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+</table>
+
+
+<h2>InLab 8</h2>
+Some self-guided <a href="./inlab08.html">activities</a>.
+
+<h2>Lab 8 assignment</h2>
+Layout your power supply - the whole thing.
+
+Guidelines:
+<table border=1>
+
+<tr><td><center><b>Components</b></center>
+
+<tr><td>Place the following components on the edge of the board:
+<ul>	<li>Heat sink
+	<li>On/Off switch
+	<li>Power connector
+	<li>Spring terminal block
+</ul>
+<tr><td>Have switch near power connector
+<tr><td>Have LED near switch
+<tr><td>Place heat sink away from controls (fingers that will be
+	manipulting them)
+<tr><td>Put Iset and Vset pots near one another and in a row or column
+<tr><td>Place components on 50 mil grid
+<tr><td>Align adjacent resistors in rows and column
+<tr><td>Each of the four mounting holes should be near one of the board corners
+
+<tr><td><center><b>Board</b></center>
+<tr><td>Make the board outline rectangular
+<tr><td>Board dimensions should be on 0.1" grid
+<tr><td>Make the board outline as small as reasonably possible
+<tr><td>Center mounting holes on 0.1" grid
+<tr><td>Place mounting holes symmetrically
+<tr><td>Route wires on 20 mil grid
+
+<tr><td><center><b>Wires</b></center>
+<tr><td>Use 16 mil wires
+<tr><td>Do not use the autorouter
+<tr><td>Avoid routing wires between close pins
+<tr><td>Avoid routing wires between 1206 pads
+<tr><td>Avoid 90&deg; bends in wires
+<tr><td>Avoid routing on the bottom layer
+<tr><td>Use ground via's when convenient
+
+<tr><td><center><b>Copper pours</b></center>
+<tr><td>Copper pour ground on the bottom plane	
+<tr><td>Copper pour power on the top plane
+<tr><td>Exactly align top and bottom pour exact
+
+<tr><td><center><b>Silk screen</b></center>
+<tr><td>Uniform font and size for part designators (name and value)	
+<tr><td>Uniform location for part designators on similar parts
+<tr><td>Add "on"/"off" text near the switch with correct orientation
+<tr><td>Add "CURR" next to Iset pot and "VOLT" next to Vset pot
+<tr><td>Add polarity, voltage and current details next to DC power input jack
+
+<tr><td><center><b>Optional</b></center>
+<tr><td>Add Blaster ftw
+</table>
+
+
+<h2>Turn-in</h2>
+This is an individual assignment.
+<ul>
+<li>Find and accept the Google drive invitation for the EENG 393 folder
+sent out by me.  Go into this folder and find the folder named 
+"first.last"  where "last" is your last name and "first", your first name.
+This is your folder, please create a folder inside it called "version 1",
+This is where you will store your initial design.
+<li>When you complete your layout, copy your ".sch" and ".brd" files 
+into your folder.  Please copy both files.
+</ul>
+Note: Everyone has access to everyone else's folder - do not make this
+the primary repository for your schematic and layout.  And do not copy
+anyone else's layout - I shouldn't even have to say this.
+<br><br>
+
+
+Print your layout as a PDF using the largest scale that allows your
+layout to fit on one sheet of 8.5x11 in landscape if you like.  Make
+sure to have Visible Layers set to Preset_Standard as shown below.
+Upload the PDF to Canvas.
+
+<br><img src="./img/layersForGrading.bmp"><br><br>
+
+
+</html>

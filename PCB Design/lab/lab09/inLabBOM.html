@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 302 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 302</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab09.html">Lab 9</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 302</h1>
+
+In Lab 9 - Bill of Materials</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams "inLab" assignment at the start of next weeks class.
+Word process your solutions.
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+
+<h1>Objective</h1>
+
+
+<h3>Copy Lab 8 EAGLE files into Lab 9</h3>
+I would like to you to keep a copy of the work completed so far
+in lab08 and use it as a starting point for lab09.  To do this:
+<ul>	<li>Create a lab09 folder, 
+	<li>Launch EAGLE CAD,
+	<li>Navigate to the lab08 directory so that you can see the
+	orange "E" for lab08,
+	<li>Right mouse click on the orange "E" to the left of lab08,
+	<li>Select Copy
+	<li>In the Copy directory pop-up, navigate into the lab09 directory,
+	<li>Click "Select Folder",
+	<li>In the Control Panel, right mouse click on the orange "E" to
+	the left of lab08 (in the lab09 project),
+	<li>Select rename,
+	<li>Change the name of the project to lab09
+	<li>Rename lab08.sch to lab09.sch in the same way,
+	<li>You can delete lab08.pdf by right mouse clicking on it 
+	and selecting delete.
+</ul>
+
+<h3>Eagle BOM</h3>
+
+It seems that I spend as much time selecting components for my PCBs than
+I do laying out the PCB.  I guess what I am trying to say is that the
+parts list for a PCB, called the bill of materials (BOM), represents 
+a significant investiment of time
+
+<ul>	<li>Open your BOM excel file,
+	<li>Add a new tab and call it EAGLE BOM,
+	<li>Launch EAGLE,
+	<li>Open the project and open the schematic,
+	<li>File &rarr; Run ULP&hellip;
+	<li>In the ULP pop-up select bom then click OK,
+	<li>In the EAGLE: Bill of Material pop-up select
+	List type: Values, Output format: CSV,
+	<li>Click View,
+	<li>In the Eagle: Bill Of Material - Preview pop-up
+	click on any portion of the text and press 
+	Ctrl-A to select all the text then press
+	Ctrl-C to copy all the text into a buffer,
+	<li>Open Excel,
+	<li>Right mouse click on cell A1,
+	<li>Select Paste - Match Destination Formating (M).  This is the
+	clipboard with paper icon,
+	<li>Data &rarr; Text to Columns,
+	<li>In the Convert Text to Columns Wizard Step 1 pop-up, select
+	the Delimited radio button,
+	<li>Click next,
+	<li>In the Convert Text to Columns Wizard Step 2 pop-up, select
+	Semicolon,
+	<li>Click Finish.
+</ul>
+
+You should end-up with something that looks like the following image.
+You can and should cut off the columns to the right of "Description"
+(Column F), leave the Description column.
+
+<br><img src="./img/eagleBOMoutput.bmp"><br><Br>
+
+<h3>Digikey BOM</h3>
+Each of the items in the Eagle BOM represents an item that you may need
+to purchase.  Note that some of the items in the BOM, like mounting holes,
+are contained on the finished PCB, so do nbot need purchased.
+<br><br>
+
+There are significant variations in how BOM's are documented across 
+industry and even for different vendors.  My BOM's have a 
+header for each vendor that parts are ordered from.  Below the vendor
+name are the fields that identify cruical information for each part.
+These include:
+<ul>	<li>Description	
+	<li>Manf	
+	<li>Manf Part #	
+	<li>DigiKey Part #	
+	<li>Foot	
+	<li>Unit Cost	
+	<li>Qty/Board	
+	<li>Total
+</ul>
+
+<br><img src="./img/digikeyBOMoutput.bmp"><br><Br>
+
+Let's look at one item on our BOM, the TLC274D, and fill in the 
+information using Digikey's parametric serarch.  Start by opening
+a browser and navigating to digikey.com.  Enter "TLC274D" into the
+main search box and hit enter.
+
+<br><img src="./img/mainDigi.bmp"><br><br>
+
+No results!?  Usually when you get a no-result from Digikey, it means
+that you have been too specific.  So let's simplify the search to the
+more general "TLC274", leaving off the last character.  You should get
+something that looks like the following image - the particular result
+you get wil probablly be slightly different as Digikey's inventory
+changes day-to-day.
+
+<br><img src="./img/searchDigi.bmp"><br><br>
+
+
+
+<h3>Net review</h3>
+Perform a net-by-net review of your design.  This will require a
+computer running EAGLE CAD, a paper copy of your schematic, a
+pencil and highlighter.  Perform the following steps to get ready
+for this process.
+
+<ul>	<li>Launch EAGLE CAD,
+	<li>Open your project,
+	<li>Open the schematic and layout side-by-side so that they
+	occupy the entire screen,
+	<li>In both the schematic and layout, click Zoom to fit, the 
+	magnifying glass with a black rectangle,
+	<li>In the schematic, select the information tool,
+	<li>Click on a part,
+	<li>The Properties pop-up for that part is highlighted in the 
+	layout,
+	<li>Click Ok to remove the Properties pop-up,
+	<li>In the schematic click on the Name tool,
+	<li>In the schematic click on a wire,
+	<li>The Name pop-up for the wire (showing its name) is
+	highlighted in the layout,
+	<li>Click OK to remove the Name pop-up.
+</ul>
+
+Remember that a net is a named interconnection of electrical devices.
+A net is a logical circuit element, meaning that we use it as a place-holder
+for something real.  When you "route a net", you transform the logical
+net connections into physical connections with wires.  In any first 
+generation design, it is a good idea to verify that the each net is 
+routed correctly.  In other words, verify that the physical wires 
+corresponding to the net connected to all the intended devices.
+<br><br>
+
+To do perform the following set of stes for each net in the schematic.
+<ul>	<li>Select it using the Name tool,
+	<li>Write the net's name on its wire in the schematic,
+	<li>If the net has a defined name, then place a check next to the
+	given name,
+	<li>For each device that the net (in the schematic) connects to:
+	<ul>	<li>Verify that it is connected in the layout,
+		<li>Highlight the schematic pin corrsponding to this
+		connection.</ul>
+	<li>Repeat for all the nets in the schematic.
+</ul>
+
+
+
+</html>

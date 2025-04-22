@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EENG 498</title>
+        <meta name="description" content="EENG 498 - Embedded Systems II.  Free and open FPGA course.">
+        <meta name="author" content="Todd Branchflower">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+		<META HTTP-EQUIV="refresh" CONTENT="600"> <!--added this line to force page refresh every 600 seconds-->
+    </head>
+    <body>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab1/lab1.html">&ltPrev</a></li>
+                        <li><a href="../lab3/lab3.html">Next&gt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>		<td>2</td></tr>
+<tr><td>Status			<td bgcolor = #D0FFD0>In Progress</td></tr>
+</table>
+
+
+
+<h1>Lab 2 - Data Acquisition, Storage and Display</h1>
+
+<h2>Lab Overview</h2>
+The signal acquire module contains a datapath and control necessary
+to initiate and acquire all 8 channels of the AD7606 chip and store
+them into a register file.  And yes, we will only be using the first
+two channels on our oscilloscope, we will  gather the extra 6 channels.
+
+<br><img width=800 src="./img/timing.png"><br><br>
+
+<h2>Architecture</h2>
+You will build the signal acquisition engine using a datapath and control approach.
+
+<br><img src="./img/lab02architecture.png"><br><br>
+
+<h2>Datapath</h2>
+The datapath contains two counter/comparator pairs to generate a short
+and long delay.  You should configure the long delay to be around 
+1.3ms in your synthezied.  Since we don't want to wait this long when
+performing a simulation, you should make the long delay around 640ns 
+in your simulation.  Do this by creating a suitablly named constant in
+your signalAcquire_package.vhd file that you will 
+
+<pre>
+CONSTANT LONG_DELAY_50Mhz_COUNTS : STD_LOGIC_VECTOR(LONG_DELAY_50Mhz_CONST_WIDTH - 1 downto 0) := x"000020";
+</pre>
+
+You should then include the package in your datapath.vhdl file and then you can use this constant in
+the long delay comparator instantation.  This should look something like the following.
+
+<pre>
+	longDelayCompare_inst: genericCompare
+        GENERIC MAP(24)
+        PORT MAP(   x =&gt; longDelayCounter,
+                    y =&gt; LONG_DELAY_50Mhz_COUNTS,
+                    g =&gt; open,
+                    l =&gt; open,
+                    e =&gt; sw(LONG_DELAY_DONE_SW_BIT_INDEX));
+</pre>
+
+<b>Warning!</b> It's very common to forget to reset these delay constants when moving from
+simulation to synthesis.  If your download is not working, please verify that you have
+updated this constant.
+
+In addition to the two counter/comparator pairs, your datapath will also need to include
+a register file to store the 16-bit values returned from the AD7606
+
+
+<h2>Register File</h2>
+
+You will use the register file to store the 16-bit data from all 8 channels.  Thus,
+your regigster file will have 8-storage location (registers), that can store 16-bits
+each.  The internal organization of the register file is shown in the following 
+figure.
+
+<br><img src="./img/regFile.png"><br><br>
+
+To write data into the register file, you:
+<ul>	<li>Assert data on the D input
+	<li>Assert the index of the register you want to store the data to on the
+	wrAddr input
+	<li>Assert the write control input
+</ul>
+
+Since the data output is seperate from the data input, to read data all you need to
+do is assert the index of the register you want to read on the rdAddr input.  The
+relevant register output is selected by the 8:1 mux and will appear on the Q output.
+<br><br>
+
+
+<h2>VHDL Code</h2>
+The files below will give you a start on Lab 2.
+<ul>	
+	<li>A package file. Once you insert it in your project, in the source window, 
+	click the 'libraries' tab to view it: 
+	<a href="./code/signalAcquire_package.vhdl">signalAcquire_package.vhdl</a>. 
+	I would highly suggest putting all your component declarations here.
+
+	<li>Signal Acquire: <a href="./code/signalAcquire.vhd">signalAcquire.vhd</a>
+	<li>Testbench: <a href="./code/signalAcquire_tb.vhd">signalAcquire_tb.vhd</a>
+	<li>AD7606 (Simulation only): <a href="./code/ad7606_tb.vhd">ad7606_tb.vhd</a>
+	<li>Signal Acquire Datapath: <a href="./code/Lab2_datapath.vhd">datapath.vhd</a>
+	<li>Signal Acquire Control: <a href="./code/Lab2_datapath.vhd">datapath.vhd</a>
+	<li>Signal Acquire Constraint: <a href="./code/Lab2.xdc">Lab2.xdc </a>
+	<li>Signal Acquire Waveform Setup: <a href="./code/Lab2.xdc">Lab2.xdc </a>
+</ul>
+
+<h2>Simulation</h2>
+To help you in debugging, I've prodvided some excerpts from my testbench simulation. If you right-click on the images and open in a new window, they will enlarge.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr> <td>Up To 200ns</td>	<td><img width=400 src="./img/upTo200ns.png"><td>
+<tr> <td>Up To 1600ns</td>	<td><img width=400 src="./img/upTo1600ns.png"><td>
+<tr> <td>At 6000ns</td>	 	<td><img width=400 src="./img/at6000ns.png"><td>
+<tr> <td>At 8000ns</td>		<td><img width=400 src="./img/at8000ns.png"><td>
+<tr> <td>Up To 11500ns</td>	<td><img width=400 src="./img/upTo11500ns.png"><td>
+</table>
+
+    </body>
+</html>
+

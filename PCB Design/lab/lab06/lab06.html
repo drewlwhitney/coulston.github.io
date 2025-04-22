@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab04/lab04.html">&lt;Prev</a></li>
+                        <li><a href="../lab07/lab07.html">Next&gt;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 393</h1>
+Lab 6 - uSupply Schematic
+</center>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>               <td>6</td></tr>
+<tr><td>Status                  <td bgcolor = #D0FFD0>Live
+<tr><td>Video:                  <td>
+<a href="https://www.youtube.com/watch?v=R_Ud-FxUw0g&t=1965s">EEVblog #1129 - Creating a Nice Readable Schematic</a>
+</table>
+
+<h2>InLab 6</h2>
+Some self-guided <a href="./inlab06.html">activities</a>.
+
+<h2>Lab 6 assignment</h2>
+Each student is to complete this assignment on their own.
+Complete the schematic of your power supply so that it looks similar 
+to the image shown below.  To do this you will need to add the following
+parts. I know that some of the parts are incorrect, you will be replacing 
+them in the next lab when you lern how to create custom parts.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr>
+<td>Part
+<td><font color=red>Search</font>
+<td><font color=orange>Library	</font>
+<td><font color=purple>Folder	</font>
+<td><font color=green>Name	</font>
+<td><font color=blue>Description </font>
+<tr><td>1 ohm resistor <td>&nbsp;<td>rcl <td>R-US_<td>0411/15
+	<td>&nbsp;
+<tr><td>BJT <td>*2N2222*<td>SparkFun-DiscreteSemi <td>TRANS_NPN 
+	<td>TRANS_NPN-MMBTA42 <td>SOT23-3
+<tr><td>VU meter opamp <td>*LM324*<td>Linear <td>LM324 <td>SO14
+	<td>&nbsp;
+
+<tr><td>output connector <td>*screw*<td>con-wago-500	<td>&nbsp;	<td>W237-102
+		<td>W237-102	
+<tr><td>Mounting hole <td>&nbsp;<td>hole		<td>MOUNT-HOLE	<td>MOUNT-HOLE2.8
+		<td>&nbsp;
+</table>
+
+You will need to name the following nets:
+<ul>	<li>HALF_LADDER
+	<li>VOLT_RANGE (not connected to anything - yet)
+	<li>DISPLAY (not connected to anything - yet)
+	<li>1VOLT (not connected to anything - yet)
+	<li>10VOLT (not connected to anything - yet)
+</ul>
+
+
+<br><img src="./img/postLab.bmp"><br><br>
+ 
+<!---
+<table class="table table-striped table-bordered table-condensed">
+<tr><td colspan=2> Schematic
+<tr><td>Left to right flow (input to output) of signal information  <td>+5 pts.
+<tr><td>Schematic frame properly filled out		<td>+5 pts.
+<tr><td>Run renumber-sheet.ulp 				<td>+5 pts.
+<tr><td>Including part values				<td>+5 pts.
+<tr><td>Consistent use of units				<td>+5 pts.
+<tr><td>Use of symbols for Vcc and GND			<td>+5 pts.
+<tr><td>Straight wires runs when possible		<td>+5 pts.
+<tr><td>Proper use of wire junctions			<td>+5 pts.
+<tr><td>Readable labels (not overlapping, consistent orientation) <td>+5 pts.
+</table>
+-->
+
+<h2>Turn-in</h2>
+Export your schematic to a PDF file in EAGLE and upload the resulting 
+file to Canvas.  To do this follow these steps from your 
+schematic.
+
+<ul>    <li>File &rarr; Print,
+        <li>In the Print pop-up,
+                <ul>    <li>Printer: Microsoft Print to PDF
+                        <li>Orientation: &lt;whatever best accommodates the
+                                layout&gt;
+                        <li>Alignment: Center
+                        <li>Area: Full
+                        <li>Scale factor: &lt;bigget possible to fit a
+                                single page&gt;
+                </ul>
+        <li>Click OK,
+        <li>In the "Save Print Output As" pop-up, navigate to your project
+        directory and give your file a meaningful name.
+</ul>
+
+
+</html>

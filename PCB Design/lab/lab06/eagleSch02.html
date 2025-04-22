@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 302 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 302</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab03.html">Lab 3</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 302</h1>
+
+In Lab 3 - EAGLE schematic and MOSFET</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams "inLab" assignment at the start of next weeks class.
+Word process your solutions.
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+
+<h1>Objective</h1>
+
+<h2>More schematic editing in EAGLE</h2>
+
+Objectives
+<ul>
+<li>Nets, display name, air wires,
+<li>The information tool,
+<li>Packages,
+<li>EAGLE files,
+<li>ERC,
+<li>Devices with multiple circuits,
+</ul>
+
+
+<h3>Setup lab03</h3>
+I would like to you to keep a copy of the work completed so far
+in lab02 and use it as a starting point for lab03.  To do this:
+<ul>	<li>Create a new lab03 folder inside your lab folder
+	<li>Go into the lab02 folder and select the eagle project
+	file (orange "E" icon) and the lab02.sch file,
+	<li>Navigate to the lab03 folder and paste,
+	<li>Rename lab02.sch &rarr; lab03.sch
+</ul>
+
+Now launch EAGLE and open the lab03 project.  Everything should 
+look the same as you left it in lab02.  Now let's start adding
+some new elements to your schematic.
+
+<h3>Add components</h3>
+Today we will focus on adding the constant current supply that
+you prototyped last week.  We will start by adding the MCP6004,
+a quad operational amplifier to the schematic.  When 
+the term "quad" is used to describe an operational amplifier, it
+means that there are four operational amplifiers inside the single
+integrated circuit package.  EAGLE can treat each one of the four
+operation amplfiers like its own component on the schematic even
+through they all belong on a single integrated circuit.  To see
+what I mean do the following:
+
+<ul>
+	<li>Select the ADD tool from the left toolbar
+	<li>Search for *MCP*, go to the "linear" library, 
+	open the "MCP604" folder, and select the "MCP604SL"
+	in the "SO14" package,
+	<li>Your pointer will change to a operational amplifier
+	symbol,
+	<li>Left mouse click somewhere on the schematic,
+	<li>Add five more operational amplifiers.
+</ul>
+You should end up with something that looks like the following.
+
+<br><img src="./img/opAmp.bmp"><br><Br>
+
+Notice that the first four operational amplifiers that you placed all
+had names "IC1*" where * was A-D.  The letter designates which operational
+amplifier on the chip (shown at right) is being used.  Only the "A" 
+operational amplifier has the power and ground connections.  Be careful
+when moving this particular operational amplfier as you can easily 
+seperate the power pins from the operational amplfier.  You should
+verify that the pin numbers on the schemtic agree with the pin out of
+the actual device.  
+
+<ol>
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Search</font> <td>Library  </font> <td>Folder   </font>
+<td>Name      </font> <td>Description </font> <td>Value
+<tr><td>*MCP*   <td>linear  <td>MCP604      <td>MCP604SL
+                <td>SO14           <td>&nbsp;
+<tr><td>*MOSFET*<td>SparkFun-DiscreteSemi<td>MOSFET-NCH	
+	<td>MOSFET-NCH-FQP30N06L	<td>TO220V	<td>&nbsp;
+<tr><td>*binding*<td>SparkFun-Connectors<td>&nbsp;
+	<td>BINDING_POST <td>Binding Post	<td>&nbsp;
+<tr><td>*spring*	<td>SparkFun-Connectors <td>CONN_02
+	<td>CONN_02SPRING-2.54-RA	<td>SPRINGTERMINAL-2.54MM-2<td>&nbsp;
+<tr><td>*pot*	<Td>pot	<td>TRIM_US-
+	<td>TRIM_US-S64Y	<Td>S64Y	<td>10k&ohm;
+</table>
+
+
+
+<br><img src="./img/complete.bmp"><br><br>
+
+</html>

@@ -1,0 +1,671 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 302 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 302</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab07.html">Lab 7</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 302</h1>
+
+***In Lab 7 - EAGLE schematic &rarr; layout</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  You do not need to document bullet items.  Make a
+record of your response to numbered items and turn them in a single copy
+as your teams "inLab" assignment at the start of next weeks class.
+Word process your solutions.
+Include the names of both team members at the top of your solutions.
+Use complete English sentences when answering questions.  If the
+answer to a question is a table or other piece of art (like an
+oscilloscope trace or a figure), then include a sentence explaining the
+piece of art.  Only include your answers, do not include
+the question-text unless it is absolutely needed.
+
+
+<h1>Objective</h1>
+
+Objectives
+<ul>
+<li>Nets, display name, air wires,
+<li>The information tool,
+<li>Packages,
+<li>EAGLE files,
+<li>ERC,
+<li>Devices with multiple circuits,
+</ul>
+
+
+<h3>Copy Lab 6 EAGLE files into Lab 7</h3>
+I would like to you to keep a copy of the work completed so far
+in lab06 and use it as a starting point for lab07.  To do this:
+<ul>	<li>Create a lab07 folder, 
+	<li>Launch EAGLE CAD,
+	<li>Navigate to the lab06 directory so that you can see the
+	orange "E" for lab06,
+	<li>Right mouse click on the orange "E" to the left of lab06,
+	<li>Select Copy
+	<li>In the Copy directory pop-up, navigate into the lab07 directory,
+	<li>Click "Select Folder",
+	<li>In the Control Panel, right mouse click on the orange "E" to
+	the left of lab06 (in the lab07 project),
+	<li>Select rename,
+	<li>Change the name of the project to lab07
+	<li>Rename lab06.sch to lab07.sch in the same way,
+	<li>You can delete lab06.pdf by right mouse clicking on it 
+	and selecting delete.
+</ul>
+
+
+<h2>Electrical Rule Check</h2>
+To some extent, EAGLE CAD has built-in error checking that can help you 
+identify errors early in the design phase.  Let's give it a try with
+the circuit you built this past week.  Click Tools &rarr; ERC.  This 
+will produce ERC Errors pop-up that looks like the following:
+
+<br><img src="./img/ercPop.bmp"><br><br>
+
+Double click on any of the errors and your window will be centered
+on the error with a black pointer highlighting the error.  The list
+of errors in the image above are all safe to ignore.  The first
+two errors show conflicting types for the LM317 output and the VCC.
+The first two warnings tell us there are conflicted types for the
+supply pins of the op-amp and the VIN/GND pins.  The next two warnings
+tell us that we have an unconnected op-amp inside the TLC274P (not a 
+best practice).  The last warning tells us that we could give the 2N2222
+transistor a value.
+<br><br>
+
+If you have any additional errors, you will need to fix them before 
+moving on.
+<br><br>
+
+You can clear all the electrical errors and warning using the Clear all
+button and then close the window.  Now let's create a real electrical 
+error and see what it looks like&hellip;
+
+<h2>Create LT3080 part in EAGLE</h2>
+
+Let's build a footprint for the LT3080 from the information in the
+device's technical documents.  To get the technical documents:
+<ul>	<li>Go to <a href="http://www.digikey.com">Digikey.com</a>, 
+	<li>search for LT3080,
+	<li>On the results page, select "PMIC - Voltage Regulators - Linear",
+	<li>In the parametric results selector, select "Through Hole" as the 
+	Mounting Type,
+	<li>Click the red "Apply Filters" button.  I 
+</ul>
+I ended up with three LT3080's to choose from.  On of them has a minimum
+quantity of 1,000, so it's not a viable option.  The other two have
+manufacture part numbers "LT3080IT#PBF" and "LT3080ET#PBF".
+Click on one of these two to get to its product information page.  On the 
+product information page, find the link to the LT3080 Datasheet in the
+Datasheet area of the Documents & Media table.  Open the LT3080 datasheet.
+<br><Br>
+
+
+Go thought the datasheet
+until you get to the Package Description for our device package.
+There are two views, one from the front and one from the side - we
+will have to infer the overhead dimensions from these two.  Talking
+about dimension, you will note that each measurement as a bunch of
+difference numbers associated with it.  You will have to makes sense
+of these in order to build a good footprint for you PCB.
+<br><br>
+
+<img src="./img/TOmech.bmp"><br><br>
+
+As an example of the dimensioning, the image has a red box around
+the dimension representing the width of the metal heat-sink.  
+The pair of numbers above the horizontal line represent a range
+of possible sizes.  Interpret the string ".390 - .415" as "from a
+minimum of .390 to a maximum of .415".  I use the average of these
+two values, .403 as the actual dimension.  The horizontal line
+separates dimensions with different units, metric and imperial.
+There is no text on this page of the technical documents that 
+help tell which is which.  In this case I have four ways to tell:
+<ul>	<li>Scroll <u>up</u> through the other mechanical diagrams
+	and look for some text related to units.  In our case, on
+	the page preceding this mechanical diagram, the 5-Lead
+	Plastic DD package contains the text " DIMENSIONS IN 
+	INCH/(MILLIMETER)" which seems to imply that the numbers 
+	above the horizontal line are imperial and those below
+	are metric.
+	<li>Metric units are always some units of meters and
+	imperial units are always in units of inches.  Since there
+	are 25.4mm per inch, I try multiplying one of the values
+	by 25.4 to get the other.  Let's use the pair 0.390 and
+	9.906 from the image above and determine which is imperial
+	and metric.  I do this by first assuming that 0.39 is in 
+	inches and converting it into millimeters.  I then assume
+	that 0.39 is in mm and convert it to inches.  Then whatever
+	conversion results in 9.906 was the correct starting point. 
+	<pre>
+	              25.4 mm
+	0.39 inches * ------- = 9.906 mm
+		      1 inch
+
+
+		   1 inch
+	0.39 mm  * ------- = 0.015 in
+	           25.4 mm
+
+	</pre>
+
+	So it looks like the top number is in imperial units and the
+	bottom number in metric.  This is consistent with the first
+	method, so I have high confidence that this is correct.
+
+	<li>Most electronics packages are standardized, so you may
+	be able to find a separate resource that more clearly 
+	defines the units.  For example, go to the 
+	 massive <a href="http://www.onsemi.com/PowerSolutions/supportDoc.do?type=drawing">ON Semiconductor</a>
+	web page for Package Drawings.  In the Package Drawings Search box
+	(left side of page), enter "TO-220" and click "Search."  I
+	picked the first 5-pin package "TO-220 5 LEAD" and while not a
+	perfect match, has some familiar numbers as shown in the image 
+	below.
+
+	<br><img src="./img/onSemiTO200.bmp"><br><br>
+
+	These numbers again confirm that the top number is imperial and
+	the bottom is metric.
+
+	<li>As a last resort, I grab a measuring device and measure the
+	physical package.  For this I find my digital vernier's to be
+	the best tool for the job.  If you do any amount of PCB layout
+	seriously considering purchasing a $40 pair from a company
+	like TechniTool.  The only drawback with this method is that
+	you need the part in your hands before you can start drawing
+	the footprint and there will be times when you have to layout
+	a part without having it in your hands.
+
+</ul>
+
+	
+
+
+<br><Br>
+
+
+Use the image below to complete the pair of tables that follow.
+
+
+<br><img src="./img/TOfoot.bmp"><br><br>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Dimension</td>	<td>Name</td>	<td>Value (mm)</td>
+	<td>Value (inch)</td>	</tr>
+<tr><td>A</td>	<td>Width</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>B</td>	<td>Depth</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>C</td>	<td>Pin offset</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>D</td>	<td>Pin pitch</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>E</td>	<td>Pin diameter</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+</table>
+
+In the same image shown above, use the blue pin numbers to identify the
+names of the pins as shown on the second page of the LT 3080 technical
+documents.  Use the information from the mechanical diagram to determine
+the location of the center of the pins assuming that the origin (0,0)
+is located the blue cross shown.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Pin</td>	<td>Name</td>	<td>Location (mm)</td>
+	<td>Location (inch)</td>	</tr>
+<tr><td>1</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>2</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>3</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>4</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>5</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+</table>
+
+
+
+
+<h3>Create a library</h3>
+
+<ul>	<li>Close the lab07 project,
+	<li>From the Control Panel select File &rarr; New &rarr; Library
+	<li>In the Library Editor pop-up select File &rarr; Save
+	<li>In the Save-As pop-up enter your last name as the File name,
+	<li>Click Save.
+</ul>
+	
+
+<h3>Create a new package</h3>
+EAGLE CAD calls footprints, packages. So let's create a package for
+our LT3080.
+
+<ul>	<li>Click Library &rarr; Manage packages &hellip;
+	<li>In the Edit pop-up Enter "TO-220-5R" in the New Footprint  Name field,
+	<li>Click OK
+	<li>In the Warning pop-up, click Yes to create a new package,
+</ul>
+
+You will now enter the package editor.  This is a basically a drawing
+application with special features for PCB design.  You are going to draw
+the LT3080's footprint; how you would view its outline and pins from above. 
+To do this, you will use several tools pointed-out in the following 
+image.
+
+<br><img src="./img/packEdit.bmp"><br><br>
+
+<h3>Draw the outline</h3>
+Thr outline of a footprint serves much more than a asethetic role on
+a PCB design.  A well drawn outline provides needed information to
+the layout engineer so they position the component effectively and 
+information to the assemblers so they can correctly install components.
+<br><br>
+
+Take the LT3080 footprint shown in the image below.   The positions of the
+pads are correctly placed for the device, but at first glance its not 
+obvious where the back of the TO-220-5 package is.  This is really 
+important information because you are going to need to place a heatsink
+on the back of this package.  Furthermore, even if we knew which side 
+of the footprint the heatsink was on, we do not know how far away the 
+heatsink needs to be placed.   Even if your design did not need a heatsink
+you may need to place other components around the TO-220-5 package.
+Safe placement requires knowledge about teh outline of the neighboring
+parts.
+<br><img src="./img/LT3080pinOnly.bmp"><br><br>
+
+A footprint serves more than just to alert the layout engineer of the 
+physical dimensions of the component.  Let's take the Phoenix terminal
+block used on your power supply and shown in the image below at left.
+In addition to the outline, the footprint can aide the layout engineer 
+which side of the terminal block wires connect to and where the user
+has to press in order to insert and remove wires.  These features 
+help the layout engineer position the terminal block so that wires can
+esaily be inserted and that the user can press the button without their
+fingers being burned by a nearby heatsink.  If the mechanical documents
+lack the specifics on a needed package dimension, do your 
+best to guess-timate the value.  If you think that you need to, make a
+note of your assumptions in the tDoc or bDoc layer.
+<br><img src="./img/phoenix.bmp"><br><br>
+
+As shown in the Phoenix terminal block, other features of the component
+like the shape of the green plastic may be included. This helps add a 
+level of realism to the device making it easier to identify on a busy
+PCB layout.  Another function for a good outline is to help assemblers
+install polarized components correctly.  Devices like ICs and LEDs need
+some convienent reference on the PCB to determine the part orientation
+so that the part can be intalled correctly.
+<br><Br>
+
+
+The tool used to draw the package footprints has many of the same tools
+as the interface used to draw schematics.  However, there are some important
+difference as shown in the image below.
+
+<br><img src="./img/padType.bmp"><br><br>
+
+<ul>	<li>Click view &rarr; grid,
+	<li>In the Grid pop-upi:
+	<ul>	<li>Display:	On
+		<li>Style:	Lines
+		<li>Size:	0.2 mm
+		<li>Multiple:	1
+		<li>Alt:	5
+		<li>Click OK		</ul>
+	<li>Select the Line tool,
+	<li>Make sure that layer 21 tPlace is selected
+	<li>Make an outline for the TO-220 package using the dimensions
+	you found in a previous problem.  Make sure to have the lower
+	edge of the package centered on the origin.
+</ul>
+
+<h3>Pad, Hole and SMT</h3>
+The next step in the creation of a footprint is adding the electrical
+(pads and smt) and physical (hole) connections to the PCB.  You will make
+electrical connections to the PCB using pads and smt.  Holes are needed
+for devices which are subject to mechanical stresses like a mounting holes,
+USB connector or switches.  Hole do not have electrical connections.
+<br><img src="./img/holePadSMT.bmp"><br><br>
+
+The major difference between holes and pads is the presence or
+absence of through-hole plating.  Through-hole plating is the process 
+by which a conductive plating is added to the sides of the drill hole
+and extends to the top and bottom surface of the PCB.
+This conductive plating serves many useful purposes, creating a large
+solder area between the PCB and the leaded components and allowing 
+traces on the top and bottom sides to be connected through the hole.
+<br><br>
+
+A drill hole that has conductive plating added is called a plated through 
+hole, PTH for short.  The plating inside the hole has some thickness which
+reduces the usable diameter of the hole.  In EAGLE you specify  a
+"drill" diameter which is the finished diameter of the hole in the PCB.
+If this is a PTH then it is up to the PCB manufacturer to over-drill the
+diameter of the hole so that after plating the finished hole diameter 
+matches the value that you specified in your EAGLE file.  In other words,
+you, as the OCB designer, do not have to concern yourself with the 
+thickness of the plating in a PTH.  In order to allow an electrical 
+connection to a PTH, the top and bottom of the PTH is connected to a 
+donut shaped conductive region called the annular ring.  The annular 
+ring will not be covered in solder mask making it the point where leaded 
+components are soldered into the PCB.
+When you add a pad to your footprint you can select Diameter and a Drill
+size.  The Diameter size is the diameter of the annular ring.  The Drill
+size is the diameter of the finished hole. <br><br>
+
+When building a footprint for a device you will need to specify
+both the Drill and Diameter (for a pad).  The best case case the
+mechanical drawing will provide all the needed information like those
+for the SPDT switch you will be building for this week's lab as shown 
+in the image below.  
+
+<br><img src="./img/switchFP.bmp"><br><Br>
+
+Before moving on, let's make a few observations.  First, note that
+the drill diameter is given by the symbol &psi; (a common convention).
+<br>
+Second, the dimensions are given in both metric and imperial units, metric 
+on top and imperial on the bottom.  For example, the drill diameter is given
+as 1.85 and 0.073 inches.  You should be able to figure out that the
+units for "1.85" are millimeters because there are 25.4 mm in 1 inch and
+0.073 in * (25.4 mm / 1 in) = 1.85 mm. 
+<br>
+Third, the units of inches are specified as the backeted values on the
+bottom of the dimension
+pair (a big thumbs up to the engineers who put this together), you 
+could easily determine which value is millimeter and inches given the
+value pair and the relationship that 25.4mm is 1 inch.  For example, the
+vertical distance between the two rows of holes is given as 12.7 or 
+0.5 inches.  If the "inches" was missing all I would do is try to 
+convert the values into one another.
+<pre>
+	25.4 mm				 1 in
+	------ * 12.7 in = 322 mm	------- * 12.7 mm = 0.5 in
+	 1 in				25.4 mm
+
+	INCORRECT			CORRECT
+</pre>
+In some cases, only one set of units is given without any indication
+of which type they are.  In these cases, you will have to use your
+deductive reasoning skills and looks for clues like use of a comma 
+for a decimal point (europeans use this convention and metric units),
+or measurements like 25.4 or 12.7 (corresponding to 0.1 or 0.05 inches).
+<br><br>
+
+If the recomended footpring is not given in the mechanical drawing,
+the next best case is when the dimensions of the leads as provided like
+they are in the LT3080 mechanical drawing below.
+<br><img src="./img/lt3080FP.bmp"><br><Br>
+
+I typically make the dill size 10 - 20% larger than the average size
+of the lead that is being placed through it. In the case of the TO-220-5 
+package this would be 0.8 mm * 1.2 = 0.96 which I rounded up to 1 mm.
+When it comes to the diameter of the annular ring, I like to make them
+as large as possible to simplify soldering.
+However, in densely packed PCBs you will be encouraged
+to keep the annular rings as small as possible so that the PCB can 
+accommodate higher part densities.  Note the term "BSC" stands for 
+basic spacing between centers and in this case, symonous with pin
+pitch.  
+<br><br>
+
+A drill hole without conductive  plating is called a "hole" in EAGLE.
+In order to better assure that a hole does not make electrical contact
+with the copper layers on the top and bottom of the PCB, you should make
+sure there is a keepout region (layer 39 or 40) on the top and bottom 
+layer of the PCB.  A keepout does just what its name implies, it keeps 
+out copper pour.   A keepout should be between 10 - 20% larger that
+the diameter of the drill hole.  Like plated through holes, I like to
+make drill hole diameters 10 - 20% larger than the size of the object
+going through the hole.
+<br><br>
+
+Finally SMT pads are provided by EAGLE in order to attached surface mount
+devices of the PCB.  These SMT pads have an X and Y dimension that needs
+to be slightly larger than the part being placed.  Often the mechanical
+drawing section of the technical documents will have a recommended footprint
+for SMT devices.  Lacking that, make your SMT pads at least 10% larger
+than the electrical contact, with 25% larger being an upper bound.  
+
+
+
+
+
+<h3>Add the pins</h3>
+I captured the image above while I was placing the pad associated with 
+pin number 1.  While moving the pad around to get it into position, 
+I keep an eye on the cursor location.  All coordinate references are
+with respect to the origin, with up and right being positive.  In this
+case I would need to move the pad left and up to get it into the correct
+position for pad 1.
+
+
+<ul>	<li>Left mouse click on the pad tool in the leftmost toolbar,
+	<li>On the top toolbar, set the pad type to Offset,
+	<li>On the top toolbar, set Drill to 1 (millimeter)
+	<li>On the top toolbar, set the Diameter to 1.6764,
+	<li>To make you life easier, place the pin 1 pad first, and
+	the rest of the pad in numerical order,
+	<li>If you are unable to get the pin exactly where you want it,
+	because of the grid resolution, place it as close as possible
+	and we'll fix it in a later step.
+</ul>
+
+
+<h3>Use the information tool</h3>
+The information tool makes the properties of a selected item available
+to edit by the user.
+
+<ul>	<li>Select the information tool from the left toolbar,
+	<li>Select the center of the pad that it not exactly where
+	you want it,
+	<li>In the Properties pop-up, change the position of the
+	pad to its needed position,
+	<li>Click OK to complete the change,
+	<li>Continue to any other pads that need their positions
+	changed.
+</ul>
+
+Use the information tool to change the names of all the pads according
+to the names you found earlier.  Call the unconnected pin, "NC$1".
+The "NC" in the name 
+stand for No Connect, the "$1" means that this is the first pin with that
+name.  If there was a second non-connected pin in this package, I would 
+have named it "NC$2".
+
+<h3>Add the name and value</h3>
+The parts that you place on the schematic and place on the PCB need
+unique identifiers so that you can place the correct electrical component
+in the correct location.  In the schematic, an electrical device like
+a resistor has a name (for example "R4") and a value, (for example
+"10k&ohms;).  The '>' character before name is a special character that 
+lets Eagle know that this value should be dynamically updated by the 
+program.  You specify the default location for these two labels
+in the package editor using the following instructions.
+
+<ul>	<li>Select layer 25, tNames
+	<li>Click on the text tool
+	<li>In the Text pop-up, enter ">Name" the in the "Enter text" area,
+	<li>Click OK,
+	<li>Left mouse click to place text (above the part)
+	<li>Press escape,
+	<li>Replace text in "Enter text" area with ">Value",
+	<li>Click OK,
+	<li>Select layer 27, tValues
+	<li>Left mouse click to place text (above/right the part),
+	<li>Press escape twice to exit from the text tool.
+</ul>
+
+When you complete this step, you should have a package that looks 
+like the following image.
+
+<br><img src="./img/finishedPackage.bmp"><br><br>
+
+<h3>Save</h3>
+
+<ul>	<li>File &rarr; Save
+	<li>In the Save as pop-up, click on your library
+	<li>Click Save,
+	<li>In the Warning pop-up click OK to overwrite the (empty) library.
+</ul>
+
+
+<h3>Create a new Symbol</h3>
+
+The symbol is what you see in the schematic when a part is placed.
+
+<ul>	<li>Library &rarr; Manage symbols&hellip;
+	<li>In the Edit pop-up enter LT3080 in the "New Symbol Name" field,
+	<li>Click OK
+	<li>Click Yes in the Warning pop-up to create a new symbol.
+</ul>
+
+You will now enter the symbol editor. This is a basically a drawing 
+application with special features for PCB design. You are going to draw 
+the LT3080's schematic symbol. To do this, you will use several tools 
+pointed-out in the following image. 
+
+<br><img src="./img/symbEdit.bmp"><br><br>
+
+
+<h3>Draw the symbol</h3>
+
+<ul>	<li>Select the line tool,
+	<li>Make sure that layer 94 Symbol is selected
+	<li>Use the line tool to draw a rectangle with 
+	vertices at:<br>
+	(-0.4, 0.2) - (0.4, 0.2) - (0.4, -0.2) - (-0.4,-0.2)
+	<li>Select the Pin tool,
+	<li>Put two pins on the left side of the rectangle,
+	<li>Put a pin on the bottom, rotating the pin using
+	the right mouse click,
+	<li>Put a pin on the right side of the rectangle,
+	rotating with a right mouse click as needed,
+	<li>Press escape to exit the Pin tool.
+</ul>
+
+Now its time to add the name and value as we did in the package 
+design.
+
+<ul>	<li>Select the Text tool,
+	<li>In the Text pop-up, enter ">Name" in the "Enter text" box,
+	<li>Click OK,
+	<li>Place the text near the upper left corner of the symbol
+	by left mouse clicking,
+	<li>Press escape,
+	<li>Enter ">Value" in the "Enter text" box,
+	<li>Place the text near the upper right corner of the symbol
+	by left mouse clicking,
+	<li>Press escape twice to exit.
+</ul>
+
+Now we need to correct some of the properties of the pins.  Before you
+start, make sure that your symbol looks sometime like the following:
+
+<br><img src="./img/symbRaw.bmp"><br><br>
+
+<ul>	<li>Select the Information tool,
+	<li>Click on the upper left pin (labeled "P$1" in the image
+	above),
+	<li>In the Properties pop-up make the following changes,
+	<ul>	<li>Name: 	IN
+		<li>Direction:	pwr	</ul>
+	<li>Click OK
+	<li>Change P$2 to VCTL, pwr
+	<li>Change P$3 to SET, in
+	<li>Change P$4 to OUT, pwr
+</ul>
+
+Save before taking the last step, making a device.
+
+<h3>Create Device</h3>
+
+<ul>	<li>Library &rarr; Manage devices&hellip;
+	<li>Enter "LT3080" in the "New Device Name" text box,
+	<li>Click OK,
+	<li>Click Yes in the Warning pop-up to create a new device,
+</ul>
+
+You will now use the device editor to merge the package and the symbol
+created for the LT3080.  The interface you will use to accomplish this
+uses several specialized tools highlighted in the image below.
+
+<br><img src="./img/devEdit.bmp"><br><Br>	
+
+
+<ul>	<li>Click the Add tool in the left toolbar,
+	<li>In the Add pop-up, select the LT3080 Symbol,
+	<li>Click OK,
+	<li>Your cursor will change to the symbol for the LT3080.
+	Place the center of the symbol over the center of the 
+	symbol area (designated with a "+"),
+	<li>Left mouse click to place the symbol,
+	<li>Press escape twice to exit the Add tool,
+	<li>Click the New button in the package area, and select Add local package
+	<li>In the Create new package variant for the LT3080 pop-up,
+	select the TO-220-5R package,
+	<li>Click OK,
+	<li>Click the Connect button in the package area,
+</ul>
+
+You now need to create a mapping between the pins of the package
+and the pins on the symbol.  If you have followed instructions
+carefully, the connect pop-up should look like the following 
+image.
+
+<br><img src="./img/connectEdit.bmp"><br><Br>
+
+<ul>	<li>Select the G$1.IN Pin and the IN Pad, press connect,
+	<li>Select the G$1.OUT Pin and the OUT Pad, press connect,
+	<li>Select the G$1.SET Pin and the SET Pad, press connect,
+	<li>Select the G$1.VCTL Pin and the VCTL Pad, press connect,
+	<li>Leave NC$1 - not connected,
+	<li>Click OK,
+	<li>Click Save,
+	<li>File &rarr; Close.
+</ul>
+
+
+
+<h3>Add a library</h3>
+
+Now let's use that LT3080 device in our schematic.  First we have to add
+our new library to the available libraries for our project.
+
+<ul>	<li>Open lab07 project,
+	<li>Open schematic if it has not auto-opened,
+	<li>Click the Add part tool,
+	<li>Click "Open Library Manager",
+	<li>In the Library Manager pop-up, select the Available tab,
+	<li>Select your new library,
+	<li>Click Use,
+	<li>Close Library Manager pop-up (upper right "x"),
+	<li>In the ADD pop-up, enter *LT3080* in the search bar,
+	<li>Hit Enter,
+	<li>Select the LT3080,
+	<li>Place a LT3080 near the LM317,
+	<li>Use the delete tool to remove the LM317,
+	<li>Connect the LT3080 to the circuit as shown on this weeks lab.
+</ul>
+
+
+
+</html>

@@ -1,0 +1,713 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab07.html">Lab 7</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 7 - EAGLE schematic &rarr; layout</center>
+
+<h2>Requirements</h2>
+There is no turn-in associated with this inLab.  You will need to follow
+the instructions given below in order to create the footprint for the 
+LT3080.  Since each student needs to build their own layout for your own PCB,
+you should complete the walk-through in this lab on your own.  When you
+complete this walk-through you will have built one of the footprints
+that is due in the next lab.
+
+
+<h1>Objective</h1>
+
+Objectives
+<ul>
+<li>Nets, display name, air wires,
+<li>The information tool,
+<li>Packages,
+<li>EAGLE files,
+<li>ERC,
+<li>Devices with multiple circuits,
+</ul>
+
+
+<h3>Copy Lab 6 EAGLE files into Lab 7</h3>
+I would like to you to keep a copy of the work completed so far
+in lab06 and use it as a starting point for lab07.  To do this:
+<ul>	<li>Create a lab07 folder, 
+	<li>Launch EAGLE CAD,
+	<li>Navigate to the lab06 directory so that you can see the
+	orange "E" for lab06,
+	<li>Right mouse click on the orange "E" to the left of lab06,
+	<li>Select Copy
+	<li>In the Copy directory pop-up, navigate into the lab07 directory,
+	<li>Click "Select Folder",
+	<li>In the Control Panel, right mouse click on the orange "E" to
+	the left of lab06 (in the lab07 project),
+	<li>Select rename,
+	<li>Change the name of the project to lab07
+	<li>Rename lab06.sch to lab07.sch in the same way,
+	<li>You can delete lab06.pdf by right mouse clicking on it 
+	and selecting delete.
+</ul>
+
+
+<h2>Electrical Rule Check</h2>
+To some extent, EAGLE CAD has built-in error checking that can help you 
+identify errors early in the design phase.  Let's give it a try with
+the circuit you built this past week.  Click Tools &rarr; ERC.  This 
+will produce ERC Errors pop-up that looks like the following:
+
+<br><img src="./img/ercPop.bmp"><br><br>
+
+Double click on any of the errors and your window will be centered
+on the error with a black pointer highlighting the error.  The list
+of errors and warnings in the image above are all safe to ignore.
+<ul>	<li>The errors all indicate that the DISPLAY net has no signal 
+	driver - you will add that in a coming lab.
+	<li>The first two warnings indicate that these two nets are 
+	not connected to a second device - you will do that in a 
+	coming lab,
+	<li>The next three warnings are informing you that pins labeled
+	V- are normall connected to a negative suppply, not ground.
+	<li>You could give the FRAME (and a lot of other parts) values.
+	<li>The next two warnings tell us that we have an unconnected 
+	op-amp inside the TLC274P (not a best practice).  
+</ul>
+
+Be careful if you have a "Part IC6 has uninvoked gate A with 
+unconnected input pin on +IN" warning.  This most likely means that
+you copied an op amp instead of using the Add Part tool.  All the 
+op amps in the same package are labeled "IC&lt;number&gt;&lt;letter&gt;"  The
+&lt;number&gt; refers to the chip number and the &lt;letter&gt; referes
+to the gate inside the chip.  For the VU meter, you should only have two
+different &lt;number&gt;, each with the letters A &hellip; D.  This means
+that all the op amps in the VU meter (LM324) will be packaged in 2 chips.  
+The op amps in the voltage regulator are all package in a single 
+TLC274 and should have the same &lt;number&gt; with letters A &hellip; C.
+<br><br>
+
+If you have any additional errors, you will need to fix them before 
+moving on.
+<br><br>
+
+You can clear all the electrical errors and warning using the Clear all
+button and then close the window.  Now let's create a real electrical 
+error and see what it looks like&hellip;
+
+<h2>Create the SP100 Switch in EAGLE</h2>
+
+Let's build a footprint for the ON/OFF switch from the information in the
+device's technical documents.  To get the technical documents:
+<ul>	<li>Go to <a href="http://www.digikey.com">Digikey.com</a>, 
+	<li>search for EG2362-ND
+</ul>
+On the product information page, find the link to the 100SP switch
+Datasheet in the Datasheet area of the Documents & Media table and
+then open the datasheet.
+<br><Br>
+
+
+Go to page 1 of the technical documents and use the part number of the
+switch, 100SP1T2B4M6QE, to determine the TERMINATION type.  Then go through
+the datasheet to the begining of the TERMINATION OPTIONS section.  Then 
+look through this section till you find the SPDT switch that we are using
+as the on/off switch.
+
+There are several views, but the one we are interested in is the 
+P.C. MOUNTING.  I've isolated this image below along with the 
+actual switch.  Note that the pair of holes on the left of the P.C.
+MOUNTING diagram are non-electrical pins, used to provide mechanical 
+stability for the switch.  The three gold pins in the rear of the 
+switch are the electrically conducting elements.<br><br>
+
+Each measurement in the P.C. MOUNTING diagram has a bunch of
+difference numbers associated with it.  You will have to makes sense
+of these in order to build a valid footprint.
+
+<br><br>
+
+<table>
+<tr>	<td><img width=400 src="./img/switchMech.bmp">
+	<td><img width=400 src="./img/sp100Photo.GIF"><br><br>
+</tr>
+</table>
+
+As an example of the dimensioning, the image has a red box around
+the dimension representing the distance between the two front
+pins of the switch.
+<dir><i>
+If there is a pair of numbers above/below the horizontal line, this represent 
+a range of possible sizes.  For example you would interpert ".248 - .264" as 
+"from a minimum of .248" to a maximum of .264".  When I see a range of values,
+I use the average of these two values, .256 as the actual dimension.
+</i></dir>
+The horizontal line
+separates dimensions with different units, metric and imperial.
+There is no text on this page of the technical documents that 
+help tell which is which.  In this case I have four ways to tell:
+<ul>	<li>Scroll through the other pages of the document looking
+	at other mechanical diagrams and look for text related to 
+	units.  Usually, the documents are consistent in their use
+	of units through a document.  Unfortunatly, there is nothing 
+	in this document that helps us.
+
+	<li>Metric units are almost always in millimeters and
+	imperial units are always in units of inches.  Since there
+	are 25.4mm per inch, I try multiplying one of the values
+	by 25.4 to get the other.<br><br>
+  	Let's use the pair 0.200 and 5.08 circled in red in the 
+	image above and determine which is imperial
+	and metric.  I do this by first assuming that 0.200 is in 
+	inches and converting it into millimeters.  I then assume
+	that 0.200 is in mm and convert it to inches.  Then whatever
+	conversion results in 5.08 is the correct starting point. 
+	<pre>
+	              25.4 mm
+	0.200 inches * ------- = 5.08 mm
+		      1 inch
+
+
+	  	     1 inch
+	0.200 mm  * ------- = 0.0079 in
+	            25.4 mm
+
+	</pre>
+
+	So it looks like the distance between the pins in 0.2" or 5.08mm
+
+	<li>Most electronics packages are standardized, so you may
+	be able to find a separate resource that more clearly 
+	defines the units.  For example, go to the
+	<a href="https://en.wikipedia.org/wiki/Small-outline_transistor">Wikipedia</a>
+	web page for Small-outline transistors (this will help with 
+	you build
+	the footprint for the LT3080 which is a SOT223).  Unfortunatly, 
+	switch footprints are seldom standardized.
+
+	<li>If I do not have the physical package to measure (see below),
+	I have been known to infering an unknown dimension in a mechanical
+	diagram using the size of the part on the screen.  For example, 
+	the width of the switch, A in the figure below, is not given.
+	To figure out this dimention, I broke out my machinst ruler and
+	measured the pitch of the rear two pins (shown as being 4.7mm
+	apart) with my ruler to be 16mm.  I then measured the width of 
+	switch to be 44mm.
+<pre>
+
+		4.7  actual mm    switch width
+		--------------- = -------------		switch width = 12.65
+		16 measured mm    44 measured mm
+</pre>
+
+	I probablly will round this to 12.54mm because that is a perfect 
+	0.5"
+
+
+	<li>As a last resort, I grab a measuring device and measure the
+	physical package.  For this I find my digital vernier's to be
+	the best tool for the job.  If you do any amount of PCB layout
+	seriously considering purchasing a $40 pair from a company
+	like TechniTool.  The only drawback with this method is that
+	you need the part in your hands before you can start drawing
+	the footprint and there will be times when you have to layout
+	a part without having it in your hands.
+
+</ul>
+<br><Br>
+
+Now that we understand the unit dimensions, let's make a small
+sketch that will help us create the footprint.  Do this by 
+completing the pair of tables that follow.
+
+
+<br><img src="./img/sp100Foot.bmp"><br><br>
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Dimension</td>	<td>Name</td>	<td>Value (mm)</td>
+	<td>Value (inch)</td>	</tr>
+<tr><td>A</td>	<td>Body Width</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>B</td>	<td>Body Length</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>C</td>	<td>Pin offset</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>D</td>	<td>Half Pin pitch</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>E</td>	<td>Pin diameter</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>F</td>	<td>Half Pin Pitch</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>G</td>	<td>Panel Mnt diameter</td><td>&nbsp;</td><td>&nbsp;</td> </tr>
+<tr><td>H</td>	<td>Switch Length</td>	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+</table>
+
+<i>*For the body width, I used the body width of the M2 SPT switch 
+listed on the same page.  I did this under the assumption that the
+two switches were identical except for the solder lugs.
+</i>
+
+In the same image shown above, use the blue pin numbers to identify the
+function of the pin.   Holes are non-conductive punctures in the PCB
+to provide mechanical attachment sometimes called non-plated through 
+holes.  Pads are electrical punctures in the PCB that are plated 
+to allow the pins to connect to other circuit elements on the PCB.
+Use the information from the mechanical diagram to determine
+the location of the center of the pins assuming that the origin (0,0)
+is located the blue cross shown.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Pin</td>	<td>Hole/Pad</td>	<td>Location (mm)</td>
+	<td>Location (inch)</td>	</tr>
+<tr><td>1</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>2</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>3</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>4</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+<tr><td>5</td>	<td>&nbsp;	<td>&nbsp;</td>	<td>&nbsp;</td> </tr>
+</table>
+
+<h3>Create a library</h3>
+
+<ul>	<li>Close the lab07 project,
+	<li>From the Control Panel select File &rarr; New &rarr; Library
+	<li>In the Library Editor pop-up select File &rarr; Save
+	<li>In the Save-As pop-up enter your last name as the File name,
+	<li>Click Save.
+</ul>
+	
+
+<h3>Create a new package</h3>
+EAGLE CAD calls footprints, packages. So let's create a package for
+our SP100.
+
+<ul>	<li>Click Library &rarr; Manage packages &hellip;
+	<li>In the Edit pop-up Enter "SP100" in the New Footprint  Name field,
+	<li>Click OK
+	<li>In the Warning pop-up, click Yes to create a new package,
+</ul>
+
+You will now enter the package editor.  This is a basically a drawing
+application with special features for PCB design.  You are going to draw
+the SP100's footprint; how you would view its outline and pins from above. 
+To do this, you will use several tools pointed-out in the following 
+image.
+
+<br><img src="./img/padType.bmp"><br><br>
+
+
+
+<h3>Draw the outline</h3>
+The outline of a footprint serves much more than an aesthetic role on
+a PCB design.  A well drawn outline provides needed information to
+the layout engineer so they position the component effectively and 
+information to the assemblers so they can correctly install components.
+To start your outline, configure EAGLE as follows:
+
+<ul>	<li>Click view &rarr; grid,
+	<li>In the Grid pop-upi:
+	<ul>	<li>Display:	On
+		<li>Style:	Lines
+		<li>Size:	0.2 mm
+		<li>Multiple:	1
+		<li>Alt:	5
+		<li>Click OK		</ul>
+	<li>Select the Line tool,
+	<li>Make sure that layer 21 tPlace is selected
+	<li>Start drawing the outline.
+</ul>
+
+
+Two points:
+<ul>
+<li>I would suggest that you start at the origin and build away from it.
+<li>Use the information tool (circle icon with "i" in it) to
+position segments exactly where I want them.  In the image below, I am 
+positioning the right side of the barrel which holds the switch.
+</ul>
+
+<br><img src="./img/100spOutline.bmp"><br><br>
+
+
+
+<h3>Add Pads, Holes and SMT pads</h3>
+The next step in the creation of a footprint is adding the electrical
+(pads and smt) and physical (hole) connections to the PCB.  You will make
+electrical connections to the PCB using pads and smt.  Holes are needed
+for devices which are subject to mechanical stresses like a mounting holes,
+USB connector or switches.  Holes do not have electrical connections.
+<br><img src="./img/holePadSMT.bmp"><br><br>
+
+The major difference between holes and pads is the presence or
+absence of through-hole plating.  Through-hole plating is the process 
+by which a conductive plating is added to the sides of the drill hole
+and extends to the top and bottom surface of the PCB.
+This conductive plating serves many useful purposes, creating a large
+solder area between the PCB and the leaded components and allowing 
+traces on the top and bottom sides to be connected through the hole.
+<br><br>
+
+A drill hole that has conductive plating added is called a plated through 
+hole, PTH for short.  The plating inside the hole has some thickness which
+reduces the usable diameter of the hole.  In EAGLE you specify  a
+"drill" diameter which is the finished diameter of the hole in the PCB.
+If this is a PTH then it is up to the PCB manufacturer to over-drill the
+diameter of the hole so that after plating the finished hole diameter 
+matches the value that you specified in your EAGLE file.  In other words,
+you, as the PCB designer, do not have to concern yourself with the 
+thickness of the plating in a PTH.  In order to allow an electrical 
+connection to a PTH, the top and bottom of the PTH is connected to a 
+donut shaped conductive region called the annular ring.  The annular 
+ring will not be covered in solder mask making it the point where leaded 
+components are soldered into the PCB.
+When you add a pad to your footprint you can select Diameter and a Drill
+size.  The Diameter size is the diameter of the annular ring.  The Drill
+size is the diameter of the finished hole. <br><br>
+
+When building a footprint for a device you will need to specify
+both the Drill and Diameter (for a pad).  The best case is one where the
+mechanical drawing will provide all the needed information.
+For example, in the image below, you can see the informative mechanical 
+drawing for the SPDT switch you will be building for this week's lab as 
+shown in the image below.  
+
+<br><img src="./img/switchMech.bmp"><br><Br>
+
+Before moving on, let's make a few observations.  First, note that
+the drill diameter is given by the symbol &Phi; (a common convention).
+<br>
+Second, the dimensions are given in both metric and imperial units, metric 
+on top and imperial on the bottom.  For example, the drill diameter is given
+as 1.85 and 0.073.  You should be able to figure out that the
+units for 1.85 are millimeters because there are 25.4 mm in 1 inch and
+0.073 in * (25.4 mm / 1 in) = 1.85 mm. 
+<br>
+
+The solder pad is the green area surrounding the drill hole that is
+used during assembly to solder the component lead to the PCB.
+Normally leaving the size of the solder pad assocaited with a drill 
+hole set to "automatic" is a fine choice.  However, whenever possible
+I make the solder pads as large as possible to make soldering easy.
+That said, don't make your solder pads so large that they overlap other
+pads or make routing unduely difficult.
+
+<br><br>
+A drill hole without conductive  plating is called a "hole" in EAGLE.
+In order to better assure that a hole does not make electrical contact
+with the copper layers on the top and bottom of the PCB, you should make
+sure there is a keepout region (layer 39 or 40) on the top and bottom 
+layer of the PCB.  A keepout does just what its name implies, it keeps 
+out copper pour.   A keepout should be between 10 - 20% larger that
+the diameter of the drill hole.  Like plated through holes, I like to
+make drill hole diameters 10 - 20% larger than the size of the object
+going through the hole.
+<br><br>
+
+Finally SMT pads are provided by EAGLE in order to attached surface mount
+devices of the PCB.  These SMT pads have an X and Y dimension that needs
+to be slightly larger than the part being placed.  Often the mechanical
+drawing section of the technical documents will have a recommended footprint
+for SMT devices.  Lacking that, make your SMT pads at least 10% larger
+than the electrical contact, with 25% larger being an upper bound.  
+
+<h3>Add the pads</h3>
+Let's start by placing the pads which wil connected to the conductive
+terminals of the switch.  Do this as follows.
+
+<ul>	<li>Left mouse click on the pad tool in the leftmost toolbar,
+	<li>On the top toolbar, set the pad type to Octogon,
+	<li>On the top toolbar, set Drill to 1.85mm (you will need
+	to type this value in),
+	<li>On the top toolbar, set the Diameter to 3.5mm,
+	<li>To make you life easier, place the pin 1 pad first, and
+	the rest of the pad in numerical order,
+	<li>If you are unable to get the pin exactly where you want it,
+	because of the grid resolution, place it as close as possible
+	and fix it with the information tool.
+</ul>
+
+The information tool makes the properties of a selected item available
+to edit by the user.
+
+<ul>	<li>Select the information tool from the left toolbar,
+	<li>Select the center of the pad you want to move,
+	<li>In the Properties pop-up, change the position of the
+	pad to its needed position,
+	<li>Click OK to complete the change,
+	<li>Continue to any other pads that need their positions
+	changed.
+</ul>
+
+Use the information tool to change the names of the switch pins to 
+SL, COM, and SR.  Note SL stands for switch left.  When you are done 
+your part should look like the following.
+
+<br><img src="./img/padsPlaced.bmp"><br><Br>
+
+<h3>Add the holes</h3>
+Now let's add the holes in the PCB to accomodiate the ipins at the
+front of the switch which provide mechanical support for the switch 
+as it is being actuated by a user.  Do this as follows:
+
+<ul>	<li>Left mouse click on the hole tool in the leftmost toolbar,
+	<li>On the top toolbar, set Drill to 1.85mm (you will need
+	to type this value in),
+	<li>Use the information tool to place the holes where needed.
+</ul>
+
+
+<h3>Add the name and value</h3>
+The parts that you place on the schematic and place on the PCB need
+unique identifiers so that you can place the correct electrical component
+in the correct location.  In the schematic, an electrical device like
+a resistor has a name (for example "R4") and a value, (for example
+"10k&ohm;).  The '>' character before name is a special character that 
+lets Eagle know that this value should be dynamically updated by the 
+program.  You specify the default location for these two labels
+in the package editor using the following instructions.
+
+<ul>	<li>Select layer 25, tNames
+	<li>Click on the text tool
+	<li>In the Text pop-up, enter ">Name" the in the "Enter text" area,
+	<li>Click OK,
+	<li>Set the Size: 0.8128
+	<li>Set Font: Vector
+	<li>Left mouse click to place text (above the part)
+	<li>Press escape,
+	<li>Replace text in "Enter text" area with ">Value",
+	<li>Click OK,
+	<li>Select layer 27, tValues
+	<li>Left mouse click to place text (above/right the part),
+	<li>Press escape twice to exit from the text tool.
+</ul>
+
+When you complete this step, you should have a package that looks 
+like the following image.
+
+<br><img src="./img/finishedPackage.bmp"><br><br>
+
+<h3>Save</h3>
+
+<ul>	<li>File &rarr; Save
+	<li>In the Save as pop-up, click on your library
+	<li>Click Save,
+	<li>In the Warning pop-up click OK to overwrite the (empty) library.
+</ul>
+
+
+<h3>Create a new Symbol</h3>
+
+The symbol is what you see in the schematic when a part is placed.
+
+<ul>	<li>Library &rarr; Manage symbols&hellip;
+	<li>In the Edit pop-up enter SPDT in the "New Symbol Name" field,
+	<li>Click OK
+	<li>Click Yes in the Warning pop-up to create a new symbol.
+</ul>
+
+You will now enter the symbol editor. This is a basically a drawing 
+application with special features for PCB design. You are going to draw 
+the switch's schematic symbol. To do this, you will use several tools 
+pointed-out in the following image. 
+
+<br><img src="./img/symbEdit.bmp"><br><br>
+
+
+<h3>Draw the symbol</h3>
+
+<ul>	<li>Select the line tool,
+	<li>Make sure that layer 94 Symbol is selected
+	<li>Use the line tool to draw the moving padel of the switch,
+	<li>Use the circle tool to draw the terminals of the switch,
+	<li>Select the Pin tool,
+	<ul>	<li>Select short pin length
+		<li>Select passive pin type	</ul>
+	<li>Place all three pins,
+	<li>Press escape to exit the Pin tool.
+</ul>
+
+Now its time to add the name and value as we did in the package 
+design.
+
+<ul>	<li>Select the Text tool,
+	<li>In the Text pop-up, enter ">Name" in the "Enter text" box,
+	<li>Click OK,
+	<li>Use the layer tool (upper left) to change the layer to "95 Names"
+	<li>Place the text by left mouse clicking,
+	<li>Press escape,
+	<li>Enter ">Value" in the "Enter text" box,
+	<li>Use the layer tool (upper left) to change the layer to "97 Values"
+	<li>Place the text near by left mouse clicking,
+	<li>Press escape twice to exit.
+</ul>
+
+Now we need to correct some of the properties of the pins.  Before you
+start, make sure that your symbol looks sometime like the following:
+
+<br><img src="./img/symbRaw.bmp"><br><br>
+
+<ul>	<li>Select the Information tool,
+	<li>Click on the common pin (labeled "P$1" in the image above),
+	<li>In the Properties pop-up change Name to "COM" and change 
+	the Visible to pad,
+	<li>Click OK
+	<li>Change P$2 to SL, pad
+	<li>Change P$3 to SR, pad 
+</ul>
+
+Save before taking the last step, making a device.
+
+<h3>Create Device</h3>
+
+<ul>	<li>Library &rarr; Manage devices&hellip;
+	<li>Enter "100SP" in the "New Device Name" text box,
+	<li>Click OK,
+	<li>Click Yes in the Warning pop-up to create a new device,
+</ul>
+
+You will now use the device editor to merge the package and the symbol
+created for the 100SP switch. The interface you will use to accomplish this
+uses several specialized tools highlighted in the image below.
+
+<br><img src="./img/devEdit.bmp"><br><Br>	
+
+
+<ul>	<li>Click the Add Part tool in the left toolbar,
+	<li>In the Add pop-up, select the SPDT Symbol,
+	<li>Click OK,
+	<li>Your cursor will change to the symbol for the SPDT.
+	Place the center of the symbol over the center of the 
+	symbol area (designated with a "+"),
+	<li>Left mouse click to place the symbol,
+	<li>Press escape twice to exit the Add tool,
+	<li>Click the New button in the package area, and select 
+	Add local package
+	<li>In the Create new package variant for the 100SP pop-up,
+	select the 100SP package,
+	<li>Click OK,
+	<li>Click the Connect button in the package area,
+</ul>
+
+You now need to create a mapping between the pins of the package
+and the pins on the symbol.  If you have followed instructions
+carefully, the connect pop-up should look like the following 
+image.
+
+<br><img src="./img/connectEdit.bmp"><br><Br>
+
+<ul>	<li>Select the G$1.COM Pin and the COM Pad, press connect,
+	<li>Select the G$1.SL Pin and the SL Pad, press connect,
+	<li>Select the G$1.SR Pin and the SR Pad, press connect,
+	<li>Click OK,
+
+<li>In order to have a prefix in front of your part name 
+(think the "R" in the resistor designator "R6"), then you can
+associate one with this device by clicking on the Prefix button
+that is on the lower right and below the "New" button you clicked
+earlier. Some common prefixes are:
+<pre>
+C - capacitor
+D - diode (including LEDs!)
+J - header pins or 'jack' connector
+JP - jumper
+L - inductor
+M - motor
+Q - transistor/FETs
+R - resistor
+S - switch (TACT switch, etc.)
+TP - test point
+U - integrated circuit (sensors, MCUs, etc.)
+Y - Crystals or oscillators
+</pre>
+
+	<li>File &rarr; Save,
+	<li>File &rarr; Close.
+</ul>
+
+
+<h3>Add a library</h3>
+
+Now let's use that 100SP device in our schematic.  First we have to add
+our new library to the available libraries for our project.
+
+<ul>	<li>Open lab07 project,
+	<li>Open schematic if it has not auto-opened,
+	<li>Click the Add part tool,
+	<li>Click "Open Library Manager",
+	<li>In the Library Manager pop-up, select the Available tab,
+	<li>Select your new library,
+	<li>Click Use,
+	<li>Close Library Manager pop-up (upper right "x"),
+	<li>In the ADD pop-up, enter *SP100* in the search bar,
+	<li>Hit Enter,
+	<li>Select the SP100,
+	<li>And place it.
+</ul>
+
+<h3>footpring erata</h3>
+A footprint serves more than just to alert the layout engineer of the 
+physical dimensions of the component.  Let's take the Phoenix terminal
+block used on your power supply and shown in the image below at left.
+In addition to the outline, the footprint can aide the layout engineer 
+in remembering 
+which side of the terminal block wires connect to and where the user
+has to press in order to insert and remove wires.  These features 
+help the layout engineer position the terminal block so that wires can
+easily be inserted and that the user can press the button without their
+fingers being burned by a nearby heatsink.  If the mechanical documents
+lack the specifics on a needed package dimension, do your best to guesstimate 
+the position of a feature.  If you think that you need to, make a
+note of your assumptions in the tDoc or bDoc layer.
+<br><img src="./img/phoenix.bmp"><br><br>
+
+As shown in the Phoenix terminal block, other features of the component
+like the shape of the green plastic may be included. This helps add a 
+level of realism to the device making it easier to identify on a busy
+PCB layout.  Another function of a good outline is to help assemblers
+install polarized components correctly.  Devices like ICs and LEDs need
+some convenient reference on the PCB to determine the part orientation
+so that the part can be installed correctly.
+
+<h3>Drill hole erata</h3>
+If the recommended drill size is not given in the mechanical drawing,
+the next best case is when the dimensions of the leads as provided like
+they are in the LT3080 mechanical drawing below.  In this case, I would 
+make the hole at least 0.84mm in diameter, this bring the average of
+0.711mm and 0.965mm.  
+<br><img src="./img/lt3080FP.bmp"><br><Br>
+
+I typically make the dill size 10 - 20% larger than the average size
+of the lead that is being placed through it. In the case of the TO-220-5 
+package this would be 0.84 mm * 1.2 = 1mm.
+When it comes to the diameter of the annular ring, I like to make them
+as large as possible to simplify soldering.
+However, in densely packed PCBs you will be encouraged
+to keep the annular rings as small as possible so that the PCB can 
+accommodate higher part densities.  Note the term "BSC" stands for 
+basic spacing between centers and in this case, is synonymous with pin
+pitch.  
+<br><br>
+
+<h3>Unconnected pin erata</h3>
+Call the unconnected pin, "NC$1".  The "NC" in the name 
+stand for No Connect, the "$1" means that this is the first pin with that
+name.  If there was a second non-connected pin in this package, I would 
+have named it "NC$2".
+
+
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab03.html">Lab 3</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 3 - CV regulator</center>
+
+<h2>Requirements</h2>
+When you have worked through all the material in this lab writeup, please
+take the inLab 03 Quiz. You may find quiz questions to be similar to,
+but not identical to the numbered questions in this inLab write up.
+Note, you wil have 60 minutes to complete the ten questions in the
+Canvas quiz so it would be a good idea to complete all the inLab 
+activities before taking the Canvas quiz. Do not turn in the answers 
+to the numbered questions in this inLab writeup.
+
+<h3>LED</h3>
+Light emitting diodes (LEDs) are polarized devices meaning that they 
+have positive and negative leads.  Current flowing from the positive 
+to the negative lead causes the PN junction inside the LED to
+emit photons.  The current flowing through the PN junction produces 
+a voltage that follows the current vs. voltage graph shown in the 
+image below.
+
+<br><img src="./img/ivDiode.bmp"><br><Br>
+
+The LED is supposed to be operated around the forward voltage V<sub>f</sub>
+level.  Notice that at this point the slope of the I vs. V graph is 
+large.  This means that small changes in the voltage will produce large 
+changes in the current.  This means that adjusting the brightness of an 
+LED using the voltage knob of a power supply is difficult - either the LED
+is to dim or you over-voltage the LED and destroy it.  The high slope of
+the I vs. V graph also means that changes in the current through the LED
+produce small changes in the voltage.  Thus, it makes much more sense
+to try to adjust the brightness of an LED using current.
+<br><br>
+
+The notion that the forward voltage of an LED as <u>the</u> voltage 
+that illuminates the LED is a bit misleading.  V<sub>f</sub> is a 
+representative value that produces a "normal" amount of illumination.
+You can measure V<sub>f</sub> using the bench digital multimeters (DMMs)
+as follows.
+<ul>	<li>Power on the DMM using the white button on the lower left corner,
+	<li>Connect banana plug cables into the DMM.  Black into the COM and
+	red into the jack labeled with a diode picture,
+	<li>Set the DMM into diode mode by pressing the button with a 
+	black diode symbol on it,
+	<li>Attach the red cable to the anode of the LED (longer lead) and
+	the black cable to the cathode of the LED (shorter lead),
+	<li>The LED should dimly illuminate,
+	<li>The DMM display will indicate the forward voltage, V<sub>f</sub>
+	with way more precision than needed.
+</ul>
+
+<br><img src="./img/measureVf.jpg"><br><br>
+
+On almost every circuit that I build, I include a power-on LED.  This
+LED provides me with a positive indication that the power input is 
+satisfactory.  It also serves as a useful debugging tool, turning
+off if I somehow short-out the power in the circuit, or dimly illuminating
+if I am over stressing the circuit.  An LED with a series resistor 
+placed across the power rail is an easy way to provide this function.
+
+<br><img src="./img/lightLED.bmp"><br><br>
+
+The value of the resistor is pretty easy to figure out if you know
+V<sub>f</sub> and the amount of current that you want to flow through
+the LED, I<sub>f</sub>.  The datasheet for the LED should have these
+values.  As a general rule I limit the current through power-on LEDs
+to no more than 5mA as I find their glare distracting.  The calculation
+to determine the value of the resistor is as follows.
+
+<pre>
+Voltage across resistor		Vcc - V<sub>f</sub>	
+Ohm's law for resistor 		Vcc - V<sub>f</sub> = I<sub>f</sub>*R
+Solve for R			R = (Vcc - V<sub>f</sub>)/I<sub>f</sub>
+</pre>
+
+When selecting an LED for an application you should take the following
+characteristics into consideration.
+
+<dl>
+<dt>Color</dt>
+<dd>It's pretty obvious that the color is an item that you can select.
+However, there are trade-off's involved.  For example, the color in
+large part determines V<sub>f</sub> with longer wavelengths having
+lower V<sub>f</sub>.</dd>
+
+<dt>Forward voltage</dt>
+<dd>As state before, V<sub>f</sub> is not an absolute value, but a 
+representative value that will cause the LED to produce near
+maximal illumination.</dd>
+
+<dt>Continuous forward current</dt>
+<dd>Since the LED has a voltage drop while current is running through it,
+the LED necessarily dissipates power.  The LED gets hot while doing
+this and can handle only so much power before the PN junction fails.
+It is wise to operate LEDs well below their peak current to prolong
+their lifetime operation.</dd>
+
+<dt>Pulsed forward current</dt>
+<dd> In some applications, like IR communications, it is better to pulse
+the LED with very high currents for brief periods of time.  In IR
+communication, this has the potential to greatly increase communication
+range.  Some data sheets will provide the duration of the pulse, 
+frequency of pulses, and the current for the pulses.  Pulse currents
+of 1A are not uncommon for small 5mm LEDs.  </dd>
+
+<dt>Size</dt>
+<dd> The most common through hole LEDs are in a T-1 3/4 case, sometimes called
+a 5mm case because the LED is 5mm in diameter.  I typically use 1206
+surface mount LEDs as they are easy to handle and as small as the other
+SMT discretes that I use.</dd>
+
+<dt>Brightness</dt>
+<dd> The brightness of an LED should be measure in millicandela (mcd), where 
+one candela is the luminous intensity projected over a 1 sterdian solid
+cone.  Anything over about 50mcd is annoying to look at.</dd>
+
+<dt>Angle</dt>
+<dd> The rear of the LED housing is formed into parabolic cone in order to
+ increase the number of photons leaving the LED.  The shape of the cone
+determine the range of the light ray angles emitted.  All things being
+equal, narrow beams have a longer range, while wide beams are seen at
+a wider range of angles.</dd>
+</dl>
+
+
+<ol start=1>
+<li>Complete the following table:
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Color	<td>Wavelength dominant	<td>V<sub>f</sub>
+<tr><td><a href="https://www.digikey.com/product-detail/en/lite-on-inc/LTE-2871/160-1929-ND/3198320">IR</a> <td>&nbsp;	<td>&nbsp;
+<tr><td><a href="https://www.digikey.com/product-detail/en/lite-on-inc/LTL-4263/160-1964-ND/3198540">Red</a> <td>&nbsp;	<td>&nbsp;
+<tr><td><a href="https://www.digikey.com/product-detail/en/lite-on-inc/LTL-4293/160-1969-ND/3198550">Yellow</a> <td>&nbsp;	<td>2.0V
+<tr><td><a href="https://www.digikey.com/product-detail/en/lite-on-inc/LTL-4231/160-1712-ND/670004">Green</a> <td>&nbsp;		<td>&nbsp;
+<tr><td><a href="https://www.digikey.com/product-detail/en/wurth-electronics-inc/151051BS04000/732-5015-ND/4490009">Blue</a> <td>470nm	<td>&nbsp;
+<tr><td><a href="https://www.digikey.com/product-detail/en/bivar-inc/UV5TZ-390-30/492-1511-ND/3095677">UV</a> <td>&nbsp;	<td>&nbsp;
+</table>
+</li>
+</ol>
+
+
+<b>Practical stuff&hellip;</b><br>
+There is a relationship between the wavelength and forward voltage explained in 
+<a href="https://electronics.stackexchange.com/questions/396345/is-the-led-drop-voltage-difference-between-colors-linked-to-the-different-wavele">this</a>
+thread.
+<br><br>
+
+The fact that a DMM will dimly illuminate an LED can be a very useful tool.
+Let's say that you have a 7-segment display with no technical documentation.
+In order to use it, you need to know what the pins are connected to.  To
+accomplish this first configure the DMM as shown in the image above.  Then,
+connect the common (ground) lead to one of the 7-segment leads and swipe the
+red lead across the pins of the 7-segment display while keeping an eye on
+the individual segments of the display.  If no segments light up, try a 
+different common pin on the 7-segment display.  Continue and you will
+eventually get a segment to light up.  Then this is the time to start
+building your own pin-out with pencil and paper.
+
+<h2>LED flower schematic</h2>
+
+The LED flower contains a single 10mm common anode RGB LED powered
+through a 9V battery.  Three potentiometers, wired in rheostat mode,
+provide a current limiting for the LEDs.  This allows a user to adjust
+the amount of light coming from the red, green, and blue LEDs creating
+a rich pallet of colors.
+<br><img src="./img/ledFlowerSchematic.bmp"><br><br>
+
+
+<ol start=2>
+<li>Complete the following table using information found on the last
+page of the 
+<a href="https://cdn-shop.adafruit.com/datasheets/FLR-100WAS-RGB.pdf">
+RGB LED technical documents</a>. 
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Parameters	<td>GaP Red	<td>Green	<td>Blue
+<tr><td>VF (Volts)	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>Avg Forward Curr (mA) <td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+</table>
+
+<li>From this information, use the equation for the current limiting
+resistor from the previous section to determine the smallest current limiting
+resistor that should be used in the circuit.  Put this resistor value in
+the "Smallest Resistor" column.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Color	<td>Smallest Resistor
+<tr><td>GaP Red <td>&nbsp;
+<tr><td>Green	<td>&nbsp;
+<tr><td>Blue	<td>&nbsp;
+</table>
+
+
+</ol>
+
+
+In order to draw the "&ohm;" symbol, first make sure that Num Lock is on,
+then, while holding down the "Alt" key type "234" on the number pad, then
+let go of the Alt key - presto, &ohm; symbol.
+
+
+
+
+
+<h2>Power Supplies</h2>
+The goal of this course is to build a power supply unit (PSU) that
+can regulate voltage and current.  The ability to regulate 
+voltage is something that I think should come naturally to most 
+EE student because we often are often asked to power a circuit with some 
+specific voltage.  <u>When you set a voltage limit on the power supply
+you are telling the PSU to deliver no more than this amount of 
+voltage to the load</u>.  My guess is that in most labs you have
+seen the PSU deliver that set voltage to any load you have connected.
+However, the supply will only deliver the full voltage so long as the 
+current consumed by the load does not exceed the current limit set on 
+the power supply.
+<u>When you set a current limit on the power supply you are telling
+the PSU to deliver no more than this amount of current to the 
+load</u>.  
+<br><br>
+
+The combination of voltage and current limit means that
+<u>the PSU is always limited by either the set voltage limit or 
+set current limit</u>.  A power supply will always give you some means
+of setting the voltage limit (VSET knob in the image below) and of
+the setting the current limit (ISET knob in the image below).  We will
+call the voltage delivered to the load VOUT and the current delivered
+to the load IOUT.
+
+<br><img src="./img/simplePSU.bmp"><br><br>
+
+
+Let's take an example where a power supply is configured with 
+VSET=10V, ISET=1A and a 2&ohm; load attached across the output 
+terminals (VOUT and GND in the image above).  How much voltage
+and current will the power supply deliver to this load?  As
+mentioned above, the power supply will deliver the set voltage
+or current to the load, determining which is a matter of correctly
+applying Ohm's law.
+<pre>
+If VOUT = VSET = 10V then IOUT = 10V/2&ohm; = 5A
+If IOUT = ISET = 1A then VOUT = 1A*2&ohm; = 2V
+</pre>
+From this you should be able to deduce that the power supply will
+have VOUT=2V and IOUT = 1A.  Because if the power supply had VOUT=10V,
+then the output current would have to be greater than the maximum 
+allowable current limit set by the user (which was 1A).
+This combination of VOUT=2V and IOUT=1A is marked on the graph below
+with a red circle labeled 2&ohm;.
+<br><br>
+
+<ol start=4>
+<li>
+Determine the value of VOUT and IOUT for loads of 
+6&ohm;, 
+10&ohm;, 
+40&ohm;, 
+80&ohm;, 
+100&ohm;, 
+1k&ohm;, 
+1M&ohm; on a power supply configured with VSET=10V and ISET=1A.
+Mark them on the graph below and annotate each point with its
+resistance.
+<br><img src="./img/graphVvsI.bmp">
+
+<li>You should remember that the power delivered to the load is VOUT*IOUT.  
+In the graph above, this is just the product of the x,y coordinates of
+each resistance point.  What is the trend in the power delivered to the 
+load as you move from low to high resistances?
+
+<li>You have configured a power supply with set values of VSET and ISET.
+What load resistance will result in maximum power transfered to the load?
+State your answer in terms of ISET and VSET. 
+
+<li>Complete the following graph of the expected power supply behavior
+with ISET=1A and a load of 10&ohm;.  The user will be increasing VSET
+from 0V to 20V.  Draw a graph of the values of VOUT.<br>
+<img src="./img/voutVsVset.bmp"><br><br>
+
+<li>Complete the following graph of the expected power supply behavior
+with VSET=10V and a load of 10&ohm;.  The user will be increasing ISET
+from 0V to 2A.  Draw a graph of the values of IOUT.<br>
+<img src="./img/ioutVsIset.bmp"><br><br>
+
+</ol>
+
+The following activity requires you to manipulate the bench power supplies.  
+In particular you will need to manipulate VSET and ISET and read out 
+VOUT and IOUT.  The following
+image shows the controls and relevant areas of the display to effectively
+interact with the power supplies.
+
+<img  src="./img/dp832.bmp"></td>
+
+
+<h3>Adjusting voltage and current limit</h3>
+The following instructions will require you to change VSET and ISET,
+hold the load resistance constant and measure VOUT and IOUT.
+You will be using the bench PSUs, banana/banana cables and a 
+a 10&ohm;, 5 Watt power resistor from the "Power Resistors" drawer.
+<br><Br>
+
+<table border=1>
+<tr><td><center>
+<b>Set the voltage limit to 0V and the current limit to 1A</b></center></td>
+<tr><td><ul>
+<li>Turn on the power supply
+<li>Press the channel 1 button (there are 3 channels labeled 1-3)
+<li>Press the "Current" softkey
+<li>Enter 1.0 on the circular number pad
+<li>Press the "A" softkey to designate the units as Amps
+<li>Press the Voltage soft key
+<li>Enter 0.0 on the circular number pad
+<li>Press the "V" softkey to designate the units as Volts
+</ul>
+</td></tr>
+
+
+<tr><td><center><b>Setup experiment </b></center></td>
+<tr><td>
+<ul>
+<li>Connect a red banana cable to the "+" terminal of the power supply,
+<li>Connect an alligator clip to the free end of the banana cable,
+<li>Grab one lead of the power resistor with the alligator clip,
+<li>Connect a black banana cable to the "-" terminal of the power supply,
+<li>Connect an alligator clip to the free end of the banana cable,
+<li>Grab the other lead of the power resistor with the alligator clip.
+</td></tr>
+
+<tr><td><center><b>Run the experiment</b></center></td>
+<tr>
+<td>
+<b>To adjust voltage</b>
+<ul>
+<li>Press the Voltage soft key just below the display,
+<li>Press the left/right arrow key adjacent to the circular number pad 
+to highlight the units digit on the voltage set,
+<li>Rotate the selector inside the circular keypad to adjust the voltage to
+the value specified in the "Voltage" column in the table below.
+</ul>
+
+<b>To adjust current</b>
+<ul>
+<li>Press the Current soft key just below the display,
+<li>Press the left/right arrow key adjacent to the circular number pad 
+to highlight the tenths digit on the current set,
+<li>Rotate the selector inside the circular keypad to adjust the current
+to the value specified in the top row.
+</ul>
+
+<b>To take measurements</b>
+<ul>
+<li>For each voltage record the voltage across and current through the 
+resistor by looking at the values on the display. 
+<li>Since the resistor will get hot, turn on channel 1 only long enough
+to get your readings.  Do this by pressing the "On/Off" button above 
+the channel 1 selection button.
+</ul>
+</td></tr>
+</table>
+
+<ol start=9>
+<li>Complete the following table using the instructions above.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Voltage	<td>1.0A<br>Current <td>0.5A<br>Current	<td>0.2A<br>Current
+<tr><td>0V	<td>0/0		<td>0/0		<td>0/0	
+<tr><td>2V	<td>&nbsp; 	<td>&nbsp;	<td>&nbsp;
+<tr><td>4V	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>6V	<td>&nbsp;	<td>5V/0.5A	<td>&nbsp;
+<tr><td>8V	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>10V	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+<tr><td>12V	<td>&nbsp;	<td>&nbsp;	<td>&nbsp;
+</table>
+</ol>
+
+
+
+
+
+</html>

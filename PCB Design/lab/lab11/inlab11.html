@@ -1,0 +1,404 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab11.html">Lab 11</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 11 - Enclosure design</center>
+
+<h2>Requirements</h2>
+Working in teams of two,
+read through the following lab activity and perform all the actions
+prescribed.  There is no deliverable for this inLab, but the 
+instructions contained are essential to completion of the this
+week's lab, please work through these instructions carefully.
+
+
+<h1>Objective</h1>
+This document outlines how to take an EAGLE layout and use it to build a 
+front panel for your power-supply using our Epilog Legend 36EXT
+laser cutter.  The image
+below shows a finished front face plate for the power supply that I
+designed, your will look different to accommodate your circuit.
+The work-flow to accomplish uses the following software packages, in
+order, EAGLE CAD, Inkscape, Corel Draw, and a Epilog laser cutter.
+
+
+<h2>Face Plate design and laser cutting basics</h2>
+A front panel serves several roles that factor into your design including:
+providing access to controls, protecting the user from electrical voltages,
+providing control information, providing status interpretation, and serving
+as a form of documentation.
+<br><Br>
+
+Clearly the front panel must be dimensionally accurate, matching the 
+features of the PCB.   In order to accomplish this, we will start the
+design of the front panel using your PCB design in EAGLE CAD.
+<br><br>
+
+The input to a laser cutter is a CAD file containing the outline of
+objects to cut, along with some material, and the output is material
+cut according to the design in the CAD file.  There are a couple of 
+important points that need to be clear before proceeding and these
+involve how you can control the laser intensity over different objects
+in your CAD file.
+<br><br>
+
+A laser cutter operates in one of two modes, vector or raster. In vector
+mode the pair of motors controlling the position of the leaser head, move
+in coordination so that the laser moves smoothly along a lines or arc while 
+lazing material.  In vector mode, you can cut clean, smooth circles and 
+lines.  In raster mode, the laser sweeps left to right in a row, firing its 
+laser ever where the material is to be marked in that row.  The laser continues
+moving down rows and sweeping until the image specified in the CAD file 
+is rendered on the material.  This is much like the old dot-matrix printers
+from days-gone-by.  Rastering operations take <u>far longer</u> then vector 
+operations.
+<br><br>
+
+The laser cutter looks at the line widths of the objects in your CAD file
+to determine whether to render them using vector or raster.  Lines draw 
+with a width of 0.0762mm in Inkscape and "Hairline" width in Corel
+Draw will be rendered using vector operations.  Any other width will be
+rendered using raster.
+<br><br>
+
+Most laser cutters have the ability to vary the intensity of the laser 
+beam cutting the material as they process the commands in your CAD file.
+You will use this to have the laser either cut the material all the way 
+through, or just engrave the material to some small depth.  You control the
+strength of the laser using color; red is high-powered cutting and blue
+is low-power engraving.  Note, that raster graphics are always rendered
+using the same low-power setting as vector engrave.
+
+
+<h2>Faceplate in EAGLE</h2>
+In order to create the front panel for your PCB we will create new layers
+in which we will place specifics types of information.  
+
+<ul>	<li>Launch EAGLE and open the project associated with your PCB,
+	<li>Select the layout,
+	<li>Open the Layer Setting&hellip; tool,
+	<li>In the Visible Layers pop-up
+	<ul>	<li>Scroll down to layer 209 <b>If Layer 209 is not aviable, then use layer 234)</b>,
+		<li>Double click on the 209,
+		<li>In the Change Layer pop-up,
+		<ul>	<li>Change the name to "vectorCut"
+			<li>Change the color to red (row 2, column 5),
+			<li>Check Displayed,
+			<li>Click OK.  </ul>
+		<li>Change layer 210 (or 235) <b>If Layer 210 (or 235) is not aviable, then use layer 235)</b>,
+		<ul>	<li>vectorEngrave,
+			<li>Color: Blue (row 2, column 2),
+			<li>Displayed &check;	</ul>
+		<li>Change layer 211<b>If Layer 211 is not aviable, then use layer 236)</b>,
+		<ul>	<li>raster,
+			<li>Color: Grey (row 8, column 1),
+			<li>Displayed &check;	</ul>
+	</ul>
+	<li>Add elements to layer 209 (or 234):
+	<ul>
+		<li>Select layer 209 (or 234) vectorCut from the layer select,
+		<li>Select the Line tool,
+		<li>Select Wire Bend Style 0 (rectlinear),
+		<li>Set Width to 0.07616 mils.  Hit enter to set width.
+		<li>Click and outline the portion of the PCB you want 
+		covered with acrylic (avoid the heat sink),
+		<li>Click the Circle tool,
+		<li>Click on one of the centers of your mounting holes,
+		<li>Drag and set the radius of the hole to 80 mils,
+		<li>Include circles around the other three mounting holes,
+		<li>Add holes for the potentiometer shafts (radius 140 mils),
+		<li>Make room for the spring terminal block (wires and 
+		actuation) by modifying the outline of your layer 209 (or 234) 
+		cutout or by adding access holes,
+		<li>Add holes for the test points,
+		<li>Add cut-outs for any other areas that you want access to.
+	</ul>
+	<li>Add elements to layer 210 (or 235):
+	<ul>
+		<li>Select layer 210 (or 235) vectorEngrave from the layer select,
+		<li>Select the Line tool,
+		<li>Select Wire Bend Style 0 (rectlinear),
+		<li>Click and outline the 209  (or 234)outline.  In other words,
+		cover the red layer 209 (or 234) outline with a blue 210 (or 235) outline,
+		<li>Click the Text tool,
+		<li>Type "ON" in the Enter test: box,
+		<li>Click OK,
+		<li>Place the ON text on the side of the ON/OFF switch
+		that corresponds to ON by left mouse clicking,
+		<li>Add text for OFF, VOUT, GND, and any other signals that
+		you want to use.
+	</ul>
+</ul>
+
+You may have noticed that we did not place anything in the Raster
+layer, number 211 (or 236).  The Raster layer is reserved for images, logos, and
+graphics that you may want to include on your front panel.  You are
+welcomed and encouraged to use this layer for creative purposes.
+The image below shows the layout as I was putting together my front
+panel. <b>Note, my prototype used bananna jacks to connect power
+cables to a load.  Your power supply uses a 2 connection spring 
+terminal block.</b>  Make sure that you leave space for a user
+to access the spring terminal ports and orange releases through the
+front panel.
+
+<br><img src="./img/eagleLayers.bmp"><br><br>
+
+<h2>EAGLE export to Inkscape</h2>
+Now that we have our masks properly sized, we need to export them to
+Inkscape. We start by "printing" the vectorCut and vectorEngrave layers
+as pdf files and then import these in Inkscape.
+
+<ul>	<li>Save the file, File &rarr; Save
+	<li>Open the Layer Settings&hellip; Tool,
+	<li>Select "Hide Layers" to remove all layers from being displayed,
+	<li>Select layer 209 (or 234), "vectorCut" so only this layer is displayed,
+	<li>Click OK to exit the Visible Layers pop-up,
+	<li>File &rarr; Print&hellip;
+	<li>In the Print pop-up:
+	<ul>	<li>Scale factor: 1
+		<li>Ouput file: &lt;target director&gt; 
+		with File name "vectorCut.pdf",
+		<li>Save and Overwrite previous version if it exists,
+		</ul>
+	<li>Click OK to print.
+	</ul>
+	<li>Do the same for layer 210 (or 235) using the output file name
+		vectorEngrave.pdf
+</ul>
+
+You should now have a pair PDF files that are ready to import into
+Inkscape.
+
+
+<h2>Inkscape import</h2>
+
+The real goal of the preceding steps was to generate a pair of CAD
+files that have perfect dimensional consistency with the PCB.
+
+<ul>	<li>Launch Inkscape
+	<li>File &rarr; Import,
+	<li>Navigate and select vectorCut.pdf generated in the previous
+		step, click Open
+	<li>In the PDF Import Settings, leave the defaults and click OK,
+	<li>Use Ctrl-scroll to zoom in and out of the Inkscape canvas,
+	<li>Click on any edge in the red vector cut image,
+	<li>Object &rarr; Ungroup (Shift+Ctrl+G),
+	<li>Repeat ungroup around 8 times until the individual elements
+	in the vector cut are separated,
+	<li>Select and delete the text "&lt;Date&gt; &lt;Time&gt; 
+	&lt;Path&gt;&lt;File Name&gt;
+	<li>Repeat with vectorEngrave, but place it so that it does not
+	overlap with the vectorCut,
+	<li>Select the entire vectorEngrave using the Select And Transform
+	Object Tool,
+	<li>Set the X Y coordinates to nice whole round coordinates (50mm,50mm),
+	<li>Select the entire vectorCut using the Select And Transform
+	Object Tool (arrow),
+	<li>Set the X Y coordinates to the same as those used for 
+	the vectorEngrave,
+	<li>Select one of the four outline edges,
+	<li>Press the Delete key on your keyboard, the blue vectorEngrave
+	line should be removed,
+	<li>Delete the other three outline vectorEngrage edges,
+</ul>
+	
+
+<br><img src="./img/inkScape.bmp"><br><br>
+
+<h2>Inkscape modification</h2>
+You need to change the line width to make it very thing so that when 
+you import your design into CorelDraw these "thin lines" will be 
+interperted as "hairlines."  We'll explain soon, for now follow
+these steps.
+
+<ul>
+	<li>Select everything using Crtl+A,
+	<li>Make sure everything is ungrouped, by typing Shift+Ctrl+G about
+	ten times,
+	<li>Right click on any of the selected objects,
+	<li>Select "Fill and Stroke",
+	<li>In the right window, in the Fill and Stroke panel, select the 
+	Stroke style tab,
+	<li>Set the width to 0.0762mm.
+</ul>
+
+Now you will replace all the text that you added in EAGLE with text that
+will display once you have engraved it in Acrylic.  Do this as follows:
+
+<ul>	<li>Select Text tool
+	<li>Change the text size to 12pt
+	<li>Click near an existing piece of text that was imported from EAGLE,
+	<li>Type the same word that you clicked next to,
+	<li>On the right side of the screen, in the Fill and Stroke window
+	<ul>	<li>Select the Fill tab
+		<li>Click on the "x" to select no fill - the text will
+		disappear,
+		<li>Select the Stroke paint tab
+		<li>Select the first square "Flat color"
+		<li>Set R=0, G=0, B=255
+		<li>Select the Stroke Style tab,
+		<li>Set line width to 0.0762mm,
+		<li>Click anywhere on the screen to commit changes.
+	</ul>
+	<li>Delete the imported EAGLE text that you just edited.  You may
+	need to move the Inkscape text to do this.
+</ul>
+
+Ok, this is the part of the lab where I am supposed to provide some
+sage advice on the best practices of good graphic design.  Well to 
+paraphrase Justice Potter Stewart, "I know good graphics design when 
+I see it".  But since you should expect more from me, I'll give you
+some guidelines.
+
+<ul>	<li>Minimize the number of different fonts,
+	<li>Minimize the number of different font sizes,
+	<li>Align vertically and horizontally,
+	<li>Provide visual borders for functionally related items,
+	<li>Center text with associated control,
+	<li>Use your white space,
+	<li>Avoid crowding.
+</ul>
+
+
+<h2>Inkscape export</h2>
+
+<ul>	<li>File &rarr; Save
+	<li>Save in: Hornet &rarr; adit &rarr; Documents &rarr; EENG383 &rarr; lab11
+	<li>File name: frontPanel
+	<li>Save as type: Inkscape SVG (*.svg)
+</ul>
+Move the file to a thumb drive.
+
+<h2>Corel Draw import</h2>
+Corel Draw is only available in the Garage, on the computers that run
+the laser cutters.  While Corel Draw is pretty old school, it is the 
+most common graphics program used to run laser cutters.  It's not that
+hard to understand, but these instructions will really help.  Note, that
+the licensed copies of Corel Draw have username: bhaun@mines.edu and
+password: epilog
+
+<ul>	<li>Launch Corel Draw
+	<li>File &rarr; New &hellip;
+	<li>Layout &rarr; Page Layout &hellip;
+	<li>In the options pop-up, select Page Size in the left submenu,
+	<li>Set Width=36" and Height=24",
+	<li>Click Ok,
+	<li>File &rarr; Import,
+	<li>Navigate and select frontPanel.svg you just created,
+	<li>Click Import,
+	<li>Your cursor will change to a frame corner, click the upper
+	left corner in the upper left side of your canvas.  Note that
+	the location of your image is where it will be cut on the
+	laser cutting bed.
+	<li>To move your cut-out:
+	<ul>	<li>Select all of your design using Edit &rarr; Select All
+		&rarr; Objects (Ctrl+A),
+		<li>Use the Pick Tool (arrow) to drag the image around
+		to where you want it.	</ul>
+	<li>Right click on the border of your cut-out, if Object Properties 
+		does not have a check mark next to its left, select it,
+	<li>Right click on the border of your cut-out and select Ungroup Object,
+	<li>Right click on the border of your cut-out and select Unlock Object,
+	<li>Right click on the border of your cut-out and select Ungroup Object,
+	<li>Type Ctrl-A to select all the objects in your design, in the 
+	Object Properties sub-window make sure that the width is "Hairline".
+	If it is not, just select "Hairline" from the width choices.
+	<li>Select each text object object and make sure that it had
+	"No Fill" in both "Fill Type" and "Background Fill Type".
+</ul>
+
+Remember that the laser cutter interprets hairline red as a command to
+engage its heavy-duty cutting laser beam, hairline blue engages the
+light-duty engraving laser beam.  Everything else will be raster engraved.
+
+
+<h2>Sending CAD file from Corel Draw to the EPILOG laser cutter</h2>
+
+The final step in CAD process is to tell Corel Draw to laser cut your
+CAD file.  Perhaps surprisingly the Epilog laser cutter is seen by the 
+computer as a printed.  So let's print your CAD file to the Epilog
+"printer" using the following commands:
+
+<ul>
+	<li>File &rarr; Print,
+	<li>In the Print pop-up and in the General tab, select 
+	Epilog Engraver as the printer,
+	<li>Click  on the Preferences&hellip; button,
+
+
+	<li>In the EpilogEngraver Properties pop-up shown below, make the
+	following adjustments:
+	<br><img src="./img/epilogPopUp.bmp"><br><br>
+
+	<ul>	<li>PieceSize (inches)	<br>
+		Horizontal: 36"	<br>
+		Vertical: 24"
+		<li>Vector Settings	<br>
+	<table class="table table-striped table-bordered table-condensed">
+	<tr><td>Setting	<td>Acrylic Legend EXT	<td>Cardboard Legend EXT
+			<td>Acrylic Fusion M2 (cut) 
+			<td>Acrylic Fusion M2 (raster)
+			<td>Cardboard Fusion M2 (cut)
+	<tr><td>Speed	<td>50%		<td>&nbsp; <td>10<td>90	<td>30
+	<tr><td>Power	<td>30%		<td>&nbsp; <td>100 <td>60	<td>40
+	<tr><td>Freq	<td>500Hz	<td>&nbsp; <td>50  <td>Ignored	<td>50
+	</table>
+	</ul>
+	<li>Click OK to leave the EpilogEngraver  pop-up,
+	<li>Click Print to send your job to the Epilog laser cutter,
+</ul>
+
+
+
+<h2>Running the EPILOG laser cutter</h2>
+
+The Epilog laser cutter in the Mines Garage is a big dangerous, 
+expensive piece of equipment.  The main danger from the laser cutter
+is the myriad of small fires that it creates, not from the laser beam 
+cutting you in half.  Consequently, you must be present at all times
+while the laser is cutting material, no exception grated.  If you must
+leave the laser cutter, open the top cover of the laser cutter and the
+safety interlocks of the laser cutter will automatically turn off the
+laser.
+
+You can find more information about the laser cutter on the 
+<a href="https://cecs.mines.edu/design-lab/">Design Lab</a>
+
+<h2>Basic Procedure</h2>
+<ol>	<li>Focus the laser on your material by adjusting the material
+	deck height,
+	<li>Turn on laser pointerm
+	<li>"Cut" outline of the shape with lid open,
+	<li>Position material so that it move effectively used
+	<li>Close lid,
+	<li>Cut production file.
+</ol>
+
+
+</html>

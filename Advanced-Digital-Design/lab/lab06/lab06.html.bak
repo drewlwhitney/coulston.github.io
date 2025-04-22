@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EENG 498</title>
+        <meta name="description" content="EENG 498">
+        <meta name="author" content="Todd Branchflower">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+		<META HTTP-EQUIV="refresh" CONTENT="600"> <!--added this line to force page refresh every 600 seconds-->
+    </head>
+    <body>
+
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="../lab05/lab05.html">&ltPrev</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lab:</td>		<td>6</td></tr>
+</table>
+
+
+<h1>Software control of custom IP hardware</h1>
+The goal of this lab is to allow you to create a hardware and software system
+that can function as a function generator and oscilloscope.  
+
+<h3>C-level Functionality</h3>
+This level of functionality will earn a 75% grade.  The requirements:
+<ul>	<li>A function generator that can generate a sine waveform.
+	<li>An oscilloscope 
+	
+</ul>
+The user should be able to interact with the hardware on a serial interface 
+running on the ARM-A9.  This interface should allow the user to
+<ul>	<li>Adjust the trigger voltage of the oscilloscope.
+	<li>Adjust the frequency of the function generator output.
+</ul>
+
+<h3>B-level Functionality</h3>
+This level of functionality will earn an 85% grade.  The requirements are all the
+requirements of C-level functionality plus the following.
+<ul>	<li>A function generator that:
+	<ul>	<li>Can generate two different period waveform, a sine wave and a sinc wave.
+		<li>Has a frequency resolution of exactly 1Hz.
+		<li>Uses a 64 entry LUT.	
+	</ul>
+	<li>An oscilloscope 
+	<ul>	<li>That sends the channel 1 and 2 data to the ARM-A9
+	</ul>
+</ul>
+The user should be able to interact with the hardware on a serial interface 
+running on the ARM-A9.  This interface should allow the user to
+<ul>	<li>Adjust the trigger voltage of the oscilloscope.
+	<li>Select which period waveform is output on the function generator.
+	<li>Adjust the frequency of the function generator output.
+	<li>Display the last 64 values of channel 1 or channel 2.  These samples
+	need to be taken at the sampling rate.  This means that you need to send
+	a status signal to the ARM-A9.  Consider incorporating a 
+	<a href="./code/flagRegister.vhdl">flag register</a>
+	in your acquireToHdmi component.
+</ul>
+
+<h3>A-level Functionality</h3>
+This level of functionality will earn an 95% grade.  The requirements are all the requirements
+of B-level functionality (where they do not conflict), plus the following.
+<ul>	<li>A 2-channel function generator that:
+	<ul>	<li>Can generate two different period waveform, a sine wave and a sinc wave.
+		<li>Be enabled or disabled.  When disabled, the output goes to 0V DC.
+		<li>Perform a frequency sweep.
+	</ul>
+	<li>An oscilloscope that:
+	<ul>	<li>Four different sampling rates
+	</ul>
+</ul>
+The user should be able to interact with the hardware on a serial interface 
+running on the ARM-A9.  This interface should allow the user to
+<ul>	<li>Adjust function generator mode between off, fixed frequency and sweep.
+	<li>Adjust the start, end and duration of the frequency sweep.
+	<li>Select which periodic waveform is output on the function generator.
+	<li>Display the peak-to-peak voltage of the waveform on channel 1 and 2.
+	<li>Display the frequency of the waveform on channel 1 and channel 2.  You can
+	assume that the input is sinusoidal for this function.
+</ul>
+
+<h3>Bonus</h3>
+Up to 5% of bonus points will be awarded for incorporating some hardware/software
+functionality not covered in the class.  For example:
+<ul>	<li>Incorporate AXI_GPIO to your ARM-A9 and write software that shows
+	you can read and write GPIO.
+	<li>Write an ISR triggered by Core0_nFIQ 
+	<li>Get creative, surprise me.
+</ul>
+
+
+<h3>Flag register</h3>
+I've provided some code for an interface mechanism that allows your custom IP
+to send status information to your ARM-A9. The reason that you may need this
+register is because, often times, the status bits that your IP sends are valid
+for a single clock cycle, but the software running on the ARM-A9 may not get 
+around to checking that status bit for a while.  When the ARM-A9 gets around to
+checking the status bit, it may be gone.<br><br>
+
+<pre>
+entity flagRegister is
+	generic (N: integer := 8);
+	port(	clk: in  STD_LOGIC;
+		resetn : in  STD_LOGIC;
+		set, clear: in std_logic_vector(N-1 downto 0);
+		Q: out std_logic_vector(N-1 downto 0));
+end flagRegister;
+</pre>
+
+
+The flag register solves this problem using a "sticky" status bit.  In other words
+your IP status bit connects to the set input of the flag register to set the Q bit 
+output of the flag regster to logic 1. The Q output of the flag register is sent to
+ARM-A9 through one of the SLV_REGx memory mapped registers.  Since the Q output is
+"sticky" it stays set until cleared.  This way the ARM-A9 can take its time to read
+the status bit. When the ARM-A9 is done reading the "sticky status bit, it can clear
+this bit back to logic 0 by writting the flag register's clear input through one
+of the memory mapped SLV_REGy.  The cycle is now ready to repeat.  And yes, this is
+<u>exactly</u> the same process used on the PIC 18F26K22 status register - think the
+TMR0IOF bit of the TMR0CON register. 
+
+</body>
+</html>

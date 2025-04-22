@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab10.html">Lab 10</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 10 - Bill of Materials</center>
+
+
+<h1>Objective</h1>
+Create manufacturing files for fabrication of your PCB.  Have the 
+Lab Instructor or Teaching Assistant sign-off each of the items
+below.
+
+<h3>Paper PCB</h3>	
+You need to verify that you have used the correct footprints for
+your parts.
+
+<h3>Last minute change</h3>	
+Change the DC jack footprint to:
+	con-jack &rarr; JACK-PLUG &rarr;JACK-PLUG1
+
+
+<h3>Common problems</h3>	
+<ul>	<li><b><u>Included attribution on your PCB!!</u></b>
+	<ul>	<li>Your name
+		<li>Board name and revision
+		<li>Date 
+		<li>Optional: Your company
+	</ul>
+	<li>Name the test points with their signal names
+	(I_out, V_out, I_set, V_set) by renaming the test point in
+	your schematic,
+	<li>Label the VU meter switch positions settings,
+	<li>Check the invertedin and non-inverting inputs on op-amp
+	IC3A in the schematic below and make <u>sure</u> that your
+	schematic is the same,
+	<br><img width=400 src="./img/schematic.bmp"><br><Br>
+	<li>The heat-sink must be adjacent to the LT30380 metal tab.
+</ul>
+
+<h3>Pass Electrical Rule Check</h3>	
+There should be not major errors or warnings left in your schematic.
+
+<h3>Pass Design Rule Check</h3>
+Download <a href="./PCBway.dru">PCBway.dru</a> into your project
+directory.  In layout window, make sure that you have run the 
+Ratsnet tool to flood fill with any copper pours 
+<ul>	<li>Tools &rarr; DRC &hellip;
+	<li>In DRC pop-up, in the File tab, click Load&hellip;
+	<li>In the Load pop-up, navigate to the downloaded
+		PCBway.dru file, select it, click Open
+	<li>Back in the DRC pop-up, select Apply, then click Check
+	<li>When all the DRC errors are cleared, you will see
+	"DRC: No errors." in the lower left corner of the layout
+	window.
+</ul>
+
+<h3>Generate Gerber Files</h3>
+Gerber files are a hold-ver from the days when PCBs were
+made by eposing photographic file to a light move by a 
+2-axis machine. 
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Gerber file	<td>Name		<td>Included EAGLE layers
+<tr><td>layout.out	<td>Outline file	<td>20
+<tr><td>layout.sst	<td>Silk Screen Top	<td>21, 25, 27, 51
+<tr><td>layout.smt	<td>Solder Mask Top	<td>29
+<tr><td>layout.top	<td>Top copper		<td>1, 17, 18
+<tr><td>layout.bot	<td>Bottom coppper	<td>16, 17, 18
+<tr><td>layout.smb	<td>Solder mask bottom	<td>30
+<tr><td>layout.drd	<td>Drill file		<td>44, 45
+</table>
+
+Before you continue, take a moment to determine the width and height
+of your PCB in millimeters.  You can switch the units in EAGLE layout
+by selecting View &rarr; Grid.  In the Grid pop-up select "mm" as the 
+size.  Or you can just convert mils to mm, whatever you prefer.
+
+<ul>	<li>Download <a href="./PCBway.cam">PCBway.cam</a> into your 
+	project directory,
+	<li>Create a folder named &lt;your last name&gt;
+	<li>File &rarr; CAM Processor &hellip;
+	<li>Click on the Load job file icon, select 
+	Open CAM File &hellip;
+	<li>In the Select CAM file pop-up, navigate to the downloaded
+		PCBway.cam file, select it, click Open
+	<li>Back in the CAM Processor pop-up, click Process Job,
+	<li>In the Select output directory pop-up, click on the folder
+	named &lt;your last name&gt;, click Select Folder,
+	<li>Back in the CAM Processor pop-up, you should be
+	greeted with a CAM Exporter: process complete pop-up,
+	click Open folder,
+	<li>Delete the CAMOutputs folder,
+	<li>Open windows File Explorer,
+	<li>Navigate to your &lt;your last name&gt; folder,
+	<li>Right click on the folder and select Send to &rarr; 
+	Compressed (zipped) folder &hellip;
+</ul>
+
+<h3>Check Gerber Files</h3>
+
+<ul>	<li>Open the<a href="https://jlcpcb.com/quote/">jlcpcb.com</a>
+	web page,
+	<li>Click on the blue "Add your gerber file" button,
+	<li>In the Open pop-up, navigate to your &lt;your last name&gt; 
+	zipped folder,
+	<li>Double click on your &lt;your last name&gt; zipped file,
+	<li>The web page will show you your board,
+	<li>Click on the <font color=blue><u>Gerber Viewer</u></font>
+	link at the lower right of your PCB,
+	<li>On the Gerber View page, you can
+	<ul>	<li>Move: Left mouse, drag
+		<li>Zoom: Center mouse, scroll up (or down), center mouse,
+		then move
+	</ul>
+</ul>
+
+<h3>Upload your files</h3>
+
+Please make a directory on your Google drive called "final revision"
+containing your zip file created in the previous step.  If I have 
+any problems uploading the designs, I'll get your design files
+from your Google drive folder.
+<br><br>
+
+<ul>
+<li>Put your design files on a thumb drive and take them to the 
+podium computer that the lab instructor is logged into,
+<li>Make sure that the browser is pointed at: https://jlcpcb.com/quote/#/
+<li>Process instructions:
+	<ul>	<li>Layers:		2
+		<li>Dimension:		&lt;Auto filled by next step&gt;
+		<li>PCB Qty:		5
+		<li>PCB Thickness:	1.6
+		<li>PCB Color:		&lt;Choose your color&gt;
+		<li>Surface Finish:	HASL (with lead)
+		<li>Copper Weight:	1 oz
+		<li>Gold Fingers:	No
+		<li>Material Details:	FR4-Standard Tg 130-140C
+		<li>Panel By JLCPCB:	No
+		<li>Flying Probe Test:	Fully Test
+		<li>Castellated Holes:	No
+		<li>Different Design:	1
+		<li>Specify Order Number: No
+		<li>SMT Assembly:	No
+		<li>Stencil:		No
+	</ul>
+<li>Click on the blue "Add your gerber file" button,
+<li>In the Open pop-up, select your zipped file, click Open,
+<li>Wait for Processing Gerber files&hellip; to complete,
+<li>In the PCB review page, click "Gerber Viewer",
+<li>Verify design,
+<li>Back on the order page, verify board color the click "Add to Cart"
+<li>On the next page you should see a green check next to
+	"Success, this file has been saved to your File Manager",
+<li>Click the link for File Manager,
+<li>Verify that your file with PCB icon is shown.
+</ul>
+
+</html>

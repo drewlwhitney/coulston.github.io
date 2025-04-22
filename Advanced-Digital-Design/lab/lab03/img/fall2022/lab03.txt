@@ -1,0 +1,77 @@
+
+
+
+<h2>Signal Acquire</h2>
+The signal acquire module contains a datapath and control necessary
+to initiate and acquire all 8 channels of the AD7606 chip and store
+them into a register file.  And yes, we will only be using the first
+two channels on our oscilloscope, we will  gather the extra 6 channels.
+<br><Br>
+
+<h2>Control</h2>
+The control unit is responsible for creating the waveforms necessary
+to initiate a conversion from the AD7606 and read out the resulting
+data.
+
+
+At startup, just after a reset, you should create a long delay 
+before you attempt any operation on the AD7606.  This allows the
+internal oscillators to stabilize.  
+
+<h2>Datapath</h2>
+
+The datapath contains two counter/comparator pairs to generate a short
+and long delay.  You should configure the long delay to be around 
+1.3ms in your synthezied.  Since we don't want to wait this long when
+performing a simulation, you should make the long delay around 640ns 
+in your simulation.  Do this by creating a suitablly named constant in
+your signalAcquire_package.vhd file that you will 
+
+<pre>
+CONSTANT LONG_DELAY_50Mhz_COUNTS : STD_LOGIC_VECTOR(LONG_DELAY_50Mhz_CONST_WIDTH - 1 downto 0) := x"000020";
+</pre>
+
+You should then include the package in your datapath.vhdl file and then you can use this constant in
+the long delay comparator instantation.  This should look something like the following.
+
+<pre>
+	longDelayCompare_inst: genericCompare
+        GENERIC MAP(24)
+        PORT MAP(   x => longDelayCounter,
+                    y => LONG_DELAY_50Mhz_COUNTS,
+                    g => open,
+                    l => open,
+                    e => sw(LONG_DELAY_DONE_SW_BIT_INDEX));
+</pre>
+
+<b>Warning!</b> It's very common to forget to reset these delay constants when moving from
+simulation to synthesis.  If your download is not working, please verify that you have
+updated this constant.
+
+In addition to the two counter/comparator pairs, your datapath will also need to include
+a register file to store the 16-bit values returned from the AD7606
+
+
+<h3>Register File</h3>
+You will use the register file to store the 16-bit data from all 8 channels.  Thus,
+your regigster file will have 8-storage location (registers), that can store 16-bits
+each.  The internal organization of the register file is shown in the following 
+figure.
+
+<br><img src="./img/regFile.png"><br><br>
+
+To write data into the register file, you:
+<ul>	<li>Assert data on the D input
+	<li>Assert the index of the register you want to store the data to on the
+	wrAddr input
+	<li>Assert the write control input
+</ul>
+
+Since the data output is seperate from the data input, to read data all you need to
+do is assert the index of the register you want to read on the rdAddr input.  The
+relevant register output is selected by the 8:1 mux and will appear on the Q output.
+<br><br>
+
+
+
+

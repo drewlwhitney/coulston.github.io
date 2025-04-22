@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab04.html">Lab 4</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 4 - PSU operation</center>
+
+<h2>Requirements</h2>
+When you have worked through all the material in this lab writeup, please
+take the inLab 04 Quiz. You may find quiz questions to be similar to,
+but not identical to the numbered questions in this inLab write up.
+Note, you wil have 60 minutes to complete the ten questions in the
+Canvas quiz so it would be a good idea to complete all the inLab
+activities before taking the Canvas quiz. Do not turn in the answers
+to the numbered questions in this inLab writeup.
+
+<h1>Power Supply Analysis</h1>
+Regulation is the act of maintaining a constant voltage or current at a
+circuit terminal regardless of how the input or load changes.  We are
+building a linear power supply which are characterized by:
+<ul>	<li>Having output voltages that are less than input voltage,
+	<li>Not power efficient,
+	<li>Dissipate lots of heat,
+	<li>Provide very stable voltage and current output,
+	<li>Respond quickly to changes in the load.
+</ul>
+
+
+The figure below shows the architecture of the power supply that
+we will construct.  You can understand the behavior of the PSU by
+breaking the PSU down into the colored functional blocks shown.
+
+
+<br><img src="./img/annotateArchitecture.bmp"><br><br>
+
+
+The operation of this power supply is identical to the bench top 
+power supplies.  The user sets a maximum voltage and current using the 
+two pots labeled "Iset" and "Vset" in the image above.  What follows are
+several important observations that you will need to keep in mind as
+you walk through an analysis of this circuit.
+
+<ul>	<li>Iout = Iin (well almost). While this may seem counterintuitive
+	at first, there are no significant paths to ground for current
+	from the input to output,
+	<li>The current measurement block's job is to create a voltage
+	(in volts) that is equal to the current (in amps) flowing 
+	through R4, the
+	1&ohm; current sense resistor.  In other words, V<sub>Iact</sub>
+	is proportional to I<sub>out</sub>,
+	<li>The LT3080 tries to set its OUT pin to the same voltage 
+	as its SET pin,
+	<li>If Iout &lt; Iset then the transistor T1 does not affect
+	the voltage set feedback loop.  This then allows the user
+	selected Vset to be applied to the SET pin of the LT3080, 
+	<li>If Iout &gt; Iset then the transistor T1 grounds the 
+	V<sub>set</sub> signal causing the LT3080 to output 0V.  This
+	will quickly cause the Iout &lt; Iset turning the LT3080 back on.
+	This will quickly cause Iout &gt; Iset.  The capacitor C3 
+	smooths out these transitions resulting in Iout == Iset.
+</ul>
+
+
+<font color=gray><h2>Operational Amplifier</h2></font>
+Operational amplifiers (op-amps) play a major role in the design of our 
+power supply and you will find them to be one of the most commonly used 
+active components in electronics design.  The fact that there are 1000's 
+of different op-amps, means that they have been optimized for a myriad of
+different electronics tasks.  We will be using the Texas Instruments
+TLC274 quad op-amp.  The term "quad" means that the IC contains 4 
+independent op-amps.  Each of the four op-amps is drawn using the
+following figure.
+
+<br><img src="./img/opAmp.bmp"><br><br>
+
+The Vcc and GND inputs provide power to the op-amp.  The supply voltage
+can be anywhere from 4V to 18V.   Each op-amp on the chip
+has two inputs, IN- the inverting input and IN+ the non-inverting input,
+and one output OUT. <u>An important quality of op-amps is that 
+very little current flows into their inputs.</u>  In most cases you
+can assume that no current flows into the inputs.
+ Each of the four op-amp on the chip is numbered 
+[1 &hellip; 4].
+
+The relationship between the inputs and output of an op-amp
+is summarized as follows:
+
+<pre>
+    OUT = A<sub>VD</sub>*(IN+ - IN-)
+    as a consequence of this fact is follows that:
+
+    if (IN+ > IN-) then OUT increases towards VCC
+    if (IN+ < IN-) then OUT decreases towards GND
+</pre>
+
+Before we examine two common op-amp configuration a few points need to 
+be made:
+<ul>	<li>No current flows into the IN+ and IN- inputs,
+	<li>The open-loop gain A<sub>VD</sub> is somewhere around 40,000
+</ul>
+
+
+<font color=gray>
+<b>Comparator</b>
+</font>
+The first op-amp configuration that we will examine, and that is part
+of our power supply is the comparator shown at right in the image
+above.  To understand this circuits behavior remember than 
+an op-amp measures the voltage on its 
+inverting and non-inverting inputs and increasing or decreasing the 
+voltage on its output depending on which of the inputs is greater.
+In terms of the variables shown in the image above:
+
+<pre>
+	If (IN+ &gt; IN-) then OUT = VCC
+	If (IN+ &lt; IN-) then OUT = GND
+</pre>
+
+This op-amp configuration is called a comparator, because the 
+op-amp is comparing its inputs and the output reflects which is larger.  
+<br><br>
+
+<font color=gray>
+<b>Negative Feedback</b>
+</font>
+One particularly useful op-amp configuration is shown in the image 
+below, connecting the output to the inverting input.  A connection
+from the output to the inverting input of an op-amp is called
+negative feedback.
+<br><img src="./img/invertOpAmp.bmp"><br><br>
+
+<ol start=1>
+<li>
+Complete an analysis of this configuration by filling in 
+"increasing" or "decreasing" in the blanks below.  Carry over
+the answer from one line to the following line.
+
+<pre>
+If IN+ &gt; IN- then OUT <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+If OUT <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then IN- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+If IN- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then the difference between IN+ and IN- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+</pre>
+
+<li>
+<pre>
+If IN+ &lt; IN- then OUT <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+If OUT <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then IN- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+If IN- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then the difference between IN+ and IN- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+</pre>
+
+<li>Given that the difference between IN+ and IN- does the same thing
+in both of the above cases, what does IN- equal?
+</ol>
+
+As a general rule, op-amps with negative feedback are stable
+trying to make the two inputs equal.
+
+<font color=grey><h2>BJT</h2></font>
+We could teach a whole course on bipolar junction field effect 
+transistors (BJT) and still not cover all their interesting applications.
+No doubt that you have come across a few in your studies as an EE.  For
+today, I am going to use a simple model of a BJT that works for a large
+portion of circuits that you will analyze.  The following figure shows
+that this SIMPLIFIED model, places a variable resistor between the 
+collector and emitter.
+
+<br><img src="./img/bjt.bmp"><br><br>
+
+Call the voltage on the base V<sub>b</sub> and the resistance between
+the collector and emitter R<sub>CE</sub>.  The relationship between
+these two quantities is given by the following:
+
+<pre>
+As V<sub>b</sub> increases, R<sub>CE</sub> decreases towards a short circuit
+As V<sub>b</sub> decreases, R<sub>CE</sub> increases towards an open circuit
+</pre>
+
+Note in the limit, when V<sub>b</sub> is at the supply voltage, 
+R<sub>CE</sub> decreases to very low resistance, neat 0&ohm;  On
+the other hand as v<sub>b</sub> is at ground, the 
+R<sub>CE</sub> increases to very high resistance, neat &infin;&ohm; 
+In this scenario, the BJT is acting like a switch and will be replaced
+by one is a simplified version of the circuit.
+
+
+
+<h2><font color=blue>LT3080</font></h2>
+The LT3080 is a linear voltage regulator that we will trick into perform
+current regulation also.  It is shown in the blue block in the architecture
+above (along with the LM334 - more on that later).  The LT3080's operation
+is very easy to understand, the output voltage is equal to the voltage
+on the set pin.  
+
+To understand the behavior better, open these
+<a href="http://www.analog.com/media/en/technical-documentation/data-sheets/3080fc.pdf">technical documents for the LT3080</a>.
+Before proceeding to the following questions note that the
+minimum difference between the output voltage and the input voltage
+is called <u>the drop-out voltage</u>.  This represents the minimum amount
+of "headroom" that you need in order for the linear regulator to operate.
+<br><br>
+
+<ol start=4>
+<li>What is the maximum output current of the LT3080?
+<li>What is the drop-out voltage?
+<li>What is the minimum load current?
+</ol>
+
+<font color=blue><b>LT3080 behavior</b></font>
+Take a look at the block diagram in the TYPICAL APPLICATION area of the
+first page of the LT3080 technical documents.  In order to understand the 
+behavior of this circuit, you will need to reference the op-amp and BJT
+sections of this lesson.
+Let's start our analysis of the LT3080 by looking at its internal 
+block diagram (shown at left in the
+image below) and show how we can transform it into the SIMPLIFIED model
+shown at right in the image below.
+
+<br><img src="./img/lt3080.bmp"><br><br>
+
+The current sources shown
+in the LT3080 technical documents is a 10&micro;A source that is
+normally used (when combined with an external resistor) to set the
+control voltage, SET.  We are going to force a voltage on this pin
+using an external circuit that will have <u>no problem sinking this
+10&micro;A of current</u>.  So I tossed out the current source in the
+simplified model.  Next I replaced the BJT with an "equivalent" variable
+resistor.  Finally I renamed some of the nodes in the circuit with 
+names that you will use in the subsequent analysis.
+
+
+<ol start=7>
+<li>
+Complete the following analysis by filling in the blanks with 
+"increases" or "decreases" as appropriate.   Carry over the 
+answer from one line to the following line.
+
+<pre>
+If Vset &gt; V- then Va <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+If Va <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then R<sub>CE</sub> <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+If R<sub>CE</sub> <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then V- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+If V- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then  (Vset - V-) <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+</pre>
+
+
+<li>Complete the following analysis by filling in the blanks with 
+"increases" or "decreases" as appropriate.   Carry over the 
+answer from one line to the following line.
+<pre>
+If Vset &lt; V- then Va <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+If Va <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then R<sub>CE</sub> <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+If R<sub>CE</sub> <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then V- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+If V- <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> then  (Vset - V-) <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+</pre>
+
+
+<li>From this analysis, what is the relationship between 
+V<sub>out</sub> and V<sub>SET</sub>?
+</ol>
+
+<font color=blue><b>LM344</b></font>
+In an earlier question, you should have uncovered that the LT3080
+requires a minimum of 0.5mA of current to maintain proper regulation.
+We will use the LM344 constant current source to draw a constant 
+current.  To answer the following questions, open the 
+<a href="http://www.ti.com/lit/ds/symlink/lm334.pdf">LM344 technical 
+documents</a>
+
+<ol start=10>
+	<li>Which pins of the LM344 (V+, R, V-) go to which pins of the 
+	following TO-92 package (1, 2, 3)?
+	<br><img src="./img/to92.bmp"><br>
+	<li>Look up Figure 11 to determine the set resistor value that
+	generates 1.0mA of current.
+</ol>
+
+
+
+<h2><font color=red>Current measurement</font></h2>
+While there are several different ways to measure current flowing
+through a load, I<sub>load</sub> in the following image, we will use a 
+current sense resistor.  The idea is very straight forward and 
+illustrated in the following diagram.
+
+<br><img src="./img/currSenseConcept.bmp"><br><br>
+
+The user (you) will use a pair of potentiometers to limit the maximum
+current and voltage supplied to the load, V<sub>set</sub> and 
+I<sub>set</sub> in the image above.  The LT3080 will be responsible
+for limiting the current and voltage; its denoted by the "power supplied 
+to load" box in the image above.  This power will run
+through the 1&ohm; current sense resistor.   Using 
+Ohm's law, the voltage drop across this resistor, V<sub>drop</sub>,
+is equal to the current through the resistor times 1. 
+<br><Br>
+
+
+<font color=red><b>Differential amplifier</b></font>
+The circuit that measures the voltage difference across the current
+sense resistor is called a differential amplifier.  So named because the
+circuit measure the difference between two signal levels.  While you 
+can purchase a purpose-built differential amplifier, we will build one
+using an operational amplifier (op-amp) because we already have an op-amp
+chip in our circuit and rather than add another chip to the circuit, we
+will use an op-amp that is already there.
+<br><br>
+
+The structure of our current sense resistor and differential amplifier 
+is shown in the following image.
+
+<br><img src="./img/diffAmp.bmp"><br><br>
+
+You will be able to analyze the op-amp circuit in the previous image using
+a few helpful facts.
+<ul>	<li>The "power supplied to load" has a voltage of V<sub>in</sub>,
+	<li>The "power supplied to load" has a current of I<sub>in</sub>,
+	<li>The op-amp will manipulate its output in an attempt to make
+	the voltage on its inputs the same,
+	<li>No current flows into the op-amp inputs,
+	<li>The current sense resistor is 1&ohm;,
+	<li>Ohm's law.
+</ul>
+
+
+Now let's start the analysis.
+<ol start=12>	<li>Write an Ohm's law equation for the voltage drop across 
+	the current sense resistor (V<sub>in</sub> - V<sub>a</sub>) in terms
+	of  I<sub>in</sub> and the value of the current sense resistor.
+
+	<li>Solve the previous equation for V<sub>a</sub>.
+
+	<li>Write an equation for the voltage on the non-inverting input
+	of the op-amp (V<sub>ref</sub>) using the variables:
+	V<sub>ref</sub>, V<sub>in</sub>,
+
+	<li>Can the op-amp directly affect the value of V<sub>ref</sub>
+	by changing its output?,
+
+	<li>Write an Ohm's law equation for the resistor R1 in terms of
+	I<sub>a</sub>,  V<sup>-</sup>, V<sub>a</sub> as well as the 
+	value of the resistor.  Solve this equation for I<sub>a</sub>.
+
+	<li>Can the op-amp directly affect the value of V<sup>-</sup>
+	by changing its output?,
+
+	<li>Remember that an op-amp with negative feedback will manipulate 
+	its output in an effort to keep the voltage on its inputs the same.
+	Write an expression for the voltage on the inverting input of the 
+	op-amp, V<sup>-</sup> in terms of V<sub>in</sub>.
+	
+
+	<li>Rewrite the equation for I<sub>a</sub> (derived in a previous 
+	step) by replacing the V<sub>a</sub> and V<sup>-</sup> terms.  
+	Simplify the expression by performing subtraction of the 
+	V<sub>in</sub> terms.
+
+	<li>Remember that no current flows into the inputs of an op-amp.
+	This implies that all the current I<sub>a</sub> will flow through 
+	the resistor connecting the inverting input to the op-amp output.
+	Write an Ohm's law equation that relates the voltage at the op-amp 
+	output (V<sub>Iact</sub>) using the variables:
+	V<sub>Iact</sub>, V<sup>-</sup>, I<sub>a</sub> and the value of the
+	resistor R4.
+
+	<li>Modify the expression for V<sub>Iact</sub> derive in the 
+	previous step by replacing its V<sup>-</sup> and I<sub>a</sub>
+	terms with expression derived in a previous step that were in terms
+	of V<sub>in</sub>. Simplify the resulting expression until it looks
+	like an Ohm's law equation.
+</ol>
+
+This simple expression means that the voltage at the op-amp output is the
+current delivered to the load.  In other words, the numerical
+value of the current delivered to the load, measured in Amps, is 
+equal to the numerical value of the voltage at the op-amp output (measured
+in volts).  For example, if the load is drawing 0.1 Amps (I<sub>in</sub>
+= 0.1) then the op-amp output will equal 0.1V.
+<br><br>
+
+<font color=orange><h2>Current set</h2></font>
+The current set functionality consists of two components, a MCP1702
+(HD type) voltage regulator and a voltage divider.
+<ol start=22>
+<li>Pull the technical documents for the 
+<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/22008E.pdf">
+MCP1702</a>.  What is the voltage output of the MCP1702 (Using the part
+symbol HD - see Section 7.1 of the Tech Docs) the part.
+<li>What range of load capacitor should be connected to the output?
+<li>Go back to the power supply design for this question.  Note the
+POT is 20k&ohm;. What range of voltage can you generate on the output 
+of the current set potentiometer?
+</ol>
+
+<font color=green><h2>Voltage set</h2></font>
+The voltage set portion of the circuit is just a op-amp with negative 
+feedback drawn in an unusual way.  Take a look at the following reproduction
+of this portion of the circuit.
+
+<br><img src="./img/voltageSet.bmp"><br><br>
+
+<ol start=25>
+<li>Reference the Power Supply schematic at the beginning of this lab.
+What devices do points A and B in the image above, connect to?
+</ol>
+
+The capacitor C3 provides an essential function when the power supply
+is in current limiting mode.  That is, when the load tries to consume
+more current then I<sub>set</sub>.  When this happens the control
+switch connected to point A will quickly cycle between a short circuit
+to ground and an open circuit.  Without capacitor C3, point B (connected
+to the LT3080) would bounce around creating an unstable output.  The
+capacitor C3 forms a low pass filter, smoothing out the control signal
+on the LT3080's SET pin.  This generates a smooth and stable output from
+the LT3080.
+
+<h2><font color=gold>Control switch</font></h2>
+The control switch takes the output of the 
+current measurement and current set and runs them into a
+op-amp setup in a comparator configuration as shown in
+the image below.
+<br><img src="./img/compare02.bmp"><br><br>
+
+In our circuit the non-inverting input is the voltage which represents the
+current being delivered to the load V<sub>curr</sub> and the inverting
+input comes from a potentiometer adjusted by the user to dictate the
+maximum current to deliver to the load, V<sub>Iset</sub>.  
+
+<ol start=26>
+<li>Reinterpret the comparator behavior discussed to determine the output
+of the comparator in the blanks below.  Your answer should be "VIN" or
+"GND"
+
+<pre>
+	If (V<sub>Iact</sub> &gt; V<sub>Iset</sub>) then V<sub>Ictrl</sub> = <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+	If (V<sub>Iact</sub> &lt; V<sub>Iset</sub>) then V<sub>Ictrl</sub> = <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+</pre>
+<!--
+<pre>
+	If (V<sub>Iact</sub> &gt; V<sub>Iset</sub>) then V<sub>Ictrl</sub> = VIN
+	If (V<sub>Iact</sub> &lt; V<sub>Iset</sub>) then V<sub>Ictrl</sub> = GND
+</pre>
+-->
+</ol>
+
+The 2N2222 NPN transistor plays a central role in the the operation 
+our power supply.  If the Iout &gt; Iset then the transistor lowers 
+the set voltage of the LT3080 and consequently lower the current output.
+On the other hand, if Iout &lt; Iset then the transistor opens and 
+allows the voltage set op-amp (with negative feedback) to control the
+output voltage of the LT3080.  Let's look at how this is accomplished
+by examining the relevant portion of the schematic in the following
+image.
+
+<br><img src="./img/switch.bmp"><br><br>
+
+Use our earlier discussion of the equivalent circuit for an
+NPN transistor to answer the following questions.  Your answers 
+should be either "open circuit" or "short circuit".
+<ol start=27>
+<li>When the base of the BJT is held at the collector 
+voltage (Vcc), R<sub>CE</sub> acts as a 
+<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+<li>When the base of the BJT is held at the emitter 
+voltage (GND), R<sub>CE</sub> acts as a 
+<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>.
+</ol>
+
+Hence, the BJT acts as a switch either open or closed as shown in the 
+equivalent circuit.  The two resistors (R9 and R10 in the schematic) 
+allow the voltages
+V<sub>Vop</sub> and V<sub>b</sub> to change independent of one another.
+Their resistance values are not terribly important as long as they can
+safely dissipate the power generated in the circuit.  As a consequence,
+we will mainly ignore them in our analysis.
+<br><Br>
+
+Let's reinterpret this NPN transistor's action in terms of the voltage at the
+set pin of the LT3080.  To start, let's examine how the V<sub>Ictrl</sub>
+voltage effects the voltage at the intermediate node V<sub>b</sub>.
+
+<pre>
+	If (V<sub>Ictrl</sub> == VIN) then V<sub>b</sub> = GND         // because the switch is closed
+	If (V<sub>Ictrl</sub> == GND) then V<sub>b</sub> = V<sub>Vop</sub>        // because the switch is open
+</pre>
+
+The final step in the analysis is to assert that V<sub>set</sub> is basically
+equal to V<sub>b</sub> because there is only 10&micro;A of current flowing
+out of the SET pin of the LT3080.  Consequently, we can reinterpret the
+preceding characterization of how V<sub>Ictrl</sub>
+voltage effects the voltage at the SET pin of the LT3080 V<sub>set</sub>.
+
+<pre>
+	If (V<sub>Iact</sub> &gt; V<sub>Iset</sub>) then V<sub>set</sub> = GND        // current limited
+	If (V<sub>Iact</sub> &lt; V<sub>Iset</sub>) then V<sub>set</sub> = V<sub>Vop</sub>       // voltage limited
+</pre>
+
+
+This results deserves some explanation.  <u>Let's assume that user has 
+configured the power supply in such a way that the power being supplied
+to the load is limited by the maximum current-level set by the user.</u>
+<br><br>
+
+<b>V<sub>Iact</sub> &gt; V<sub>Iset</sub></b>:<br>
+In the first condition
+V<sub>Iact</sub> &gt; V<sub>Iset</sub>, the load is receiving more
+current than set by the user.
+As a consequence the NPN transistor grounds the V<sub>set</sub> pin
+of the LT3080.  This causes the output of the LT3080 to decrease (towards
+0V).  As a consequence, the voltage delivered to the load drops causing
+the current delivered to the load to drop.  This will eventually cause the 
+current consumed by the load to drop below the current set by the user.
+This will transition the circuit to its other mode of operation.
+<br><br>
+
+
+<b>V<sub>Iact</sub> &lt; V<sub>Iset</sub></b>:<br>
+In the second condition
+V<sub>Iact</sub> &lt; V<sub>Iset</sub>, the load is receiving less
+current than set by the user.  As a consequence the NPN transistor is
+open-circuited, allowing the LT3080 output voltage to increase towards 
+the level set by the user, V<sub>Vop</sub> causing the current
+delivered to the load to increase.  This will eventually cause the
+current consumed by the load to increase above the maximum current
+level set by the user.
+This will transition the circuit to its other mode of operation.
+<br><br>
+
+On the other-hand, let's assume that the user has configured the power 
+supply in such a way that the power being supplied to the load is limited 
+by the maximum voltage set by the user.  In this case the NPN transistor 
+will always be an open-circuit because V<sub>Iact</sub> &lt; V<sub>Iset</sub>
+This will then cause V<sub>set</sub> = V<sub>Vop</sub> causing the 
+LT3080 output voltage to be held at V<sub>Vop</sub> volts.
+<br><Br>
+
+
+</html>

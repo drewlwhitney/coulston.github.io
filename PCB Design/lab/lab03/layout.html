@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab03.html">Lab 3</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+
+
+<h2>PCB Layout</h2>
+This week you are going to create an outline and layout for the
+LED flower, re-imagined in your own way.  Let's start this project
+by creating a EAGLE CAD project and populate it with our schematic.
+To do this, make sure you have a EENG 393 directory and inside this
+a lab03 directory.
+
+<ul>	<li>Launch EAGLE CAD
+	<li>In the Control Panel window, select Options -> Directories &hellip;,
+	<li>In the Directories pop-up add your complete EENG 393
+	directory as the only entry in the "Projects" row,
+	<li>Click "OK",
+	<li>In the Control Panel, Find  "&#x25B6;  Projects"
+	and click on the right arrow,
+	<li>You should see your EENG 393 directory, navigate
+	into your lab03 folder,
+	<li>Right click on the lab03 folder icon just to the right of
+	the &#9660; and select "New Project"
+	<li>An orange "E" will appear inside the lab03 folder,
+	rename the project ledFlower,
+	<li>On this web page, right mouse click on the 
+	<a href="./flower.sch">LED flower link</a> and select "Save Link
+	As &hellip;",
+	<li>In the "Save As" pop-up, navigate into your ledFlower directory
+	that is inside your lab03 folder,
+	<li>Select "Save". You may see a download icon in your browser.
+	You can ignore it,
+	<li>In the EAGLE CAD Control Panel, click on the &#9660; next
+	to the "ledFlower" project.  Then click on the &#x25B6;.  Repeat
+	until the flower.sch file appears inside the ledFlower folder,
+	<li>Double click on the flower.sch file,
+	<li>You should see the LED flower schematic,
+	<li>In the Control Panel, right mouse click on the "ledFlower"
+	project and select "Close Project",
+	<li>Now anytime you open or close the ledFlower project, your
+	schematic will open,
+	<li>Open the ledFlower project.	
+</ul>
+
+
+<!--
+9660 = &#9660;  = down <br>
+965F = &#9650;  = up <br>
+25B6 = &#x25B6; = right <br>
+25C0 = &#x25C0; = left <br>
+-->
+
+
+You should always open and close your PCB design by opening and closing
+the associated project.
+
+<h2>Create layout from schematic</h2>
+Now let's turn our attention to creating a layout from the schematic that 
+you added to your lab03 project.
+
+<ul>	
+	<li>Click on the Generate/switch icon found at the top of the
+	schematic and shown in the image below,
+	<br><img src="./img/genSwitchIcon.bmp"><br><br>
+	<li>In the Warning pop-up, click Yes to generate the layout
+	from the schematic,
+	<li>You will be presented with the initial layout shown
+	below.
+</ul>
+
+<br><img src="./img/ledFlowerLayout01.bmp"><br><br>
+
+
+<h3>Warning!</h3>
+You are now concurrently editing two files at once; the schematic and
+the layout.  Keeping these two file consistent means that you need to
+close them properly by using the close project function from the
+EAGLE control panel.  You should always keep both schematic and layout
+open at the same time, even if you are editing only one.  If you accidentally
+close one of the schematic or layout, you will get a warning at the top
+of the remaining window that is open.
+
+<br><img src="./img/annotateError.bmp"><br><br>
+
+This is a bad place to be in.  You probably should close without 
+saving at this point.  However, any inconsistency between the schematic
+and layout will risk corrupting your entire project.  Always use the EAGLE
+project manager to close and open your project.
+
+
+<h3>Grid Tool</h3>
+For this week's assignment, you will want to create an interesting
+PCB outline.  The first step in creating an outline is setting the
+grid - a 2 dimensional lattice of points where objects can be placed.
+Start by 
+
+<ul>
+<li>From the layout window select View -> Grid. 
+<li>You should get the Grid pop-up,
+<li>In the display area, click the "On" radio button,
+<li>In the Size:" text box enter 50
+<li>Set the units to "mil"
+<li>Click OK
+</ul>
+
+<br><img src="./img/gridTool.bmp"><br><br>
+
+After setting the grid, you should see a light gray grid of lines
+inside the layout area.  The intersection of these lines are the 
+set of points where you are allowed to place components, or 
+draw lines and wires.
+
+<h2>Drawing Tools</h2>
+Before you start placing components on the PCB, you first need to
+create the board outline.  You will create the board outline using
+the line, arc and circle drawing tools located on the bottom left 
+toolbar menu.  Lets experiment with these by drawing a simple
+board outline.  I will often sketch out ideas using layer 21 tPlace
+because it allows me to add internal lines that I may want to keep
+in the silkscreen.  The idea for this board outline comes from the
+following rocket clip art shown at left in the image below.  Since
+details on a PCB outline is pretty limited, I am planning to break
+the outline of the rocket into a set of arc and lines as shown at
+right in the image below.  
+
+<br><img src="./img/rocketIdea.bmp"><br><br>
+
+Let's walk through and do this together.  I will first draw the
+outline in layer 21 tPlace to rough-out the idea and then return
+and actually draw the PCB outline in layer 20, Dimension.
+
+<ul>
+<li>In the layout, select the circle drawing tool,
+<li>Just below the toolbar at the top of the screen, select
+21 tPlace from the Layer drop down,
+<li>Draw a large circle inside the board perimeter,
+<li>Select the Information tool (Lab 02) and click on the
+edge of the circle,
+<li>In the Properties pop-up set:
+	<ul>	<li>Position: 2000, 1500
+		<li>Width: 6
+		<li>Radius: 1200
+	</ul>
+<br><img width=600 src="./img/ledFlowerLayout02.bmp"><br><br>
+<li>Select the Copy Tool (left toolbar icon that looks like a two pieces
+	of dog-eared paper),
+<li>Click on the left edge of the circle you just drew and move the copy
+to the right and right mouse click,
+<li>Click on the Information tool, then on the edge of the circle you
+just copied,
+<li>In the Properties pop-up set:
+	<ul>	<li>Position: 3000, 1500
+		<li>Width: 6
+		<li>Radius: 1200
+	</ul>
+<br><img width=600 src="./img/ledFlowerLayout03.bmp"><br><br>
+<li>Select the Line tool (left toolbar, near the circle tool),
+<li>Just below the toolbar at the top of the screen, select 21 tPlace 
+from the Layer drop down,
+<li>Just to the right of the Layer tool you just used, change the wire
+bend style to "Wire bend style 2",
+<li>Left click at the start of the fins (left side of the rocket as
+shown in the image below),
+<li>Move the mouse to the second point on the rocket fin and right
+mouse click to set that point,
+<li>Continue clicking to complete the fins and bottom of the rocket,
+<li>Hit the "Esc" key to stop entering points on the line,
+<li>You can use the Move tool or Information tool to change the location
+of the lines to exactly match what I've drawn,
+	<ul>	<li>1800, 1500
+		<li>1450, 1250
+		<li>1850, 700
+		<li>2000, 850
+		<li>3000, 850
+		<li>3150, 700
+		<li>3500, 1250
+		<li>3200, 1500	</ul>
+<br><img width=600 src="./img/ledFlowerLayout04.bmp"><br><br>
+<li>The images shown above are purposefully drawn small.  You may want
+to right mouse click on them and select "Open image in new tab" to see
+them in the their full scale.
+</ul>
+
+We now have a solid starting point to draw our PCB board outline. A
+PCB outline <u>must</u> be an unbroken curve with no gaps.  Keep this
+in mind as you build your own outlines.
+
+<ul>
+<li>Select the Arc tool (to the right of the Line tool),
+<li>In the Layer pull-down (near the top of the screen), select 
+layer 20 Dimension and Width 0,
+<li>Make your first left mouse click at the nose of the rocket,
+<li>Move the mouse down and to the left so that the yellow Dimension
+circle is as close to the white circle as you can make it and then
+click with the left mouse button to establish the diameter of the
+circle the arc is based on,
+<li>Now move the mouse along the white circle to establish the right
+side of the rocketship body.  Right mouse click at 3200, 1500, just 
+at the top of the right rocketship fin.   You now have the right side
+of the rocketship body defined.
+<br><img width=600 src="./img/ledFlowerLayout05.bmp"><br><br>
+<li>Now repeat this process for the left half of the rocketship body.
+When you do this, you will get the wrong part of the circle.  To fix
+this, click on the &#x21BA; symbol to the right of the width textbox,
+<li>Now select the line tool (make sure it is set layer 20, width 0, and
+wire bend style 2), and trace out the rocketship fins and bottom of
+the rocket as one set of edges,
+<li>Hit the "Esc" key to stop entering points on the line,
+<li>If you did this correctly, you should see a light grey area inside
+your rocketship,
+<br><img width=600 src="./img/ledFlowerLayout06.bmp"><br><br>
+
+<li>Let's make the top copper pour for Vcc by making a copy of the outline 
+you just drew and moving it to the top layer.  Do this as follows:
+
+<ul>	<li>Select the Layer tool, click Hide Layers, then 
+	click to the left of the Layer 20 - Dimension row so that
+	the eye icon is displayed.  You should now see just the
+	rocketship outline, the rectangular outline and a circle
+	(which is part of the mounting hole),
+	<li>Delete the rectangular outline that was provided for
+	us when we converted the schematic to a layout.  Do this
+	by selecting the Delete tool and then clicking on each
+	of the four lines.  As you do this the interior of the
+	rocketship will turn black with the grid line,
+	<li>Select the Group tool,
+	<li>Select the entire rocketship outline,
+	<li>Select the Copy tool,
+	<li>While pressing the Ctrl key, right mouse click on the
+	rocketship outline,
+	<li>Move the copy of the rocketship outline to the right
+	so that the two rocketship outlines do not overlap,
+	<li>Select the Information tool,
+	<li>Right mouse click on the outline of the copied rocketship
+	outline.  Select Convert To Polygon &rarr; Replace.  The
+	copied rocketship should now be filled,
+	<li>Right mouse click on the outline of the copied rocketship
+	and select Properties,
+	<li>In the Properties pop-up, change the Layer to 1 Top,
+	<li>Click Apply.  The copied rocketship will disappear because
+	you do not have Layer 1 visible,
+	<li>In the Properties pop-up, change the Signal Name to VCC,
+	<li>In the Properties pop-up, change the Width to 6,
+	<li>Click OK and click Yes to the Warning pop-up,
+	<li>Select the Layer tool and make Layer 1 visible by clicking
+	to the left of the Layer 1 Top row.  You should see something
+	similar to the following.
+
+	<br><img width=600 src="./img/ledFlowerLayout07a.bmp"><br><br>
+</ul>
+
+<li>Let's make the bottom copper pour for GND by making a copy of the 
+copied rocketship.  Do this as follows:
+<ul>
+	<li>Select the Group tool,
+	<li>Select the copied rocketship outline,
+	<li>Select the copy tool,
+	<li>While holding the Ctrl key, right mouse click on the 
+	copied rocketship outline,
+	<li>Move the copied rocketship to the right so that it does
+	not overlap,
+	<li>Left mouse click to place the newest copy,
+	<li>Select the Information tool,
+	<li>Right mouse click on the outline of the copied rocketship
+	outline.  Select Convert To Polygon &rarr; Replace.  The
+	copied rocketship should now be filled,
+	<li>Right mouse click on the outline of the newest copy and
+	select properties,
+	<li>In the properties pop-up, change Layer to 16 Bottom,
+	<li>Click Apply.  The copied rocketship will disappear because
+	you do not have Layer 16 visible,
+	<li>In the Properties pop-up, change the Signal Name to GND,
+	<li>In the Properties pop-up, change the Width to 6,
+	<li>Click OK and click Yes to the Warning pop-up,
+	<li>Select the Layer tool and make Layer 16 visible by clicking
+	to the left of the Layer 16 Bottom row.  You should see something
+	<br><img width=600 src="./img/ledFlowerLayout07b.bmp"><br><br>
+</ul>
+You will now superimpose all three rocketship outlines on to one
+another.  Do this as follows:
+<ul>
+	<li>Select the Group tool,
+	<li>Select the entire layer 16 outline of the rocketship,
+	<li>Select the Move tool,
+	<li>While pressing Ctrl, right mouse click on some corner
+	of the blue, layer 16, copy of the rocketship outline,
+	<li>Move the blue outline (layer 16) on top the the yellow
+	outline (layer 20) so the two perfectly align,
+	<li>Select the Group tool,
+	<li>Select the entire layer 1 outline of the rocketship,
+	<li>Select the Move tool,
+	<li>While pressing Ctrl, right mouse click on some corner
+	of the red, layer 1, copy of the rocketship outline,
+	<li>Move the red outline (layer 1) on top the the yellow
+	outline (layer 20) so the two perfectly align,
+	<li>Select the Layer tool,
+	<li>In the Visible Layers pop-up, click Show Layers, then Ok,
+	<li>You should now have something that looks like the following:
+	<br><img width=600 src="./img/ledFlowerLayout07c.bmp"><br><br>
+</ul>
+
+Let's delete the Layer 21 lines we drew when we were planning our
+rocketship outline.  This could be a pain because those white edges 
+(on layer 21) coincide with the board outline and our pair of copper 
+pours.  There are two methods to do this, each has its own merits and
+will be useful in different situations.  I'd suggest giving each a 
+try.
+	<ul>
+	<li>Select the Layer tool,(layer icon in top of left toolbar),
+	<li>In the Visible Layers pop-up click "Hide Layers",
+	<li>Click to the left of layer 21 tPlace to make it visible,
+	<li>Click OK to remove the Visible Layer pop-up,
+	<li>Select the Delete tool and delete all the shapes in layer 21,
+	<li>Select the Layer tool,
+	<li>Click "Show Layers", 
+	<li>Click OK. </ul>
+
+You can use the other procedure for delete the white layer 21 objects 
+while having all the layers visible.  So before trying the step below
+select the Layer tool and in the Visible Layers pop-up, click 
+Show Layers then Ok.
+
+	<ul>
+	<li>Select the Delete tool,
+	<li>Click on the white layer 21 line (one of the fins),
+	<li>Right mouse click to select an alternative object
+	at the location you just click
+	<li>Continue right mouse clicking to cycle between all the
+	objects at the location,
+	<li>When the object you want to delete is highlighted, left mouse
+	click to delete the highlighted object.
+</ul>
+
+
+
+<h3>Component placement</h3>
+After making the board outline, its time to make an initial 
+placement of the components.  What you are going to do in this
+step is similar to what my father called "shaking out the steel".
+My father was a steel worker, assembling steel beams into the skeleton
+of a building. When the steel beams arrive on site, the first task was
+remove the beams from the trailer using a crane and lay them out on
+the ground - a process called "shaking out". A good foreman would place
+the beams in a way that the subsequent steel erection process went as
+smoothly as possible. Instead of steel beams, you need to shake out
+the electronic parts so that when you layout the traces of the PCB,
+they run in an orderly manner.
+<br><Br>
+
+One way to do this is to observe the logical layout of the parts in your
+schematic and duplicate it in your layout. This heuristic is based on
+the notion that parts which are logically related, generally need to
+be physical proximal.  In our LED flower, each potentiometer has an 
+associated resistor, so these pairs should be placed near one another.
+Since all three potentiometer/resistors combination flow into the LED,
+it makes sense to place the LED in the middle of the board.
+
+<li>Select the Move tool,
+<li>Click on the part handle for the potentiometer.  This is the
+thin olive green colored cross in the middle of the POT and 
+shown in the following image.
+<br><img width=600 src="./img/ledFlowerLayout07d.bmp"><br><br>
+<li>Right click to rotate the potentiometer,
+<li>Left click to place the part,
+<li>Move the parts around to get something similar to the following
+image,
+<br><img width=600 src="./img/ledFlowerLayout09.bmp"><br><br>
+</ul>
+
+When you have a PCB manufactured, the fabrication house will charge
+you for the area of the PCB taken up by a rectangular bounding box 
+that encloses your design.  A bounding box is the smallest rectangle
+that completely surrounds the rocketship.  We will draw the bounding box
+in layer 21 and move the lower left corner of this bounding box to
+the Layout origin as follows.
+
+<ul>	<li>Select the Line tool,
+	<li>In the top area, select Layer 21 tPlace and Wire bend style 0,
+	<li>Draw a vertical line down the the Layout origin and horizontally
+	to the right.  These lines should be taller than and wider than
+	the rocketship.  Precision is not important right now.  You should
+	have something that looks like the following image:
+	<br><img width=600 src="./img/ledFlowerLayout10.bmp"><br>
+
+	<li>Select the Group tool,
+	<li>Drag a rectangle around the entire rocketship outline without
+	touching either of the two lines you just drew,
+	<li>Select the Move tool,
+	<li>While holding the "Ctrl" key, right mouse click on the 
+	left-most corner of the left fin of the rocketship,
+	<li>Move the rocketship so that the left rocketship fin touches
+	the horizontal and vertical line from the Layout origin,
+	<br><img width=600 src="./img/ledFlowerLayout11.bmp"><br>
+	<li>Complete the bounding box by drawing lines in Layer 21
+	so that they just touch the nose and right fin of the rocketship.
+	When complete, you should have something that looks like the
+	following:
+	<br><img width=600 src="./img/ledFlowerLayout12.bmp"><br>
+</ul>
+
+Before we move on, let's take a moment to better understand what the
+copper pour layers are doing and how to manipulate them in EAGLE.
+
+<br><br><b>Reveal or refresh the copper pours</b><br>
+Select the Ratsnest tool and you should see something similar to the
+following image:
+<br><img width=600 src="./img/ledFlowerLayout13.bmp"><br>
+When you do this the copper pour defined by the rocketship outlines
+in the top and bottom layers will be filled in with copper attached 
+to their respective signal.  For example, the red area in the layout 
+is a sheet of copper attached electrically to VCC.  You can verify 
+this by zooming in on the battery connection.  
+<br><img width=600 src="./img/ledFlowerLayout14.bmp"><br>
+
+The battery connection 
+has one terminal attached to VCC and one to GND.  Zooming in on
+the battery connection shows a red cross through the VCC connection and 
+a blue cross through the GND connection.  This cross tells you that
+the copper on that layer is attached to that connection. <br><Br>
+
+This is easier to see if you look at the copper pour without all the
+other layers getting in the way.  To do this
+<ul>
+	<li>select the Layer tool,
+	<li>In the Visible Layers pop-up, 
+	<ul>	<li>click Hide Layers,
+		<li>Make Layer 16 Bottom visible by clicking to the left
+		of the 16 Bottom layer row, underneath the eye symbol.
+	</ul>
+	<li>You should see something like the following.  Note the
+	"plus" through the connections that are attached to the 
+	bottom copper pour which happen to be GND.  
+	<li>These connections to GND are setup in the schematic that
+	you started with.
+</ul>
+
+<br><img width=600 src="./img/ledFlowerLayout15.bmp"><br>
+
+Before moving on to the next steps, make all the layers visible by
+selecting the Layer tool and select Show Layers in the Visible Layers
+pop-up.<br><br>
+
+<b>Hiding copper pours</b><br>
+There will be times when you do not want to see the copper pours.
+For example, when routing wires.  You can make the copper pours 
+invisible by selecting the Ripup tool and clicking on the edge 
+of a copper pour.  This may be difficult because, there are three
+different objects coincident at the border of the rocketship,
+the outline, the top copper layer and the bottom copper layers.
+You will have to cycle through the layers using the following 
+procedure:
+
+	<ul>
+	<li>Select the Ripup tool,
+	<li>Left mouse click on the yellow rocketship outline,
+	<li>The red dotted outline for Layer 1 will appear,
+	<li>Right mouse click on the red rocketship outline,
+	<li>The blue dotted outline for Layer 16 will appear,
+	<li>Right mouse click on the blue rocketship outline,
+	<li>The yellow outline for Layer 20 will appear,
+	<li>Continue to right mouse click will cycle through 
+	the three outlines in this order,
+	<li>When the layer you want to ripup is highlighted
+	left mouse click.
+</ul>
+
+<br><img width=600 src="./img/ledFlowerLayout16.bmp"><br>
+
+
+
+
+<h3>Routing</h3>
+There are two steps that need completed on this circuit board.  First
+and most obvious, you need to route the wires.  This is a skill that
+you practice last week and will practice again.  The second thing that
+you may want to do it add some decorative art in layer 21 tPlace.  This 
+additional art will help sell the illusion that someone is looking at
+a rocketship.  This will require you to flex your creative muscles.
+
+<ol start=4>
+<li>Print the layout to PDF in landscape format with Scale factor: 4.
+You an use the instructions in Lab02.  Import the PDF as the answer to 
+this question.
+</ol>
+
+<h3>Adding color to your PCB</h3>
+Through the selective removal of layers, you can reveal the tan 
+fiberglass core of the PCB or reveal silver solder of tinned
+coppper.  The toucan PCB shown below uses both of these techniques.
+
+<br><img width=500 src="./img/toucan.jpg"><br><br>
+
+<b>Tan:</b>
+To expose a tan area, create a polygon of the tan area in the 
+following layers.  You may want to use a small grid while doing
+this so that you can get smooth bends using straight lines.
+<ul>	<li>29 = tStop
+	<li>41 = tRestrict
+</ul>
+
+<b>Silver:</b>
+To expose a silver area, create a polygon of silver area in the 
+following layers.  You may want to use a small grid while doing
+this so that you can get smooth bends using straight lines.
+<ul>	<li>29 = tStop
+</ul>
+Make sure that the copper pour occupies all the area below the
+polygon so that this copper area is coated in silvered tin.
+<br><br>
+
+<b>Cut out:</b>
+To create a custom-shaped hole in the PCB. Create a wire outline
+of the hole in layer 21 (Dimension).  Then copy this wire outline
+into layer 46 (Milling) with a solid polygon pour.
+<br><br>
+
+If you would like to look at the Toucan PCB in Eagle, download
+the following files and inspect away.  Note this team imported 
+severl bitmap files so you will find a lot of imported bit
+layers above 200.  None of these high number layers are used in
+the actual fabrication of the PCB, they are just used for 
+planning  None of these high number layers are used in
+the actual fabrication of the PCB, they are just used for 
+planning.
+
+<ul>	<li><a href="./toucanRev2.brd">toucanRev2.brd</a>
+	<li><a href="./toucanRev2.sch">toucanRev2.sch</a>
+</ul>
+
+
+
+</html>

@@ -1,0 +1,658 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 393 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 393</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab08.html">Lab 8</a></li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>&nbsp;
+                    </ul>
+
+                </div>
+        </div>
+
+<center><h1>EENG 393</h1>
+
+In Lab 8 - EAGLE layout</center>
+
+<h2>Requirements</h2>
+There is no turn-in associated with this inLab. You will need to follow the instructions
+given below in order to start the layout of your PCB.  Hence I would suggest you complete 
+the walk-through in this lab on your own. When you complete this walk-through you will 
+a start on the deliverable that is due in the next lab.
+
+<h1>Objective</h1>
+
+
+<h3>Copy Lab 7 EAGLE files into Lab 8</h3>
+I would like to you to keep a copy of the work completed so far
+in lab07 and use it as a starting point for lab08.  To do this:
+<ul>	<li>Create a lab08 folder, 
+	<li>Launch EAGLE CAD,
+	<li>Navigate to the lab07 directory so that you can see the
+	orange "E" for lab07,
+	<li>Right mouse click on the orange "E" to the left of lab07,
+	<li>Select Copy
+	<li>In the Copy directory pop-up, navigate into the lab08 directory,
+	<li>Click "Select Folder",
+	<li>In the Control Panel, right mouse click on the orange "E" to
+	the left of lab07 (in the lab08 project),
+	<li>Select rename,
+	<li>Change the name of the project to lab08
+	<li>Rename lab07.sch to lab08.sch in the same way,
+	<li>You can delete lab07.pdf by right mouse clicking on it 
+	and selecting delete.
+</ul>
+
+
+<h2>PCB structure</h2>
+
+Once the schematic is complete it's time to layout the physical board,
+the printed circuit board (PCB).  The PCB structure is illustrated in
+the following diagram.  Each of the numbers in the diagram is explained
+in the numbered text which follows.  
+
+<br><img src="./img/pcbStructure.bmp"><br><br>
+
+Note, the following are not question numbers, but identifiers to the 
+figure above.
+
+<ol>
+<li>Fiberglass substrate (FR4) - If you look at the PCB edge-on you will
+see a tan colored plate of material that composes the majority of the PCBs
+volume.  Our PCBs are made from most common substrate called FR4.
+The "FR" in <a href="https://en.wikipedia.org/wiki/FR-4">FR4</a> 
+stands for Flame Retardant meaning that this material self-extinguishes 
+once a flame is removed.
+<li>Trace - The fiberglass substrate of our PCB is laminated with a layer
+of copper on the top and bottom sides.  The thickness of this copper is
+stated in terms of weight (in ounces) per square foot.  Our boards are 
+fabricated with 1 ounce copper which results in a copper thickness of
+34µm.  During the manufacture of the PCB, copper on both sides is 
+selectively etched away to form the pattern on copper that you see.  A
+trace is a thin strip of copper that forms a wire connecting two or more
+terminals.  Laying out the traces on a PCB is the most time consuming
+task when designing a PCB.  Traces on the
+top of the board are red and traces on the bottom of the board are blue.
+<li>Plated through-hole - There are a variety of reasons that we need to
+put holes in a PCB.  For example, you might need to mount a through-hole 
+component, or cross a pair of traces without electrically connecting
+them.  When holes are put into a PCB we most often plate the sides of
+the hole with a conductive material so that an electrical signal can pass
+from the bottom of the hole to the top.  If you look carefully at the hole
+in your PCB you will see that they are shiny. 
+<li>SMT pad or SMT land - In order to attach a surface mount component to the
+PCB, part of the solder mask is removed from each contact point between the 
+component and the PCB.  Each of the exposed copper areas is coated
+with solder producing a shiny silver surface called a pad or land.  The 
+set of exposed pads associated with a component is called the component's
+footprint on the PCB.
+<li>Solder mask - The solder mask is the green (or blue) coating over the
+majority of the PCBs surface.  It performs three useful functions; it provides
+a modest level of electrical insulation for the copper it covers, it
+protects the copper from oxidation, and it helps prevent solder from sticking
+to areas you do not want soldered.
+<li>Top copper pour - Only a fraction of the top layer is covered in traces.
+The unused copper on the top layer is often put to use by a PCB design by
+having it carry a power voltage, in our case 3.3v.  Consequently, anytime
+a device needs power, it will connect to excess copper in the top layer.
+The term "pour" is used to conjure the idea that the copper is poured onto 
+the PCB in a liquid state, flowing to all available regions not occupied by
+some PCB feature.
+<li>Bottom copper pour - The unused region of the bottom side of the PCB is
+almost always connected to the ground.  This is most frequently called the
+"ground plane".  Since many components need to be connected to ground, there
+are a lot of holes through the board that connect to the ground plane.  
+<li>Silk screen - the silk screen is the white text on the PCB.  Generally
+the silk screen tells you where you to place a component and the components
+value.  The part identifiers on the PCB should exactly match the part
+identifiers on the schematic.
+</ol>
+
+
+
+<h2>Create layout from schematic</h2>
+Now let's turn our attention to creating a layout from the 
+schematic that you've completed.
+
+<ul>	<li>Open the EAGLE schematic that you completed as 
+	part of the last assignment and copied into a new lab 8 project.
+	<li>Click on the Generate/switch icon
+	<br><img src="./img/genSwitchIcon.bmp"><br><br>
+	<li>In the Warning pop-up, click Yes to generate the layout
+	from the schematic.
+	<li>You will be presented with the initial layout shown
+	below.
+</ul>
+
+<br><img src="./img/initialLay.bmp"><br><br>
+
+<h3>Warning!</h3>
+You are now concurrently editing two files at once; the schematic and
+the layout.  Keeping these two file consistent means that you need to
+close them properly by using the close project function from the
+EAGLE control panel.  You should always keep both schematic and layout
+open at the same time, even if you are editing only one.  If you accidentally
+close one of the schematic or layout, you will get a warning at the top
+of the remaining window that is open.
+
+<br><img src="./img/annotateError.bmp"><br><br>
+
+This is a bad place to be in.  You probably should close without 
+saving at this point.  However, any inconsistency between the schematic
+and layout will risk corrupting your entire project.  Always use the EAGLE
+project manager to close and open your project.
+
+<h2>Move tool</h2>
+Please refer to <a href="../lab03/inlab03.html">inlab03</a> for details.
+
+<h2>Route tool</h2>
+Please refer to <a href="../lab03/inlab03.html">inlab03</a> for details.
+
+<h2>Polygon tool</h2>
+Please refer to <a href="../lab03/inlab03.html">inlab03</a> for details.
+Note that the rip-up tool "hides" the pour.  This is useful when you 
+want to print-out your layout or provide a better view of your traces.
+
+<h2>Layer tool</h2>
+Before working in EAGLE layout, you need to understand the concept of
+layers.  There are up to 256 different layers that you can use to 
+store elements of the layout.  You can selectively enable or disable
+viewing a layer using the layer tool.  Click on the Layer tool 
+(shown in the image above) and you should see the following pop-up.
+Click on the eye icon to toggle the "viewability" of that layer.
+
+<br><img src="./img/layerTool.bmp"><br><br>
+
+
+Layers 1 and 16 are the Top and Bottom copper layers - the conductive 
+traces on the printed circuit board. Since the EAGLE CAD layout tool 
+shows all the layers superimposed on top of one
+another, we frequently want to look at our layout with and without
+some of the layers being displayed.  It's not that we want to permanently
+want to delete these layers, we just want to temporarily disable them
+from being viewed.   Try selecting the "Hide Layers" button and click
+OK.  Wow, everything is gone!  Click on the Layer tool and select a few
+layers (by clicking on the eye) and click OK.  Finally click on the 
+Layer tool and click on "Show Layers" and then OK to view all the layers.
+<br><br>
+
+Fortunately, you do not need to work with all 256 layers right from the
+start. For the time being, we will focus on the following layers.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Layer        <td>Name	<td>Function
+<tr><td>1	<td>Top		<td>Top copper foil
+<tr><td>16	<td>Bottom	<td>Bottom copper foil
+<tr><td>17	<td>Pads	<td>Ring of copper surrounding
+	through holes.  Used to solder device pins to board.
+<tr><td>18	<td>Via		<td>Electrical connections between
+	the top and bottom layers.
+<tr><td>19	<td>Unrouted	<td>Air wires that form logical connections
+	between electrical devices that need to be replaced by wires 
+	in the top or bottom layer.
+<tr><td>20	<td>Dimension	<td>The outline defining the edge
+	of the PCB.
+<tr><td>21	<td>tPlace	<td>Silk screen text placed on the
+	top side of the PCB.
+<tr><td>25	<td>tNames	<td>Silk screened component names placed
+	on the top side of the PCB.
+<tr><td>25	<td>tValues	<td>Silk screened component values placed
+	on the top side of the PCB.
+</table>
+
+
+<h2>Component placement</h2>
+Designing a printed circuit board is an iterative process.  The first
+phase is determining the physical dimension of the PCB and the 
+placement of components the need to be placed on the edge of the PCB.
+Examples include switches, connectors, and heat sinks.  The free version
+of EAGLE CAD that we are using constrains the PCB to be 100mm x 160mm
+which is conveniently, the size of the Dimension layer when you opened
+the layout.
+<Br><br>
+
+When you first convert a schematic into a layout, EAGLE CAD places
+all your components outside the layout area.  Let's move them inside
+the outline of the PCB defined by the Dimension layer as follows:
+
+<ul>	<li>View &rarr; Grid,
+	<li>In the Grid pop-up,
+	<ul>	<li>Display: On
+		<li>Size:	20 mil
+	</ul>
+	<li>Click OK,
+	<li>Select Group tool,
+	<li>Left click and drag to select all the components outside
+	the Dimension outline,
+	<li>Click the Move tool,
+	<li>While pressing Ctrl, right mouse click on the collection
+	of components,
+	<li>Move the mouse to move all the components inside the 
+	Dimension layer,
+	<li>Left mouse click to drop the components on the selected
+	position.
+</ul>
+
+Since the initial board outline in the Dimension layer was defined in
+tens of millimeters, the size of the PCB will have fractional dimensions
+in mils.  Let's fix this.
+
+<ul>	<li>Select the Information tool,
+	<li>Click on the top edge of the board outline,
+	<li>In the Properties pop-up change,
+	<ul>	<li>From: 3900 3000
+		<li>To:   0    3000	</ul>
+	<li>Click on the right edge of the board outline,
+	<li>In the Properties pop-up change,
+	<ul>	<li>From: 3900 0
+		<li>To:   3900 3000
+	</ul>
+</ul>
+
+Now the board is 3.9 inches wide and 3 inches high.
+
+<h3>Shaking out the parts</h3>
+My father was a steel worker, assembling steel beams 
+into the skeleton of a building.  When the steel
+beams arrive on site, the first task was remove the beams from the 
+trailer using a crane and lay them out on the ground - 
+a process called "shaking out".  A good foreman would place the
+beams in a way that the subsequent steel erection process went as smoothly
+as possible.  Instead of steel beams, you need to shake out the electronic
+parts so that when you layout the traces of the PCB, they run in an 
+orderly manner.
+<br><Br>
+
+One way to do this is to observe the logical layout of the parts in
+your schematic and duplicate it in your layout.  This heuristic is
+based on the notion that parts which are logically related, generally
+need to be physical proximal.  The image below shows my schematic on 
+the left and the layout on the right.  I've color-coded what I feel
+are logical combinations of parts; a pair of resistors connected to the 
+inverting op-amp input and a pair of resistors connected to the output
+and the non-inverting input.  In the layout, I will put R5 and R6 next
+to one another and try to put R1 and R4 next to one another.  Note,
+the resistor R12 (in the layout), should be moved aside for the time
+being, allowing us to focus on the four resistors.
+
+<br><img src="./img/schLay01.bmp"><br><br>
+
+
+Now, the resulting organization of parts is shown in the left pane of the
+image below.  My goal is always to reduce the number of crossing of
+airwires as they will present routing problems on the PCB.  As a 
+consequence I spend <u>a lot of time</u> rotating parts to find their
+best orientation.  In the image below, I see an opportunity to reduce
+the number of air-wire crossing by rotating resistors R6 and R4.  This
+results in the layout shown in the right pane in the image below.
+
+<br><img src="./img/schLay02.bmp"><br><br>
+
+
+<h2>Copper Pour</h2>
+
+You can eliminate a lot of the air-wires on your PCB using the 
+excess copper on the top and bottom layers to route power and ground.
+We will use the top layer to route Vin and the bottom
+layer to route ground.
+
+<ul>	<li>Select the Polygon tool,
+	<li>In the context sensitive menu at the top
+	<ul>	<li>Set Layer: 1 - Top,
+		<li>Set Wire bend style: 0 (rectilinear),
+		<li>Set Width: 16
+	</ul>
+	<li>Click on the lower left corner of the PCB dimension layer,
+	<li>Click on the upper right corner of the PCB,
+	<li>Double click back on the lower left corner,
+	<li>Press escape to exit the Polygon tool if the double click
+	did not,
+	<li>Click on the Name tool,
+	<li>Click on the red dashed line on the outline of the PCB,
+	<li>In the Name pop-up, enter "VIN" as the New name,
+	<li>Leave the "this Polygon" radio button selected,
+	<li>Click OK,
+	<li>Click the Ratsnest tool to flood fill the top layer,
+</ul>
+
+If you zoom back to the op-amp (shown in the image below), pin 3 has been
+connected to Vin as well as the one of the terminals of resistor R6.
+
+<br><img src="./img/schLay03.bmp"><br><br>
+
+
+Let's make two observations to make regarding the copper pour.  The first
+is pull-back and the second is thermal vias.
+<br><br>
+
+The plane pull-back ensures that the copper pour stays away from the edges
+of the PCB.  This is done to ensure that when the PCBs are separated using 
+a router, the router bit doesn't accidentally pull, tear, or fold the top and
+bottom copper foils over the edge of the PCB allowing them to make contact
+and creating a short circuit.
+<br><br>
+
+The red cross pattern used to connect these two terminals to Vin layer
+is called a thermal relief via.  It can be difficult to solder a component 
+to a pad that is directly connected to the large thermal 
+mass of of a copper layer because heat from the soldering iron is quickly
+lost to the large thermal mass of the copper layer.  The "spokes" of the
+cross pattern slow-down the heat transferred to the top copper pour, 
+facilitating better soldering.
+<br><br>
+
+There are times when you do not want to see this top copper flood fill.
+To make it go away, click on the Ripup tool and click on any portion of
+the perimeter of the top copper pour.
+<br><br>
+
+Repeat this process to make a copper pour on the bottom layer (Layer 16)
+connected to the GND signal.
+<br><Br>
+
+<h3>Routing nets</h3>
+At some point you will start having to convert the air-wires into traces
+on the top and bottom copper layers.  To do this you will use the route
+tool in the left-side menu.   When you click on the route tool, the top 
+context sensitive menu will change and look like the following image.
+
+<br><img src="./img/routeTool.bmp"><br><br>
+
+You will need to be familiar with these labels as you will need to set
+and manipulate while routing nets.  Let's start by routing a simple
+connection on the PCB using the following instructions.
+
+<ul>	<li>Zoom into pin 8 of the op-amp and the right terminal of R4,
+	<li>Select the Route tool,
+	<li>At the top (context sensitive) tool bar make sure that 
+	the following settings are selected.
+	<ul>	<li>Layer: 1 Top
+		<li>Route: Walkaround obstacles
+		<li>Wire Bend Style: 1
+		<li>Width: 16
+		<li>Via shape: square
+		<li>Diameter: auto
+		<li>Drill: 13.77&hellip;
+	</ul>
+	<li>Left click on the right terminal of resistor R4,
+	<li>Observe:
+	<ul>	<li>Move the mouse in a circle around the resistor noting
+	how the trace from the resistor updates as you moving, doing it 
+	best to route around the parts in the schematic,
+	<li>Note how two of the pads on the op-amp are a lighter shade
+	of red, indicating that right terminal of the resistor 
+	needs to connect to these pins of the op-amp,
+	<li>The trace is labeled with its net name, "N$x", where x is an
+	integer.  This net name is the same as the net name for the
+	corresponding net in the schematic,
+	</ul>
+<li>Move the pointer somewhere between the resistors and
+op-amp pin and make a single left-mouse click.  This will pin
+the trace to this point, acting as an intermediate fixed point
+on the way to the op-amp pin,
+<li>Move to another point (not the op-amp pin) and make another
+left click,
+<li>Add a few more left clicks to add a few more waypoints,
+<li>Press Escape to end routing, 
+<li>Press Ctrl-z once, ripping up the last piece of trace,
+<li>Click the Rip-up tool,
+<li>Click on one intermediate segment of the trace.  Notice that the
+trace segment is replaced with an air-wire,
+<li>Click on the air-wire just produced.  Note all the trace is ripped-up.
+</ul>
+
+<h3>Trace width</h3>
+All PCB design tools allow the designer to select the trace width
+of the conductors layed out on the PCB.  As we have already discussed,
+the copper on the PCB has a thickness measured in the weight of copper
+(in ounces) that cover a square foot.  One ounce copper is about 1.4 mils
+thick (or 35&micro;m in metric).
+<br><Br>
+
+You may remember from your second year Physics class that the electrical
+resistance of a conductor with length l, cross sectional area A, 
+and resistivity &rho; is given by.
+<pre>
+	R = &rho;l/A
+</pre>
+It follows that if we double the width of a trace, we double its area
+and consequently decrease its resistance by a factor of two.  To see
+what this effect this might have consider how much power is dissipated in
+a 3" trace carrying 1 Amp of current.  Let's compare a 6 mil wide
+trace against a 36 mil wide trace.  To determine this, 
+you will need to know that the resistivity of copper is about 
+1.8*10<sup>-8</sup>&ohm;m.  
+
+<pre>
+6 mil trace:
+A 6 mil trace, or 152 &micro;m trace, has area = (152 &micro;m)*(35 &micro;m) = 5.3*10<sup>-9</sup>m<sup>2</sup>
+Since 3" = 7.62 cm = 7.62*10<sup>-2</sup>m, the 6 mil trace has resistance
+R(6 mil) = 1.8*10<sup>-8</sup>&ohm;m * 7.62 *10<sup>-2</sup>m / 5.3*10<sup>-9</sup>m<sup>2</sup> = 0.26 &ohm;
+Since P = I<sup>2</sup>R, the power dissipated through the 6 mil trace is
+0.26 Watts.
+ 
+36 mil trace:
+36 mil trace, or 914 &micro;m trace, has area = (914 &micro;m)*(35 &micro;m) = 32*10<sup>-9</sup>m<sup>2</sup>
+Since 3" = 7.62 cm = 7.62*10<sup>-2</sup>m, the 36 mil trace has resistance
+R(36 mil) = 1.8*10<sup>-8</sup>&ohm;m * 7.62 *10<sup>-2</sup>m / 32*10<sup>-9</sup>m<sup>2</sup> = 0.043 &ohm;
+Since P = I<sup>2</sup>R, the power dissipated through the 36 mil trace is
+0.043 Watts.
+</pre>
+
+Note, that the 6 mil trace would also incur a 0.26V drop along its
+3" length (while carrying 1 Amp).  This is a not insignificant voltage 
+drop along a supposedly low resistance conductor.  There are a variety
+of factors that go into determining how wide to make a trace intended
+to carry a current.
+To help making assessments about the necessary conductor width for
+a given application, many PCB fabrication houses provide 
+Trace Width Calculators like 
+<a href="https://www.4pcb.com/trace-width-calculator.html">this</a>
+one.
+
+
+
+<h3>Making via's</h3>
+A via is an electrical connection between two layers of a printed 
+circuit board.  In a two-layer PCB, vias are just small diameter
+through holes.  There are several reasons that you may want to use
+vias, but the two most popular are to connect signals to ground
+or to route a difficult set of nets.  Let's try an example of each,
+starting with the ground pin of the op-amp that needs connected to
+ground.
+
+<ul>	<li>Zoom into pin 11 of the op-amp
+	<li>Select the Route tool,
+	<li>At the top (context sensitive) tool bar:
+	<ul>	<li>Layer: 1 Top
+		<li>Route: Walkaround obstacles
+		<li>Wire Bend Style: 1
+		<li>Width: 16
+		<li>Via shape: square
+		<li>Diameter: auto
+		<li>Drill: 13.77
+	</ul>
+	<li>Left click on pin 11 (lightly labeled in white "GND"),
+	<li>Position the cursor away from the pin,
+	<li>Click the scroll wheel,
+	<li>The cursor should change to a via,
+	<li>Move the via around and place it about 20 mils away from
+	the pin,
+	<li>Left mouse click to place the via,
+	<li>Move the mouse.  You are now routing on the bottom layer 
+	of the PCB,
+	<li>Since you only wanted to connect to the ground place on
+	the bottom layer, stop routing my pressing escape,
+	<li>Click Ratsnet to verify the connection.
+</ul>
+
+Notice that when you connected pin 11 of the op-amp to ground that 
+there were still air-wires connected to the ground pin and even
+to the via.  This is because those air-wires are from components 
+looking to connect to ground and this newly place via is the closest 
+ground connection on the board.  Any signal that needs to connect
+to ground can be connected to this pin or via.  You may also create
+a new via for those signals, giving them their own ground via.
+
+<br><br>
+In general, you should avoid routing wires on the bottom layer of
+a PCB whenever possible.  The reason has to do with noise introduced
+into your circuit and RF noise emitted by your circuit.  Let's look
+at these further.  First, note that the return path for
+the current in the trace you are routing will follow the closest
+available ground path.  If you have an uninterrupted ground plane
+below your traces, then the return current will flow underneath the
+trace. The amount of energy radiated by your circuit is proportional
+to the <u>loop area formed by the signal path and return path</u>.
+If you have an uninterrupted ground plane under your circuit, then
+the loop area is the length of the trace multiplied by the thickness
+of the PCB.  This is about the best you can do and generally results
+in minimal emissions.  However, if you have a trace in the ground plane
+that interrupts the path of the return current, then you have increased
+the area of the loop and radiated RF emissions.
+
+<br><Br>
+
+Unfortunately, there are circuit arrangements that make it necessary
+to route on the bottom layer.  These conditions are outlined by
+<a href="https://en.wikipedia.org/wiki/Kuratowski%27s_theorem">Kuratowski's theorem</a>
+and can be summarized as follows.  A circuit will have to use the
+ground plane if it contains one of the following configurations.
+Note that the circles are the circuit element pins and the lines are
+the air-wires.
+
+<br><img src="./img/kuratowski.bmp"><br><br>
+
+In order to route a trace on the bottom layer, use the following steps:
+
+<ul>	<li>Zoom into resistor R4, to the left of the op-amp
+	<li>Select the Route tool,
+	<li>At the top (context sensitive) tool bar:
+	<ul>	<li>Layer: 1 Top
+		<li>Route: Walkaround obstacles
+		<li>Wire Bend Style: 1
+		<li>Width: 16
+		<li>Via shape: square
+		<li>Diameter: auto
+		<li>Drill: 13.77
+	</ul>
+	<li>Left click on the right pin of the resistor,
+	<li>Position the cursor away from the pin,
+	<li>Click the scroll wheel,
+	<li>Left click the mouse to place the via directly to the
+	right of the resistor,
+	<li>Move the mouse 45&deg; up and right (you are routing on the
+	bottom layer),
+	<li>Click the scroll wheel,
+	<li>Left click to place the via,
+	<li>Move to pin 7 of the op-amp (you are routing on the top layer),
+	<li>Left click to route to pin 7.
+</ul>
+
+You should end-up with something that looks like the following image.
+
+<br><img src="./img/schLay04.bmp"><br><br>
+
+
+
+<h3>Design Rule Check</h3>
+Like the electric rule check (ERC) for the schematic, the layout has
+its own checker called the design rule check (DRC).  You can access the
+DRC by selecting Tools &rarr; DRC&hellip;  Do this and click to the 
+Clearance tab.  The values in this tab define things like the minimum
+trace width and the clearance between traces and circuit obstacles.
+The values in these fields are determined by your manufacture. 
+
+We will be using 
+<a href="http://www.custompcb.com/index.php">Silver Circuits</a> to 
+manufacture your printed circuit boards using 1 oz copper.  We will
+need to make sure that our layout meets their design rules.  For example
+the minimum trace width that Silver Circuits can manufacture is 7 mils.
+We need to update EAGLE's DRC Wire width from the listed 6 mils to 
+7 mils.   
+
+<br><img src="./img/drc.bmp"><br><br>
+
+Rather than go down the list of Silver Circuit's PCB Design 
+Rules and hope that we get them correct, you can download a a design
+rule file (they have a .dru file extension) from the Silver Circuit's
+web site and clicking on the "File Format" on the main-page banner.
+Click on the "CadSoft EAGLE instructions" link and on the 
+"Cad Soft EAGLE Information Section" page, right-mouse click on the 
+"Design Rule File" download link and save
+the SilverCircuits.dru file in your lab08 directory.  
+
+
+<ul>	<li>Tools &rarr; DRC&hellip;,
+	<li>On the DRC pop-up click Load&hellip;
+	<li>Navigate to the SilverCircuits.dru file you store, select the
+	file and click Open,
+	<li>Click the "merge into current settings" box,
+	<li>Click Apply,
+	<li>Click Check.
+</ul>
+
+Go back into the DRC &rarr; Clearances tab and you will see that the
+trace size and clearances now read 7 mil.  
+If you run the DRC at this point, the only errror that you should get are
+around 30 air-wires.   During this assignment you
+will fix this, but clearly this is not something that you would want
+to have in your PCB when you sent it out for fabrication.  Open the
+Airwire errors (by clicking the triangle to the left of Airwire) and 
+select one of the specific errors.  Note that EAGLE points you directly
+to the point the violation occurred - very handy for correcting errors.
+Unless you want to the errors following you around, click Clear all 
+and then dismiss the DRC Errors window my clicking on the "X" in the 
+upper right corner.
+
+<h2>Adding art</h2>
+You can add artwork to the silkscreen laying using a User Language Program
+(ULP).  I have found it best to start with a monochrome bitmap image like
+the Blaster shown below.
+
+<br><img width=400 src="./img/blasterMono.bmp"><br><br>
+
+The perform the following steps.
+<ul>	<li>Run ULP (orange square in menu bar),
+	<li>Click Browse, navigate to C:\EAGLE 9.1.3\examples\ulps\examples,
+	<li>Select import-bmp.ulp, Open,
+	<li>In the Eagle:import-bmp.ulp pop-up select OK,
+	<li>Navigate to the monochrom bitmap file, select, Open,
+	<li>Select the color you want to keep by clicking the check box,
+	<li>Choose start layer for 1st selected color: Layer 200,
+	<li>Run script
+</ul>
+
+The pasted image is placed at 0,0 on the layout.  Moving the image may
+be tricky because you image may overlap some circuit elements.  Use the 
+View Layer tool to "Hide Layers" and then select only layer 200 and click
+OK.  This is why we slected layer 200 as the destination layer for the 
+image; because nothing else is placed on that layer.  Now use the group
+tool to select the entire image.  Then use the move tool to move the entire
+image by Ctrl+right-click to move the group.  Annoyingly, the file name is
+placed n the lower left corner of the image, so you may want to take
+this chance to delete it using the delete tool.  Once you have places the
+image where you want it on the board, the final step is to move the
+image from layer 200 to layer 21.  You can do this by first selecting the 
+image using the group tool, next select the Change tool &rarr; layer &rarr;
+Layer 21.  Then Ctrl+right-mouse click the selected image to move it to 
+layer 21.
+
+
+</html>

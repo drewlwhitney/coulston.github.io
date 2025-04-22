@@ -1,0 +1,207 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture03.html">&ltPrev</a></li>
+                        <li><a href="./lecture05.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>4</td></tr>
+<tr><td>Code 		<td><a href="./code/incompleteMod10Counter.vhd">incompleteMod10Counter.vhd</a>
+<tr><td>Class Objectives<td>Sequential Circuits, Process, Timing, Sequential Building Blocks
+</table>
+
+<h2>Sequential Elements</h2>
+You can't build sophisticated digital device without sequential circuits, circuits
+with memory. When a circuit has memory it can do things like count up because in
+order to count up to 10, you need to remember what number you are currently at 
+in order to count up to the next number in the sequence.  Instead of using the 
+word memory, I will use the term, state.  The state of a sequential circuit is 
+an arrangement of 0's and 1's that are stored in some basic memory element.
+<br><br>
+
+The most basic memory element is the D flip flop. A D flip flop stores a single
+bit and output's this stored value, its state, on its Q output.  On the rising edge 
+of the clock, the D flip flop stores the bit present on the D input.  The D flip
+flop has an active low synchronous reset input.  Whenever this input is at logic
+0, the stored value will go to 0 on a rising edge of the clock.  To operate the D 
+flip flop as a memory storage device the reset input should be held at logic 1.  
+This complex behavior is captured in the following state table.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>clk		<td>reset	<td>D	<td>Q+
+<tr><td>0,1,falling	<td>x		<td>x	<td>Q
+<tr><td>rising		<td>0		<td>0	<td>0
+<tr><td>rising		<td>1		<td>0	<td>0
+<tr><td>rising		<td>1		<td>1	<td>1
+</table>
+
+A state table is similar to a truth table with the exception of the "+" on the
+output Q+.  Q+ means <u>the next value of  Q</u>.  You can think of the current
+value of Q as its value just before the rising edge of the clock and Q+ as
+the value of Q just after the rising edge of the clock.
+<br><br>
+
+The schematic for a D flip flop is shown below.  The clk input has a triangle
+on its input meaning that this is a positive edge triggered input.
+The circle on the reset input means that this is an active low input.  Now,
+try your hand at determining the Q output for the waveform given.
+
+<br><img width=600 src="./img/dFlipFlop.bmp"><br><br>
+
+Finally, let's look at the VHDL code that realizes a D flip flop.  I will
+focus on the architecture code assuming that you can produce the entity
+description if requested.
+
+<pre>
+     process(clk)
+     begin 
+        if(rising_edge(clk)) then
+            if(reset = '0') then 
+                Q &lt= '0';
+            else 
+                Q &lt= D; 
+            end if;
+        end if;       
+    end process; 
+</pre>
+
+Some important items to discuss:
+<ul>	<li><b>process(clk)</b> will cause the code between
+	the begin and end to "run" when the signal in parenthesis
+	, clk, changes.  The list of variables in parenthesis is
+	called the <u>sensitivity list</u> because the process is
+	sensitive to changes in these variables.
+	<li><b>rising_edge(clk)</b> The expression "rising_edge"
+	is a reserved word and is true when the argument, clk,
+	has a rising edge.
+	<li><b>if/then/else/end if</b> operates just like it does
+	in a normal programming language. 
+</ul>
+
+<h2>Mod 10 counter example</h2>
+A mod 10 counter counts up from 0 to 9 and then rolls over back to 0
+to count up again.  The term “mod” comes from the word modulus.  If you 
+take a number x and form “x mod 10” you get the integer remainder after 
+division by 10. For example, 12 mod 10 is equal to 2 because 
+12/10 = 1 with a remainder of 2.  Note that “x mod 10” will always produce 
+a value between 0 and 9.
+
+
+<h3>Truth Table</h3>
+The following state table defines one possible realization of a mod 10 
+counter.
+
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>clk		<td>reset	<td>enb		<td>synch	<td>currentCount	<td>Note
+<tr><td>0,1,falling	<td>x		<td>x		<td>x		<td>Q		<td>No clk edge
+<tr><td>rising		<td>0		<td>x		<td>x		<td>0		<td>Global reset
+<tr><td>rising		<td>1		<td>0		<td>0		<td>Q		<td>Hold
+<tr><td>rising		<td>1		<td>1		<td>0		<td>Q+1 mod 10	<td>Count
+<tr><td>rising		<td>1		<td>0		<td>1		<td>0		<td>Synch reset
+</table>
+
+You will notice that the roll output does not appear in the state table above.  This
+is because the roll output does not depend on the clock, it's a combinational
+logic circuit.  The truth table for the roll output is given as follows.
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>enb	<td>currentCount 	<td>roll
+<tr><td>1	<td>currentCount <9	<td>0
+<tr><td>1	<td>currentCount ==9	<td>1
+</table>
+
+Let's now see if we can apply the ideas encoded in the state and truth tables to
+predicting the behavior of this circuit in a timing diagram.
+
+<h3>Timing Diagram</h3>
+Let's try to complete the partial timing diagram below.
+
+<br><img src="./img/mod10CounterTimingBlank.png"><br><br>
+
+An important concept to keep in mind is that the output of a sequential device,
+the mod10Counter in our case, changes just after the positive edge of the clock.
+
+<ul>	<li>Clock edge at left edge of timing diagram.  Since reset equals 0
+	during this positive clock edge, this is a global reset.  This causes 
+	currentCount to go to 0.  This value of currentCount causes roll = 0.
+
+	<li>Clock edge between time 0 and 1. reset went back to 1 and now enb
+	equal 1 and synch equals 0.  So currentCount goes to 1 just after this
+	positive edge.
+
+	<li>Next 8 clock edges. reset is still 1 enb equals 1 and synch equals 0.
+	So currentCount counts up from 1 to 9.
+
+	<li>Clock edge between time 9 and 10.  enb equals 0 and synch equals 0,
+	the currenCount does not change and stays at 9.  At the beginning of clock
+	interval 9, the roll signal would have gone from logic 0 to logic 1 and
+	stayed that way until enb went to logic 0.  Since enb equals 0, no 
+	roll over is eminent, so the roll output will stay low until enb is
+	brought back to logic 1.
+
+	<li>Clock edge between time 10 and 11.  enb equals 1 and synch equals 0,
+	so currentCount increments mod 10, causing currentCount to equal 0.
+
+</ul>
+
+I'll leave the rest of the timing diagram as an exercise.  In case you want a 
+hint, click 
+<a href="./img/mod10CounterTimingSolved.png">here</a> for the solution.
+
+<h3>Circuit Diagram</h3>
+After completing the timing diagram, see if you can figure out how to construct
+the counter using the arrangement of devices show in the picture below.  
+<ul>
+<li>You may assume that all these elements are able to handle 4-bit values, just 
+make sure to draw a hash through these signals with a "4" next to it.  
+<li>You should not draw additional lines in this picture, instead labeled the wires
+ with names and use these names to create logical connections between signals with 
+the same name.
+<li>Draw a border around your circuit.  The only signals that should cross
+the boundary are those which are part of the entity description.
+</ul>
+
+<br><img src="./img/mod10Architecture.bmp"><br><br>
+
+<h3>VHDL</h3>
+
+As we know, the VHDL description of a circuit consists of two components,
+the entity and the architecture.  The entity is pretty simple as it consists
+of those signals in the state table description given.  The direction of the 
+signals should be straight forward after you look at the architecture 
+diagram above.
+<br><br>
+
+The architecture requires instantiating an adder, multiplexer, comparator and
+register.  Then when/else statement requires from thought to make sure that
+you cover all cases and cover them correctly.  The source code for my 
+implementation of the mod10Counter is given at the top of this lecture note.
+Beyond the logic, which can be tricky, there is nothing special in the VHDL
+that we haven't already covered.  That said, you are new to VHDL so I expect 
+spending a few minutes to determine the relationship between the signal 
+names in the VHDL code and the architectural diagram above would be well 
+spent.
+
+</html>

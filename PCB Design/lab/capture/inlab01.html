@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+	<title>Elements of PCB Design</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 302 - Elements of PCB Design">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../../index.html">EENG 302</a>
+                    <ul class = "nav">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="./lab01.html">Lab 1</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+<center>
+<h1>EENG 302</h1>
+Lab 01 - Eagle Schematic
+</center>
+
+<h2>EAGLE CAD Tutorial</h2>
+
+General PCB concepts
+•	25.4 mm = 1 in
+•	100 mils = 1 in
+•	Europeans generally use commas for decimal points
+•	Europeans almost always use metric measurements
+
+Schematic best practices
+•	Labeled all parts with a designator and all discrete elements and ICs with values.
+•	Position components from inputs on the left to outputs on the right
+
+Layout best practices
+•	Position circuit elements on 50 mil grid
+•	Route wires on 25 mil grid
+ 
+
+<h3>Schematic Capture with Eagle 6.4</h3>
+
+<ul>
+<li>Launch EAGLE 6.4
+<li>Click Options -> Directories…
+<li>In the Project box, enter P:/ and then click Ok
+<li>Open the Projects folder by clicking on the triangle to its left, and navigate until you find the schematic (.sch file) and layout (.brd) for the regulator.
+<li>Double click on regulator.sch to open the schematic of the regulator.  You will add a part.
+<li>Use the mouse wheel to zoom-in (scroll up) and zoom-out (scroll down) of the schematic.
+<li>Practice moving around the schematic by zooming out, targeting a part with the mouse, and then zooming in.
+Add and delete a part
+<li>Click add part tool (the and gate symbol in the toolbar).
+<li>Search for *317* (see add window below).
+<li>Left click on the last regulator, the LM317TS
+<li>Notice that when you do this a preview of the schematic symbol and layout footprint appear.
+
+</ul>
+ 
+
+•	Click OK and place the LM317 on your schematic at the location indicated.
+•	Press escape twice to exit add part mode.
+•	Click on the move tool (“+” shaped symbol in left toolbar).
+•	Click on the LM317 part handle.  The part handle is denoted with a “+” in the center of the part.
+•	Move the part.  Note the wires connecting to the LM317 should “rubber-band” along with the part.
+•	While holding the part, right mouse click to rotate the part 90 degrees.
+•	Press Escape to undo the move, returning the part to its original place.
+•	Click on the delete icon (“x” symbol in left toolbar).
+•	Click on the LM317 part handle.
+•	Undo the delete by pressing Ctrl-z (undo).
+
+Add a wire, display net name and rename a net
+•	Click on the draw line tool (line symbol in toolbar).
+•	Click on the upper terminal of JP2.
+•	Move the mouse left and click to draw a wire.  Press Escape to exit draw line mode.
+•	Click on the display net name tool (ABC symbol in left toolbar).
+•	Click on the wire just drawn.
+•	Click above the wire to place the net name.  This net will have a generic name like N$3
+•	Click on the name tool (R2 symbol next to add value in left toolbar).
+•	Click on the part handle for the net name
+•	Change the name to V+.  
+•	In the pop-up confirm that you want to connect this net to V+
+
+
+Add and display information about a part
+•	Click the Add Value tool (10W symbol in the left toolbar).
+•	Click on the resistor R3 part handle.
+•	Add the value of 220.  Units are assumed to be ohms.
+•	Click on the information tool (“I” symbol in left toolbar).
+•	Click on the part handle for either 1N4004 diode.  Write down the package-name
+•	Google “Wikipedia <package-name>”
+•	Record the dimensions for this package in the table below.
+ 
+Note the 
+D0-41 package	mm (average)	Mils (average)
+A		
+B		
+C		
+D		
+F		
+
+Generate a parts list
+•	Click the run ULP icon (ULP symbol in the top toolbar).
+•	In the Run pop-up window click on bom.ulp and then Open.
+•	Select the “Values” radio button in the “list type’ area.
+•	 Select the “CSV” radio button in the Output format area.
+•	Click on Save… and name the file bom.csv and save it in your project directory.
+
+Add a library
+•	Google “Sparkfun EAGLE library”
+•	Download and unzip
+•	Move into \lbr directory of EAGLE
+•	In EAGLE schematic editor
+o	Library -> Use 
+o	Multi-select libraries, click open
+•	Add parts from added library
+
+ 
+Bill of Materials (BOM)
+Every part added to the schematic must be accounted for in the BOM.  A BOM provides great documentation should you every need to go back and modify a PCB or use parts from it in another design.  We will maintain our BOMs in an excel spreadsheet with the following format.
+Description	Manf	Manf Part #	DigiKey Part #	Foot	Unit Cost	Per Qty	Per Cost
+LM317	Fairchild	LM317T	LM317TFS-ND	TO220	$0.67	1	$0.67
+2.2k	Stackpole	CF14JT220R	CF14JT220RCT-ND	0.25"	$0.10	2	$0.20
+Power Jack	CUI	PJ-002AH	CP-002AH-ND	right angle	$1.16	1	$1.16
+1N4004 diode	Diodes Inc	1N4004-T	1N4004DICT-ND	DO-41	$0.13	2	$0.26
+Trimmer 5K 	Murata	PV37W502C01B00	490-2983-ND	custom	$1.45	1	$1.45
+470uF Electrolytic	Panasonic	ECA-1HHG471	P5574-ND	E5-10,5	$0.76	2	$1.52
+Slide switch	E-switch	EG1218	EG1903-ND	custom	$0.58	1	$0.58
+Green LED							
+
+Verify parts list
+•	Open your bom.csv file.  If excel does not display the contents a proper column format
+o	Select column A
+o	Select Data -> Text To Columns
+o	Make sure the Delimited radio button is selected, click Next
+o	Select the check box next to Comma
+o	Select the check box next to Other and put a “;” in the text box
+o	Select Finish
+o	Replace the contents of the destination cells.
+•	Open the bom.xlsx file provided as part of the lab.
+•	Select the entire bom.csv file (click triangle in upper left of spreadsheet) and copy it.
+•	Paste into the bom.csv tab of the bom.xlsx file.
+•	Identify the two missing parts on my BOM listed in the “simple regulator” tab.
+
+Find parts on DigiKey
+In the previous steps you found that my bill of materials was missing jumpers (you can easily get these from the stock room) and a 5mm (green) LED.  Let look at how to find parts on DigiKey.
+•	Open a browser and navigate to www.digikey.com
+•	In the “Part Number/Keyword” search text box, enter “LED”
+•	On the Electronic Components page, 
+o	scroll down to Optoelectronics 
+o	select the link for LED Indication - Discrete (20312 items)
+•	In the component selector page
+o	Select Mounting Type = “Through Hole” and click “Apply Filters”
+o	Select Color = “Green” and click “Apply Filters”
+o	Select Supplier Device Package = “T-1  ¾” and “T-1 ¾ (5mm)” and click “Apply Filters”
+o	Sort by Quantity Available by clicking on its down arrow.
+o	Click on the hyperlink for the most popular Digi-Key Part number
+o	Use this information to fill in the BOM for the green LED
+
+ 
+Layout with Eagle 6.4
+We now return to the design of the PCB by converting the schematic to a layout.  Close out your excel spreadsheets and return to the schematic. Click the “switch to layout” tool (chip symbol in top toolbar).  I’ve started you off with a board outline and some rearrangement of the parts shown below.
+
+You should note that the footprints of the components placed on your schematic appear in the layout connected by airwires.  Airwires are logical connections that have yet to be physically routed.  Generating a layout proceeds by first placing your components, pouring power and ground planes, and then routing signals.  
+
+ 
+
+Placing components
+Perhaps the single most important aspect of a good PCB layout is proper placement of components.  Good placement will eliminate vias, reduce wire length, and make it easy to work with the board.  As a general rule, put connected components next to one another and orientate parts to reduce the number of crossing airwires. Your components will be placed on the grid shown in the upper left corner of the layout screen.  You can change the grid resolution by selecting View -> Grid and changing the size.
+
+•	Select the move tool (“+” symbol in the left toolbar).
+•	Click on a part handle.
+•	Move the mouse to move the part and right mouse click to rotate the part.
+•	Select the ratsnest tool (“X” symbol in the left toolbar) to redraw the air-wires.
+
+Move all parts inside the board outline.  The LED should be near the on/off switch and both should be far away from the voltage regulator (because it gets really hot).  The power jack must and output power headers must be on outside edges.  While doing this, it’s a good idea to verify that your parts footprints are the correct size.  Use the diode measurements you made earlier and verify that you have the correct footprint.
+
+ 
+Generating copper pours
+There are a lot of Power and Ground lines that need to be run on this layout and having the “excess” copper on the top and bottom layers utilized to route these signals proves to be useful in many ways.  A generally accepted standard is to put ground in the bottom layer and power in the top layer.
+•	Select layer “16 Bottom” from the layer tool (pull down in upper toolbar).
+•	Select wire-bend 0 (90 degree corner symbol in upper toolbar).
+•	Select the Polygon tool (hatched polygon symbol in left toolbar).
+•	Point to the origin click, go to the upper right corner, click, then back to the origin and click.
+•	Select the name tool (R2 symbol in left toolbar).
+•	Click on the blue dashed outline and name it Gnd, click OK.
+•	Click on the ratsnest tool (“X” symbol in left toolbar) to “pour’ the copper into your polygon.
+•	Select the rip-up tool  (airwire symbol in left toolbar) .
+•	Click on copper pour outline to make the pour disappear.  This is useful to see wires and does not remove the pour, it just makes it invisible until you click on the ratsnest tool.
+•	You will notice that with the pour, all the ground wires are gone as they are connected to the bottom layer.
+•	You will notice that the pour stop 40mils from the board outline (dimension layer 20).  You can edit this using the  Tools -> DRC.  Select the Distance tab and edit the Copper/Dimension value.
+•	Pour a power plane on the top layer.
+
+Routing signals
+Now what looked like a pretty complex layout has been reduced to a handful of airwires.  Even better, we should be able to route all them on the top layer.  It’s always best to route all the signals on the top layer because then the return currents can flow directly beneath their traces minimizing EMF effects.  
+•	Select the route tool (routed wire symbol in left toolbar) .
+•	Select layer “1 Top” from the layer tool (pull down in upper toolbar).
+•	Select wire-bend 1 (45 degree bend symbol in upper toolbar).
+•	Normally you should set wire width to 12 mils, but since we are routing power lines, we’ll go with 56 mil traces to minimize resistive losses.
+•	Remove the copper pour by selecting the rip-up tool and removing the top and bottom pour.
+•	Connect terminals with wire
+o	Click on the terminal end of an airwire.
+o	Move the mouse and watch the line bend to follow.
+o	Click at an intermediate point to tack-down that segment of the wire.
+o	Continue the route to get to the other terminal of the airwire.
+•	Select the rip-up tool (airwire symbol in left toolbar).
+•	Click on a red wire of your route to remove that section.
+•	Click on an airwire segment of a route to rip-up the entire route.
+•	Create a via on a route
+o	If using our PCB cutter, change the via diameter to at least 50mils, 70 is preferable.
+o	Select the route tool (routed wire symbol in left toolbar) .
+o	Click on a terminal end of an airwire
+o	Move to an intermediate point, hold shift and left mouse click 
+o	Change to the bottom route layer (16 bottom).
+o	Continue routing.
+
+
+
+Niceties
+•	Use the smash tool (just below the name tool) to separate the name and value of a component from the component.  This allows component text to be places more logically.
+•	Use the information tool to change the characteristics of objects.
+o	Position of components and text
+o	Width of traces
+o	Size and position of text
+•	View -> Grid to change the size of the layout grid
+
+Post Production
+When you really feel that you have done everything that you can possibly want to on the board, it’s time to generate the production data that you will send to the fabrication house.
+•	Create a directory called “Gerber” somewhere in your project
+•	Click the CAM processing tool.
+•	In the CAM processor pop-up select File -> Open -> Job
+•	Navigate to your SilverCircuits.cam file and click OK.  The CAM processor window will now have many tabs.
+•	Click on file and navigate to your Gerber directory, click OK.
+•	Do the same for everyone of the tabs.
+•	When done click Process Job, save the file if necessary.
+
+Extension	Meaning	Layers	Useful?
+.sol	Solder side (bottom)	16, 17, 18	Yes
+.cmp	Component side (top)	1, 17, 18	Yes
+.dim	Dimension (board outline)	20	Yes
+.drd	Drill file	44, 45	Yes
+.dri	???Unknown???		No
+.gpi	???Unknown???		No
+.plc	Silk screen component side (top)	20, 21, 25	Yes
+.slc	Silk screen solder (Bottom)	20, 22, 26	No
+.stc	Solder mask component (top)	29	Yes
+.sts	Solder mask solder (bottom)	30	Yes
+
+
+ 
+
+
+Like a Boss
+A checklist of items that will help you avoid traps for new players.
+•	Minimize the number of distinct hole sizes.
+•	Silk screen
+o	Indicate part polarity
+o	Add On/Off to switches
+o	What the LED indicates
+•	Use both sides of the board for components.  SMTs can often be put on the bottom.
+•	Add mounting holes.
+•	Put switches and plugs on the perimeter for easier access
+•	Align similar parts horizontally or vertically.
+•	Label all parts with the value and name.
+•	Always use a ground plane unless you are building a single-sided board.
+•	Avoid traces on bottom.
+•	Avoid 90 degree turns in traces.
+•	Avoid using non-standard wire orientations.
+•	Add a ground –connect to the board, your oscilloscope will appreciate it.
+•	Add header break-outs for an MCU if space allows, you never know when you’ll need that extra pin.
+
+
+
+<html>
+

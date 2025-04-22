@@ -1,0 +1,121 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture09.html">&ltPrev</a></li>
+                        <li><a href="./lecture11.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>10</td></tr>
+<tr><td>Class Objectives</td>	<td>Understand how the waveforms 
+produced by a VGA output generate the image shown on the screen.</td></tr>
+</table>
+
+
+
+<h2>Lab 02</h2>
+For lab #2 you will use the Vivado tools to write the VHDL code for 
+an vgaToHdmiConverter component.  We will use this component later 
+to display data captured by a high speed ADC.
+
+
+<h2>VGA signals</h2>
+The video graphics adapter (VGA) standard displays images by sweeping
+a beam across the computer screen from left to right in a row.  When the
+beam reaches the right side of the screen 
+
+
+relies on 5 signals
+to draw images on a VGA compatiable display:
+<ul>	<li>red - a 8-bit value that sets the intensity of red at the
+	current pixel location.  The larger the value, the more intense
+	the red produced.
+	<li>green - a 8-bit value that sets the intensity of green at the
+	current pixel location.  The larger the value, the more intense
+	the green produced.
+	<li>blue - a 8-bit value that sets the intensity of blue at the
+	current pixel location.  The larger the value, the more intense
+	the blue produced.
+	<li>horziontal synch - When the pi
+	<li>vertical synch
+</ul>
+
+<h2>HD Video Overview</h2>
+The HD Video standard is an interface protocol used to transmit 
+video data to a screen.  The HD Video protocol uses a scanning method 
+to project an image on the screen.  Starting in the top-left of the 
+screen, the monitor will progressively move from left to right, top 
+to bottom to display each pixel.  The following signals must be sent 
+to a HDMI equiped monitor in order to display an image.
+
+<ol>
+<li><code>red</code>, <code>green</code>, <code>blue</code> - three 
+separate 8-bit signals indicating the amount of each color 
+to display in the current pixel.  These signals are sometimes 
+abbreviated as RGB.</li>
+<li><code>h_sync</code> - Horizontal synchronization signal that tells 
+the screen to start writing pixels to the next line</li>
+<li><code>v_sync</code> - Vertical synchronization signal that tells 
+the screen that the current video frame is completed.  After receiving
+a vertical synch signal, the screen then 
+starts writing pixels to the top-left of the screen.</li>
+</ol>
+
+Both horziontal and vertical orientations contain four unique states: 
+<code>front_porch</code>, <code>sync_pulse</code>, 
+<code>back_porch</code>, and <code>active_video</code>.   Incoming pixel 
+data (through the RGB channels) is only displayed during the active_video 
+state of the synchronization signals.<br><br>
+
+The h_cnt value will count up from 0 to 1650 at 74.25MHz. The <code>pixel_clk</code>
+carries this clock signal and is generated using the video_clk module.  You should
+use the h_cnt counter's value to generate the h_synch and h_active signals using
+simple range comparisions.  You can generate the pixelHorz value as h_cnt minus 
+the width of the front_porch + synch + back_porch in the active video area. 
+
+<br><img src="./img/hSynchSignals.jpg"><br><br>
+
+<strong>Figure 1</strong>: The <code>h_sync</code> signal contains four 
+states.  Pixel data is only displayed on the monitor during the 
+active_video state.  During all other state, the RGB values must be 
+&quot;0&quot;.<br><br>
+
+The v_cnt value will count up from 0 to 750.  The v_cnt value is incremented
+every time a row of video is drawn.  So v_cnt counts up much more slowly than
+h_cnt.  You should
+use the v_cnt counter's value to generate the v_synch and v_active signals using
+simple range comparisions.  You can generate the pixelVert value as v_cnt minus 
+the width of the front_porch + synch + back_porch in the active video area. 
+
+
+<br><img src="./img/vSynchSignals.jpg"><br><br>
+
+<strong>Figure 2</strong>: The <code>v_sync</code> signal is similar 
+to <code>h_sync</code>, but instead of counting based on 
+<code>pixel_clk</code>, the states are based on the number of iterations 
+of the <code>h_sync</code> signal.  Pixel data is only displayed on the 
+monitor during the active_video state.  During all other state, the RGB 
+values must be &quot;0&quot;.<br><br>
+
+
+</html>

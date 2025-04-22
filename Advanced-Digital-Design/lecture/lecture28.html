@@ -1,0 +1,56 @@
+<head>
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 498 - Lecture Notes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 498 - Embedded Systems II">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+    </head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 498</a>
+                    <ul class="nav pull-right">
+                        <li><a href="./lecture27.html">&ltPrev</a></li>
+                        <li><a href="./lecture32.html">Next&gt</a></li>
+                    </ul>
+
+                    </ul>
+                </div>
+            </div>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr><td>Lecture</td>	<td>28</td></tr>
+<tr><td>Handout</td>	<td><a href="../handout/acquireToHdmiControl.pdf">acquireToHdmiControl.pdf</a> 
+<tr><td>Class Objectives</td>	<td>Have a firm understanding of the 
+control word needed to realize the acquireToHDMI component.
+</table>
+
+
+<h2>Datapath</h2>
+You have already seen the datapath.  In this lecture, we will investigate how to 
+get this datapath to do all the functions required of the acquireToHdmi component.
+<br><img src="./img/acquireToHdmi_datapath.PNG"><br><br>
+Let's spend a few minutes talking about the functionality we want from this
+datapath as it will make the organization of the control unit more clear.<br><br>
+
+
+
+<h2>Control Word Table</h2>
+The control word table (CWT) has a column for each control signal in the datapath
+and the external world.  There are a lot of such signals, they are included in the
+handout.  You will find an Excel file in the lab assignment which is very useful.
+
+
+<h2>Control</h2>
+<br><img src="./img/acquireToHdmi_control.PNG"><br><br>
+
+The difficult part of this table is deciding what to do at the Wait For End of Sample Interval.
+
+</html>
