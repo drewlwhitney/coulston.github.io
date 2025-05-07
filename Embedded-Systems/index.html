@@ -10,16 +10,15 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 
-<nav class="navbar navbar-default">
+
+<nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
       <a class="navbar-brand" href="href="https://coulston.github.io/">Git Home</a>
     </div>
     <ul class="nav navbar-nav">
       <li class="active"><a href="#">EENG 383</a></li>
-      <li><a href="#">Page 1</a></li>
-
-	    
+    
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Lecture<b class="caret"></b></a>		      
                 <ul class="dropdown-menu">
@@ -109,10 +108,10 @@
   </div>
 </nav>
 
-<br><br><br>
+<br><br>
     <div class="container">
       <!--  Carousel -->
-      <div id="this-carousel-id" class="carousel slide">
+      <div id="this-carousel-id" class="carousel slide" data-ride="carousel">>
         <div class="carousel-inner">
 
 	<!------- Carousel Item ------->
@@ -302,14 +301,20 @@
         </div><!-- .carousel-inner -->
         <!--  next and previous controls here
               href values must reference the id for this carousel -->
-          <a class="carousel-control left" href="#this-carousel-id" data-slide="prev">&lsaquo;</a>
-          <a class="carousel-control right" href="#this-carousel-id" data-slide="next">&rsaquo;</a>
+          <a class="carousel-control left" href="#this-carousel-id" data-slide="prev">
+	          <span class="glyphicon glyphicon-chevron-left"></span>
+    		  <span class="sr-only">Previous</span> </a>
+          <a class="carousel-control right" href="#this-carousel-id" data-slide="next">
+		<span class="glyphicon glyphicon-chevron-right"></span>
+    		<span class="sr-only">Next</span></a>
+	      
       </div><!-- .carousel -->
       <!-- end carousel -->
 
       <!-- Example row of columns -->
       <div class="row">
-        <div class="span4">
+	<div class="col-sm-4">
+        
 
           <h2>Technical Documents</h2>
            <p>This course is very technology-centric and as such requires 
@@ -324,23 +329,24 @@
 		</p>
 
 	<dir>
-<a href="dev21schematic.pdf">Dev'21 Schematic</a><br>
-<a href="dev21layout.pdf">Dev'21 Layout</a><br>
-<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/50002053G.pdf">MPLAB® XC8 C Compiler User’s Guide</a><br>
-<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/40001412G.pdf">PIC18(L)F2X/4XK22 Data Sheet</a><br>
+		<a href="dev21schematic.pdf">Dev'21 Schematic</a><br>
+		<a href="dev21layout.pdf">Dev'21 Layout</a><br>
+		<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/50002053G.pdf">MPLAB® XC8 C Compiler User’s Guide</a><br>
+		<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/40001412G.pdf">PIC18(L)F2X/4XK22 Data Sheet</a><br>
 	</dir>
+		
 	<h2>RPi</h2>
 	<p>Your development board was designed to interface to a
 	Raspberry Pi (RPi).  You can use this interface to web-enable 
 	your projects.  The following is useful information to 
 	get this interface working.</p>
-<dir>
+	<dir>
 		<a href="./rpi/rpiConfig.html">Rpi basic configuration</a><br>
 		<a href="./rpi/rpi.html">RPi web configuration</a><br>
-</dir>
-
+	</dir>
         </div>
-        <div class="span4">
+
+	<div class="col-sm-4">	      
           <h2>Software</h2>
            <p>This class requires a wide varity of software packages to
 		develop and debug software for the PIC microcontroller as
@@ -349,24 +355,25 @@
 		"Downloads" tab and select the operating system of the
 		target computer.</p>
 
-<dir>
-<a href="./img/mplabSmallScreenFix.bmp">Fix the small MPLab font on your laptop</a><br>
-<a href="http://www.microchip.com/mplab/mplab-x-ide">MPLAB® X IDE (Download tab -> choose your operating system)</a><br>
-<a href="http://www.microchip.com/mplab/compilers">MPLAB® XC8 Compiler (Download tab, choose latest revision and your operating system)</a><br>
-<a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">Putty</a><br>
-<a href="./COMSniffer.exe">Brandon's COM port finder</a>
-</dir>
+	<dir>
+		<a href="./img/mplabSmallScreenFix.bmp">Fix the small MPLab font on your laptop</a><br>
+		<a href="http://www.microchip.com/mplab/mplab-x-ide">MPLAB® X IDE (Download tab -> choose your operating system)</a><br>
+		<a href="http://www.microchip.com/mplab/compilers">MPLAB® XC8 Compiler (Download tab, choose latest revision and your operating system)</a><br>
+		<a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">Putty</a><br>
+		<a href="./COMSniffer.exe">Brandon's COM port finder</a>
+	</dir>
+		
         <h2>Other things</h2>
 	Here are some links that are of general interest.
 	</h2>
 	<dir>
 		<a href="https://www.nasa.gov/offices/oce/functions/lessons/index.html">NASA lessons learned</a><br>
-	<a href="https://learn.sparkfun.com/tutorials/gas-pump-skimmers">Credit card skimmer scam</a><br>
-	<a href="https://www.americanscientist.org/article/moonshot-computing">Apollo guidance computer</a>
+		<a href="https://learn.sparkfun.com/tutorials/gas-pump-skimmers">Credit card skimmer scam</a><br>
+		<a href="https://www.americanscientist.org/article/moonshot-computing">Apollo guidance computer</a>
 	</dir>
-
        </div>
-        <div class="span4">
+	      
+        <div class="col-sm-4">
 
 	<h2>MAC users</h2>
 	<dir>
@@ -374,11 +381,10 @@
 	can make using a MAC in our class a challenge.  Here are some links, 
 	provided by current and former students, that may help you succeed.
 	<dir>
-<a href="./macInstall.html">Installation hints for MAC users</a><br>
-<a href="./linuxInstall.html">Installation hints for Linux users</a><br>
-<a href="./configuratorProblems.html">Problems with MCC?</a><br>
-<a href="https://github.com/projectgus/hairless-midiserial/files/4476818/hairless-midiserial.app.64bit.zip">Hairless MIDI for MAC</a><br>
-
+		<a href="./macInstall.html">Installation hints for MAC users</a><br>
+		<a href="./linuxInstall.html">Installation hints for Linux users</a><br>
+		<a href="./configuratorProblems.html">Problems with MCC?</a><br>
+		<a href="https://github.com/projectgus/hairless-midiserial/files/4476818/hairless-midiserial.app.64bit.zip">Hairless MIDI for MAC</a><br>
 	</dir>	
 	</dir>	
 
