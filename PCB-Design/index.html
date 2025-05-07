@@ -1,35 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>EENG 393 | FE ICE Practium</title>
-    <meta name="viewport" content="user-scalable=no">
-    <meta name="description" content="Class information for EENG 393">
-    <meta name="author" content="Chris Coulston">
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
-    <style type="./bootstrap/text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-    </style>
+<head>
+   <title>EENG 393 - PCB Design</title>
+   <meta name="description" content="EENG 393 - PCB Design">
+  <meta name="author" content="Chris Coulston"
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
 
-    <link href="./bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-  </head>
 
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="https://coulston.github.io">Git Home</a>
-          <div class="nav-collapse">
-            <ul class="nav">	      
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="https://coulston.github.io/">Git Home</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="#">EENG 393</a></li>      
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Lab<b class="caret"></b></a>
                 <ul class="dropdown-menu">
@@ -44,21 +32,15 @@
                   <li><a href="./lab/lab09/lab09.html">Lab 9</a></li>
                   <li><a href="./lab/lab10/lab10.html">Lab 10</a></li>
                   <li><a href="./lab/lab11/lab11.html">Lab 11</a></li>
-<!---
                   <li><a href="./lab/lab12/lab12.html">Lab 12</a></li>
---->
                   <li><a href="./lab/lab13/lab13.html">Lab 13</a></li>
                 </ul>
               </li><!-- dropdown -->
+    </ul>
+  </div>
+</nav>
 
-
-            </ul><!-- /.nav -->
-          </div><!--/.nav-collapse -->
-        </div><!-- /.container -->
-      </div><!-- /.navbar-inner -->
-    </div><!-- /.navbar -->
-
-<br><br><br>
+<br>
     <div class="container">
       <!--  Carousel -->
       <div id="this-carousel-id" class="carousel slide">
@@ -108,14 +90,18 @@
         </div><!-- .carousel-inner -->
         <!--  next and previous controls here
               href values must reference the id for this carousel -->
-          <a class="carousel-control left" href="#this-carousel-id" data-slide="prev">&lsaquo;</a>
-          <a class="carousel-control right" href="#this-carousel-id" data-slide="next">&rsaquo;</a>
+          <a class="carousel-control left" href="#this-carousel-id" data-slide="prev">
+		  <span class="glyphicon glyphicon-chevron-left"></span>
+    		  <span class="sr-only">Previous</span> </a>
+          <a class="carousel-control right" href="#this-carousel-id" data-slide="next">
+		  <span class="glyphicon glyphicon-chevron-right"></span>
+    		<span class="sr-only">Next</span></a>
       </div><!-- .carousel -->
       <!-- end carousel -->
 
       <!-- Example row of columns -->
       <div class="row">
-        <div class="span4">
+        <div class="col-sm-4">
 
 	<h2>Class supplies</h2>
 	<p>The following is a list of things that you will need through
@@ -143,7 +129,7 @@
 
         </div>
 
-        <div class="span4">
+        <div class="col-sm-4">
 	<h2>Practical stuff</h2>
 	<p>There are a lot of individuals around the world doing great
 		things to advance the field of electrical engineering.
@@ -174,7 +160,7 @@
 
 	</div>
 
-        <div class="span4">
+        <div class="col-sm-4">
 
         <h2>Dave Jones uSupply Videos</h2>
 	The major project for this class, the uSupply, is heavily based
@@ -195,24 +181,7 @@
         </div>
       </div>
 
-      <hr>
-
     </div> <!-- /container -->
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="./bootstrap/js/jquery-1.7.2.min.js"><\/script>')</script>
-    <!-- Bootstrap jQuery plugins compiled and minified -->
-    <script src="./bootstrap/js/bootstrap.min.js"></script>
-    <script>
-      $(document).ready(function(){
-        $('.carousel').carousel({
-          interval: 4000
-        });
-      });
-    </script>
 
   </body>
 </html>
