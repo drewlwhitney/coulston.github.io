@@ -1,10 +1,12 @@
 #################################################################################
-#Simulator TCL starts in: C:/Users/Chris/AppData/Roaming/Xilinx/Vivado
-# cd C:/Users/Chris/Dropbox/Mycourses/EENG498/VHDL_fall2023/preLab01
+# The simulator TCL starts in: C:/Users/coulston/AppData/Roaming/Xilinx/Vivado
+# First step is to change directories.  Do this in the TCL command window. 
+# Note you need to replace the Windows "\" with Unix "/"
+# cd C:/Users/coulston/Dropbox/Mycourses/EENG484/VHDL_fall2025/enhancedPwm
 # source pwm_tbWaveSetup.tcl
 #################################################################################
 restart
-
+remove_wave [get_waves *]
 
 add_wave  -color green /enhancedPwm_tb/uut/clk
 
