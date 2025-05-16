@@ -1,55 +1,122 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <!----- http://themecrunch.com/2013/04/twitter-bootstrap-tutorials-tools-and-resources/---->
   <head>
     <meta charset="utf-8">
-    <title>EENG 383 | Embedded Systems</title>
-    <meta name="viewport" content="user-scalable=no">
-    <meta name="description" content="Class information for EENG 383">
-    <meta name="author" content="Chris Coulston">
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
-    <style type="./bootstrap/text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Launch page for content developed by Christopher Coulston">
+    <meta name="author" content="Christopher Coulston">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
 
-    <link href="./bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <title>Open Source Education materials</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/album/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="album.css" rel="stylesheet">
   </head>
 
-  
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/coulston">View on GitHub</a>
+    <header>
+      <div class="collapse bg-dark" id="navbarHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-7 py-4">
+              <h4 class="text-white">About</h4>
+              <p class="text-muted">These are online materials that i've developed during my tenure at Penn State and the Colorado School of Mines.  They are now available on GitHub in order to make them accessible to a larger 				auidence.</p>
+            </div>
+            <div class="col-sm-4 offset-md-1 py-4">
+              <h4 class="text-white">Contact</h4>
+              <ul class="list-unstyled">
+                <li><a href="coulston@mines.edu" class="text-white">Email me: coulston@mines.edu</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="navbar navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </header>
 
-          <h1 id="project_title">coulston.github.io</h1>
-          <h2 id="project_tagline"></h2>
+    <main role="main">
 
-        </header>
-    </div>
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h1 class="jumbotron-heading">Coulston Materials</h1>
+          <p class="lead text-muted">Click on one of the thumbnails below to go to the associated class web page.</p>
+        </div>
+      </section>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>Welcome to coulston.github.io</h3>
-        <ul>
-        <li><a href="./Embedded-Systems/index.html">Embedded Systems Website</a>  </li>
-        <li><a href="./PCB-Design/index.html">PCB Design Website</a>  </li>
-          <li><a href="./Advanced-Digital-Design/index.html">Advanced Digital Design Website</a>  </li>
-        </ul>
+      <div class="album py-5 bg-light">
+        <div class="container">
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p>Not sure what to put into the footer?</a></p>
-      </footer>
-    </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top" data-src="./img/aDevBoard.jpg" alt="Development Board">
+                <div class="card-body">
+                  <p class="card-text">Embedded Systems focuses on using microcointoller subsystems to build a series of projects.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top" data-src="./img/aDevBoard.jpg" alt="Card image cap">
+                <div class="card-body">
+                  <p class="card-text">PCB design focuses on using schematic capture and layout tools to produce a poswer supply.</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                    </div>
+                    <small class="text-muted">9 mins</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&bg=55595c&fg=eceeef&text=EENG 484" alt="Card image cap">
+                <div class="card-body">
+                  <p class="card-text">Advanced Digital Design focuses on using the Xilinx toolchain to build a digital storage oscilliscope.">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                    </div>
+                    <small class="text-muted">9 mins</small>
+                  </div>
+                </div>
+              </div>
+            </div>
 
     
+    </main>
 
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+        </p>
+        <p>Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>
+        <p>New to Bootstrap? <a href="../../">Visit the homepage</a> or read our <a href="../../getting-started/">getting started guide</a>.</p>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/vendor/holder.min.js"></script>
   </body>
 </html>
