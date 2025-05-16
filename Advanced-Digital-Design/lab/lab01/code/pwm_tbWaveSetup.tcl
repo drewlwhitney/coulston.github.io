@@ -9,13 +9,18 @@ restart
 remove_wave [get_waves *]
 
 add_wave  -color green /enhancedPwm_tb/uut/clk
+add_wave  -color green /enhancedPwm_tb/uut/resetn
 
 add_wave  -color blue /enhancedPwm_tb/uut/enb
 
+add_wave   -color gold	-radix unsigned /enhancedPwm_tb/uut/pwmSignal
 add_wave   -color gold	-radix unsigned /enhancedPwm_tb/uut/rollOver
 
 add_wave   -color purple	-radix unsigned /enhancedPwm_tb/uut/PwmCount
+add_wave   -color purple	-radix unsigned /enhancedPwm_tb/uut/dutyCycle
 
+add_wave   -color red			/enhancedPwm_tb/uut/counterEqualPeriod
+add_wave   -color red			/enhancedPwm_tb/uut/DutyCycleGreaterCounter
 add_wave   -color red			/enhancedPwm_tb/uut/cw
 
 
