@@ -16,20 +16,18 @@
     <div class="navbar-header">
       <a class="navbar-brand" href="https://github.com/coulston/coulston.github.io">Git Home</a>
     </div>
-    <ul class="nav navbar-nav">
-    
-	<div class="dropdown">
-	  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	    Classes
-	  </button>
-	  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-		    <a class="dropdown-item" href="./Embedded-Systems/index.html">Embedded Systems</a>
-		    <a class="dropdown-item" href="./PCB-Design/index.html">PCB Design</a>
-		    <a class="dropdown-item" href="./Advanced-Digital-Design/index.html">Advanced Digital Design</a>
-	  </div>
-	</div>
-
-    </ul>
+        <div class="nav-collapse">
+            <ul class="nav">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+		    <li><a class="dropdown-item" href="./Embedded-Systems/index.html">Embedded Systems</a></li>
+		    <li><a class="dropdown-item" href="./PCB-Design/index.html">PCB Design</a></li>
+		    <li><a class="dropdown-item" href="./Advanced-Digital-Design/index.html">Advanced Digital Design</a></li>
+                </ul>
+              </li><!-- dropdown -->
+            </ul><!-- /.nav -->
+          </div><!--/.nav-collapse -->
   </div>
 </nav>
 
@@ -38,14 +36,14 @@
 
       <!-- Example row of columns -->
       <div class="row">
-        <div class="col">
+        <div class="col-md-4">
 		<a href="./Embedded-Systems/index.html">
 			<h2>Embedded Systems</h2>
 			<img src="./img/embSystems.jpg"> 
 		</a>
         </div>
 
-        <div class="col">
+        <div class="col-md-4">
 		<h2>PCB Design</h2>
 		<a href="./PCB-Design/index.html">
 			<img src="./img/pcbDesign.jpg"> 
@@ -53,7 +51,7 @@
 
 	</div>
 
-        <div class="col">
+        <div class="col-md-4">
 		<h2>Advanced Digital Design</h2>
 		<a href="./Advanced-Digital-Design/index.html">
 			<img src="./img/advDigitalDesign.jpg"> 
