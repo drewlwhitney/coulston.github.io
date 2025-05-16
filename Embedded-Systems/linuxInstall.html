@@ -49,15 +49,31 @@ them.  Support your fellow and future Linux users.  That said, thanks to
 Connor for providing these.
 <br><br>
 
+<h2>Preliminaries</h2>
+Make sure you have the following packages installed
+<ul>
+<li>tar
+<li>bash
+</ul>
+You should also have the permissions to run files as root.
 
 These instillation instructions for MPLAB and XC8 were used to install the
-software on a Debian based system. The only issue is that the installer 
-doesn't create a launcher, so you will have to make one yourself.  Follow
-the linked guide below for that. One tricky part is finding the 
-actual application in their file folders - it is
-<font face="courier">
-/microchip/mplabx/v5.25/mplab_platform/bin/mplab_ide
-</font>
+software on a Fedora Linux system using the KDE Plasma Desktop environment.
+Download the Linux version of MPLAB X IDE from the following link:
+<a href="https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide#tabs">
+	https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide#tabs</a>
+<br><br>
+
+Then you need to extract the archive file, which can be done with the
+following command:
+<pre>
+  $ tar -xvf MPLABX-v*-linux-installer.tar
+</pre>
+This uses a wildcard to ignore the version of MPLAB you are using.
+You will then need to run the installer as root (using sudo as necessary):
+<pre>
+  # ./MPLABX-v*-linux-installer.sh
+</pre>
 
 These links are for the guides:
 <ul>
