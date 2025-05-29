@@ -18,8 +18,8 @@
 // assignment, course failure and a report to the Academic Dishonesty
 // Board.
 //*****************************************************************
-#include "mcc_generated_files/mcc.h"
-#pragma warning disable 520     // warning: (520) function "xyz" is never called  
+#include "mcc_generated_files/system/system.h"
+#pragma warning disable 520     // warning: (520) function "xyz" is never called
 #pragma warning disable 1498    // fputc.c:16:: warning: (1498) pointer (unknown)
 
 #define SONG_LENGTH 3
@@ -40,15 +40,15 @@ void main(void) {
 
     SYSTEM_Initialize();
 
-    // Not necessary, but this delay allows the baud rate generator to 
+    // Not necessary, but this delay allows the baud rate generator to
     // stablize before printing the splash screen on reset. If you are going to
     // do this, then make sure to put delay BEFORE enabling TMR interrupt.
-    TMR1_WriteTimer(0x0000);
+    TMR1_CounterSet(0x0000);
     PIR1bits.TMR1IF = 0;
     while (PIR1bits.TMR1IF == 0);
 
-    TMR1_SetInterruptHandler(myTMR1ISR);
-    INTERRUPT_GlobalInterruptEnable(); // ISR not working? - you probably 
+    TMR1_OverflowCallbackRegister(myTMR1ISR);
+    INTERRUPT_GlobalInterruptEnable(); // ISR not working? - you probably
     INTERRUPT_PeripheralInterruptEnable(); // forgot to add these 2 lines
 
     printf("inLab 04\r\n");
@@ -60,12 +60,12 @@ void main(void) {
 
     for (;;) {
 
-        if (EUSART1_DataReady) { // wait for incoming data on USART
+        if (EUSART1_IsRxReady()) { // wait for incoming data on USART
             cmd = EUSART1_Read();
             switch (cmd) { // and do what it tells you to do
                 case '?':
                     printf("------------------------------\r\n");
-                    printf("        TMR1 = 0x%04x\r\n", TMR1_ReadTimer());
+                    printf("        TMR1 = 0x%04x\r\n", TMR1_CounterGet());
                     printf("------------------------------\r\n");
                     printf("?: Help menu\r\n");
                     printf("o: k\r\n");
@@ -80,7 +80,7 @@ void main(void) {
 
                     //--------------------------------------------
                     // Start playing note
-                    //--------------------------------------------                                          
+                    //--------------------------------------------
                 case 'n':
                     printf("Start playing note.\r\n");
                     playNote = true;
@@ -88,7 +88,7 @@ void main(void) {
 
                     //--------------------------------------------
                     // Stop playing note
-                    //--------------------------------------------                                                              
+                    //--------------------------------------------
                 case 'N':
                     printf("Stop playing note.\r\n");
                     playNote = false;
@@ -96,7 +96,7 @@ void main(void) {
 
                     //--------------------------------------------
                     // Toggle the state of the note playing
-                    //--------------------------------------------                                          
+                    //--------------------------------------------
                 case 'i':
                     printf("Playing next note.\r\n");
                     incNote = true;
@@ -104,64 +104,64 @@ void main(void) {
 
                     //--------------------------------------------
                     // Stop/Allow the ISR to print from inside the ISR
-                    //--------------------------------------------                                          
+                    //--------------------------------------------
                 case 'b':
                 case 'B':
                     if (cmd == 'b') doSomethingBad = true;
                     if (cmd == 'B') doSomethingBad = false;
                     break;
 
-                    //--------------------------------------------
-                    // Test time to print "hello world"
-                    //--------------------------------------------    
+                //--------------------------------------------
+                // Test time to print "hello world"
+                //--------------------------------------------
                 case 't':
                     INTERRUPT_GlobalInterruptDisable(); // ISR writes RC1
                     printf("Connect oscope to RC1.  Press any key when ready then press any key to resume.\r\n");
 
-                    while (!EUSART1_DataReady); // wait for key press before proceeding
+                    while (!EUSART1_IsRxReady()); // wait for key press before proceeding
                     (void) EUSART1_Read(); // read character to clear flag
                     TEST_PIN_SetHigh();
                     printf("hello world\r\n");
                     TEST_PIN_SetLow();
 
-                    while (!EUSART1_DataReady); // wait for key press before resuming
-                    (void) EUSART1_Read(); // read character to clear flag                    
-                    (void) EUSART1_Read(); // read character to clear flag 
+                    while (!EUSART1_IsRxReady()); // wait for key press before resuming
+                    (void) EUSART1_Read(); // read character to clear flag
+                    (void) EUSART1_Read(); // read character to clear flag
                     INTERRUPT_GlobalInterruptEnable();
 
                     break;
 
                     //--------------------------------------------
                     // Simple handshake with the development board
-                    //--------------------------------------------                                          
+                    //--------------------------------------------
                 case 'o':
                     printf("k.\r\n");
                     break;
 
                     //--------------------------------------------
                     // Reset the processor after clearing the terminal
-                    //--------------------------------------------                      
+                    //--------------------------------------------
                 case 'Z':
                     for (i = 0; i < 40; i++) printf("\r\n");
                     RESET();
-                    break;
+                break;
 
-                    //--------------------------------------------
-                    // Clear the terminal
-                    //--------------------------------------------                      
+                //--------------------------------------------
+                // Clear the terminal
+                //--------------------------------------------
                 case 'z':
                     for (i = 0; i < 40; i++) printf("\r\n");
                     break;
 
-                    //--------------------------------------------
-                    // If something unknown is hit, tell user
-                    //--------------------------------------------
+                //--------------------------------------------
+                // If something unknown is hit, tell user
+                //--------------------------------------------
                 default:
                     printf("Unknown key %c\r\n", cmd);
                     break;
             } // end switch
-        } // end if        
-    } // end infinite loop    
+        } // end if
+    } // end infinite loop
 } // end main
 
 
@@ -183,9 +183,9 @@ void myTMR1ISR(void) {
     }
 
     if (playNote == true) {
-        TMR1_WriteTimer(0x10000 - halfPeriod[noteIndex]);
+        TMR1_CounterSet(0x10000 - halfPeriod[noteIndex]);
         SPEAKER_PIN_Toggle();
-    } // end if 
+    } // end if
 
     // Clear the TMR1 interrupt flag
     //PIR1bits.TMR1IF = 0;
