@@ -18,8 +18,8 @@
 // assignment, course failure and a report to the Academic Dishonesty
 // Board.
 //*****************************************************************
-#include "mcc_generated_files/mcc.h"
-#pragma warning disable 520     
+#include "mcc_generated_files/system/system.h"
+#pragma warning disable 520
 #pragma warning disable 1498
 
 #define N       4       // Number of notes
@@ -44,24 +44,24 @@ void main(void) {
             while (TOP_BUTTON_GetValue() == 0) {
                 microSecondDelay(halfPeriodDelay[i]);
                 SPEAKER_PIN_Toggle();
-            } // end pressed button            
+            } // end pressed button
             i = i + 1;
             if (i == N) i = 0;
-        } // end pressed button   
+        } // end pressed button
 
         if (BOTTOM_BUTTON_GetValue() == 0) {
             while (BOTTOM_BUTTON_GetValue() == 0) {
-                TMR1_WriteTimer(0x10000 - halfPeriodTimer[i]);
+                TMR1_CounterSet(0x10000 - halfPeriodTimer[i]);
                 PIR1bits.TMR1IF = 0;
                 while (TMR1_HasOverflowOccured() == false);
                 SPEAKER_PIN_Toggle();
-            } // end pressed button            
+            } // end pressed button
             i = i + 1;
             if (i == N) i = 0;
-        } // end pressed button   
+        } // end pressed button
 
 
-    } // end infinite loop    
+    } // end infinite loop
 } // end main
 
 
@@ -96,5 +96,5 @@ void microSecondDelay(uint16_t us) {
         asm("NOP"); // 6
 
         i = i;
-    } // end for     
+    } // end for
 } // end microSecond()
