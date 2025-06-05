@@ -18,7 +18,7 @@
 // assignment, course failure and a report to the Academic Dishonesty
 // Board.
 //*****************************************************************
-#include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/system/system.h"
 #pragma warning disable 520     
 #pragma warning disable 1498
 
@@ -51,7 +51,7 @@ void main(void) {
 
         if (BOTTOM_BUTTON_GetValue() == 0) {
             while (BOTTOM_BUTTON_GetValue() == 0) {
-                TMR1_WriteTimer(0x10000 - halfPeriodTimer[i]);
+                TMR1_CounterSet(0x10000 - halfPeriodTimer[i]);
                 PIR1bits.TMR1IF = 0;
                 while (TMR1_HasOverflowOccured() == false);
                 SPEAKER_PIN_Toggle();
