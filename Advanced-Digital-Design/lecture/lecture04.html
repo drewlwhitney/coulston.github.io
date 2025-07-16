@@ -114,7 +114,7 @@ counter.
 
 
 <table class="table table-striped table-bordered table-condensed">
-<tr><td>clk		<td>reset	<td>enb		<td>synch	<td>currentCount	<td>Note
+<tr><td>clk		<td>reset	<td>enb		<td>synch	<td>count	<td>Note
 <tr><td>0,1,falling	<td>x		<td>x		<td>x		<td>Q		<td>No clk edge
 <tr><td>rising		<td>0		<td>x		<td>x		<td>0		<td>Global reset
 <tr><td>rising		<td>1		<td>0		<td>0		<td>Q		<td>Hold
@@ -127,9 +127,9 @@ is because the roll output does not depend on the clock, it's a combinational
 logic circuit.  The truth table for the roll output is given as follows.
 
 <table class="table table-striped table-bordered table-condensed">
-<tr><td>enb	<td>currentCount 	<td>roll
-<tr><td>1	<td>currentCount <9	<td>0
-<tr><td>1	<td>currentCount ==9	<td>1
+<tr><td>enb	<td>count 	<td>roll
+<tr><td>1	<td>count <9	<td>0
+<tr><td>1	<td>count ==9	<td>1
 </table>
 
 Let's now see if we can apply the ideas encoded in the state and truth tables to
@@ -145,14 +145,14 @@ the mod10Counter in our case, changes just after the positive edge of the clock.
 
 <ul>	<li>Clock edge at left edge of timing diagram.  Since reset equals 0
 	during this positive clock edge, this is a global reset.  This causes 
-	currentCount to go to 0.  This value of currentCount causes roll = 0.
+	count to go to 0.  This value of count causes roll = 0.
 
 	<li>Clock edge between time 0 and 1. reset went back to 1 and now enb
-	equal 1 and synch equals 0.  So currentCount goes to 1 just after this
+	equal 1 and synch equals 0.  So count goes to 1 just after this
 	positive edge.
 
 	<li>Next 8 clock edges. reset is still 1 enb equals 1 and synch equals 0.
-	So currentCount counts up from 1 to 9.
+	So count counts up from 1 to 9.
 
 	<li>Clock edge between time 9 and 10.  enb equals 0 and synch equals 0,
 	the currenCount does not change and stays at 9.  At the beginning of clock
@@ -162,7 +162,7 @@ the mod10Counter in our case, changes just after the positive edge of the clock.
 	brought back to logic 1.
 
 	<li>Clock edge between time 10 and 11.  enb equals 1 and synch equals 0,
-	so currentCount increments mod 10, causing currentCount to equal 0.
+	so count increments mod 10, causing count to equal 0.
 
 </ul>
 
@@ -198,9 +198,17 @@ The architecture requires instantiating an adder, multiplexer, comparator and
 register.  Then when/else statement requires from thought to make sure that
 you cover all cases and cover them correctly.  The source code for my 
 implementation of the mod10Counter is given at the top of this lecture note.
-Beyond the logic, which can be tricky, there is nothing special in the VHDL
-that we haven't already covered.  That said, you are new to VHDL so I expect 
-spending a few minutes to determine the relationship between the signal 
+Beyond the logic, which can be tricky, there is one special note that you may
+have noticed in the architectural block diagram, currentCount and count.  
+		
+<b>VHDL does not allow an out STD_LOGIC or STD_LOGIC_VECTOR to be used
+as the source value for another assignment statement.</b>  In other words a
+signal that is an out STD_LOGIC cannot be on the right hand side of a 
+concurrent assignment statement nor used as a value in a coponent instantations
+statement.
+
+		
+I expect that you will need to spend a few minutes to determine the relationship between the signal 
 names in the VHDL code and the architectural diagram above would be well 
 spent.
 
