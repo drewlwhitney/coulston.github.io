@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EENG 484</title>
+        <meta name="description" content="EENG 484 - Advanced Digital Design">
+        <meta name="author" content="Christopher Coulston">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+
+    <body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="../index.html">EENG 484</a>
+                </div>
+            </div>
+
+<h2>Kenny's shortcuts for using Vitis/Vivado on Linux</h2>
+
+AMD supports both Ubuntu and RHEL for installing Vivado/Vitis. I've had trouble getting Vivado working on Ubuntu derivatives like Mint. I can't guarantee these will work on your machine, but I've found these to work for me thus far into the class. <br><br>
+
+I installed Vitis/Vivado at the default /tools/Xilinx/202X.X/ directory. If you installed yours somewhere else, adjust the paths in this script to match you situation. Before running vivado or vitis, AMD provides a bootstrap script that you should source before running the binary. <br><br>
+
+Here are my sample vitis and vivado bootstrap scripts that I am currently using. <br><br>
+
+<b>/usr/local/bin/vivado</b>
+
+<pre>
+#!/bin/bash
+source /tools/Xilinx/2025.1/Vivado/settings64.sh
+vivado &
+</pre>
+
+<b>/usr/local/bin/vitis</b>
+
+<pre>
+#!/bin/bash
+source /tools/Xilinx/2025.1/Vitis/settings64.sh
+vitis &
+</pre>
+
+I put both of these binaries at /usr/local/bin, which should already exist on your PATH. This way, you can call vivado/vitis via your terminal.<br><br>
+
+I also created desktop icons for both of these, which I put at /usr/share/applications/. This makes them selectable from the apps menu on Ubuntu. I believe this should work for most GNOME-based desktops.<br><br>
+
+<b>Vivado 2025.1.desktop</b>
+
+<pre>
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=/tools/Xilinx/2025.1/Vivado/doc/images/vivado_logo.ico
+Name[en_US]=Vivado 2025.1
+Exec=/usr/local/bin/vivado
+Name=Vivado 2025.1
+StartupNotify=true
+StartupWMClass=Vivado
+</pre>
+
+<b>Vitis 2025.1.desktop</b>
+
+<pre>
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=/tools/Xilinx/2025.1/Vitis/doc/images/vivado_logo.ico
+Name[en_US]=Vitis 2025.1
+Exec=/usr/local/bin/vitis
+Name=Vitis 2025.1
+StartupNotify=true
+StartupWMClass=Vitis Unified IDE
+</pre>
+
+Make sure that all of these files are owned by root:root and have permissions 755.<br><br>
+
+        </div>
+    </body>
+</html>
