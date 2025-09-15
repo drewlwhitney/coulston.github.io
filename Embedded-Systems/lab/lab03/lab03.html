@@ -46,15 +46,15 @@ You may work in teams of one or two.
 
 <h2>Lab assignment</h2>
 Build an embedded system which plays a song every time the upper button is
-pressed. 
+pressed.
 <br><Br>
 
 <b>Note</b>
-If you have an existing configuration (say from the inlab03) that you want to 
+If you have an existing configuration (say from the inlab03) that you want to
 copy over to a new project (say for your lab03), then:
-<ul>	<li>Copy the xxx.mc3 file (from your inlab03) into the main 
+<ul>	<li>Copy the xxx.mc3 file (from your inlab03) into the main
 	directory of the new project (lab03),
-	<li>In the project manager area of the new project (lab03) add the 
+	<li>In the project manager area of the new project (lab03) add the
 	xxx.mc3 file into the Important Files folder (in the project navigator
 	window) by right clicking and selecting "Add Item to Important Files...",
 	<li>Open the Microchips code configurator,
@@ -78,7 +78,7 @@ copy over to a new project (say for your lab03), then:
 	of the scale of each note.  For example, my code which plays Hot
 	Crossed Buns, has the following (partial) declaration:<br>
 <font face="courier">uint16_t notes[SONG_LENGTH] = {B5, A5, G4, B5, A5,&hellip;</font><br>
-	The symbols in the notes array "B5", "A5", etc. are #defined 
+	The symbols in the notes array "B5", "A5", etc. are #defined
 	to indicies in the scale
 	array which contains the half period of that note.  For example,
 	since the half period of a G4 note is 10208 timer 1 counts (which
@@ -88,7 +88,7 @@ copy over to a new project (say for your lab03), then:
 	<li>The array storing the duration of the notes of the song,  For
 	example my code has the following (partial) declaration:<br>
 <font face="courier">uint16_t    duration[SONG_LENGTH] = {QUA, QUA, HAL, QUA,&hellip;</font><br>
-	The symbols in the duration array, "QUA", "HAL" are #define to 
+	The symbols in the duration array, "QUA", "HAL" are #define to
 	the number of 1:256
 	prescaled timer 0 counts each duration required.  For example, a quarter
 	note is 0.25 seconds long, corresponding to 15625 counts on a 1:256
@@ -97,12 +97,12 @@ copy over to a new project (say for your lab03), then:
 	</ul>
 	<li>Set the speaker pin to logic 0 when you are not playing a note,
 	<li>Use the MCC functions to:
-	<ul>	<li>write the timers, 
-		<li>check if the timer has overflowed, 
-		<li>read the button, and 
-		<li>toggle speaker pin. 
+	<ul>	<li>write the timers,
+		<li>check if the timer has overflowed,
+		<li>read the button, and
+		<li>toggle speaker pin.
 	</ul>
-	Do not use the TMR1_ReadTimer or TMR0_ReadTimer functions.
+	Do not use the TMR1_CounterGet or TMR0_CounterGet functions.
 </ul>
 
 
