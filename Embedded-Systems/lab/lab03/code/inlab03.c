@@ -6,6 +6,7 @@
 //
 // Assisted: The entire EENG 383 class
 // Assisted by: Technical documents
+// Conversion to MCC Melody: Nolan Pratt (nolanpratt@mines.edu), Fall 2025
 //
 // Academic Integrity Statement: I certify that, while others may have
 // assisted me in brain storming, debugging and validating this program,
