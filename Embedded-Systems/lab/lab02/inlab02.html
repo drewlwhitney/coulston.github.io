@@ -438,7 +438,7 @@ produce a 1 microsecond delay.
 To do this, you will need to create an excel spreadsheet as follows.
 <ul>	<li>Enter "#nop" in cell E3.  This column will be the number of NOP
 	statements in the microSecondDelay function.
-	<li>Enter "us" in cell F3.  This column will be the delay measured
+	<li>Enter "ns" in cell F3.  This column will be the delay measured
 	using the simulator stopwatch.
 	<li>Edit the microSecondDelay subroutine so that it has either
 	4, 10, or 20 NOPs.  Run the program and observe the waveform
@@ -463,18 +463,18 @@ To do this, you will need to create an excel spreadsheet as follows.
 	cell F6.
 	<li>Insert &rarr; Insert Scatter (X,Y) or Bubble Chart &rarr; 
 	Scatter with Straight Lines and Markers
-	<li>Change the title to "us delay vs. #NOPs"
+	<li>Change the title to "ns delay vs. #NOPs"
 	<li>Add a vertical axis label by first making sure that the 
 	graph is selected.  Then select: Chart Tools &rarr; Design 
 	&rarr; Add Chart Element &rarr; Axis Title &rarr; Primary 
-	Vertical.  Change the label to "Delay(us)"
+	Vertical.  Change the label to "Delay(ns)"
 	<li>Add a horizontal axis label by first making sure that the 
 	graph is selected.  Then select: Chart Tools &rarr; Design 
 	&rarr; Add Chart Element &rarr; Axis Title &rarr; Primary 
 	Horizontal. Change the label to "number of NOPs"
 	<li>Looking at the scatter chart you should be able to get 
-	good idea of the number of NOPs needed to get a 1000us delay
-	by tracing along the horizontal grid at 1000us to the data
+	good idea of the number of NOPs needed to get a 1us = 1000ns delay
+	by tracing along the horizontal grid at 1000ns to the data
 	line and then following the intercept down to the number of
 	NOPs.  However, I want you to determine this value quantitatively
 	using the following steps.
@@ -505,9 +505,9 @@ When complete your spreadsheet should look something like this:
 <br><img src="./img/excel.jpg"><br><br>
 
 <ol start=13>
-<li>Include the graph "us delay vs. # NOPs"
+<li>Include the graph "ns delay vs. # NOPs"
 <li>What is the equation you entered in cell F12 and how many NOPs
-are required to generate a 1000 us delay?
+are required to generate a 1000 ns delay?
 </ol>
 
 
