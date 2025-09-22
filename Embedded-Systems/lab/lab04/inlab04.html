@@ -50,16 +50,16 @@ art. Only include your answers, do not include the question-text unless
 it is absolutely needed.
 
 <h2>Objective</h2>
-The objective of this lab is to introduce you to the MPLAB Code 
+The objective of this lab is to introduce you to the MPLAB Code
 Configurator (MCC) and how to use timers to generate delays.
 
 <h2>External Hardware</h2>
 Today you will write code that you can interact with through the terminal
-(input) and generate musical tones through the speaker (output) using 
-timers.  Let's start by looking at the speaker and the hardware that will 
-drive it.  Start by searching the Internet for the technical documents for the 
-1" Mallory PSR-28N08A-JQ speaker.  Go to http://www.mallory-sonalert.com 
-and search for the product number of the speaker.  We will need to use the
+(input) and generate musical tones through the speaker (output) using
+timers. Let's start by looking at the speaker and the hardware that will
+drive it. Start by searching the Internet for the technical documents for the
+1" Mallory PSR-28N08A-JQ speaker. Go to http://www.mallory-sonalert.com
+and search for the product number of the speaker. We will need to use the
 frequency response graph for the following questions.
 
 <ol start=1>
@@ -68,80 +68,80 @@ what frequency does the speaker produce the loudest sound and what is
 the magnitude of this sound (include units)?</li>
 
 <li>A person with good hearing should be able to detect sounds with a
-volume level of 70db.  What is the lowest frequency, for our speaker,
+volume level of 70db. What is the lowest frequency, for our speaker,
 that has this volume level?</li>
 </ol>
 
 The I/O pins on the PIC microcontroller are not capable of supplying
-enough current to adequately drive the speaker.  Fortunately you soldered
+enough current to adequately drive the speaker. Fortunately you soldered
 a National Semiconductors LM4862 Boomer Audio Power Amplifier to the
-development board.  You will need to run a jumper wire from the pin generating
+development board. You will need to run a jumper wire from the pin generating
 the audio signal to the low pass filter (LPF) input and then from the LPF
-output to the LM4862 input.   The LPF is needed to "soften" out the 
+output to the LM4862 input.  The LPF is needed to "soften" out the
 hard audio edges created by the PIC, consequently reducing the voltage
-drop induced by the power drain of the audio amplifier.  This will help 
+drop induced by the power drain of the audio amplifier. This will help
 prevent the development board from resetting due to a brown-out.
 
 <ol start=3>
 <li>Pull the technical documents for the LM4862 (audio amp) by looking
-up its part number from the bill of materials linked in inlab01. 
+up its part number from the bill of materials linked in inlab01.
 On page 1 of the technical documents, Figure 1 shows a typical audio
 amplifier application. Which pin number and pin name is connected to
 the audio input through a series RC circuit?</li>
 
 <li>Look over the schematic and layout of the development board and identify
-the silk screened identifier next to the header pin that is connected to 
-the audio input pin of the LM4862.  Hint: Follow the connection from the 
-LM4862 pin past the series RC circuit. See the image below if you still 
+the silk screened identifier next to the header pin that is connected to
+the audio input pin of the LM4862. Hint: Follow the connection from the
+LM4862 pin past the series RC circuit. See the image below if you still
 need help.
 
 <img src="./img/LM4862.bmp"><br><br>
 </ol>
 
 
-Today's program will utilize a terminal interface to the program.  A
+Today's program will utilize a terminal interface to the program. A
 terminal interface provides a much more flexible method to interact
-with the PIC.  We will investigate the hardware that makes this possible
-in next week's lab.  However there are some basics that you must 
+with the PIC. We will investigate the hardware that makes this possible
+in next week's lab. However there are some basics that you must
 understand to use the terminal.
 <br><br>
 
-When you plug your development board into a PC you may have noticed that 
+When you plug your development board into a PC you may have noticed that
 your
-PC makes a chime sound.  This chime tells you that the PC has recognized your
-development board and assigned it a COM port.  A PC may have any number of COM
-ports, so each is given a unique numerical value.  There are a variety 
-of different ways to determine the COM port assigned to your FT230 chip, 
-but I find the easiest to run 
-<a href="../../COMSniffer.exe">Brandon's COM port finder</a>.  There is
-also a link to this application on the class main page.  When your board
+PC makes a chime sound. This chime tells you that the PC has recognized your
+development board and assigned it a COM port. A PC may have any number of COM
+ports, so each is given a unique numerical value. There are a variety
+of different ways to determine the COM port assigned to your FT230 chip,
+but I find the easiest to run
+<a href="../../COMSniffer.exe">Brandon's COM port finder</a>. There is
+also a link to this application on the class main page. When your board
 is connected to a PC through a USB cable, running COMSniffer should
-produce output similar to the following; in this case my development 
-board was assigned COM3.  Note that more than likely your PC will 
-assign your development board a different port number.  You will need 
-the port number anytime you need to connect your PIC to a terminal 
-application like PuTTY.  
+produce output similar to the following; in this case my development
+board was assigned COM3. Note that more than likely your PC will
+assign your development board a different port number. You will need
+the port number anytime you need to connect your PIC to a terminal
+application like PuTTY.
 
 <br><img src="./img/COMSniffer.bmp"><br><br>
 
 
 
 <h2>Internal Subsystem</h2>
-We will hold off exploring the 
-The Enhanced Universal Synchronous Asynchronous Receiver Transmitter 
-(EUSART) subsystem of the PIC until next week's lab.  Instead we will
+We will hold off exploring the
+The Enhanced Universal Synchronous Asynchronous Receiver Transmitter
+(EUSART) subsystem of the PIC until next week's lab. Instead we will
 focus on the big idea in today's lab, interrupts.
 <br><br>
 
 The internal configuration bits for the PIC are contained in the special
-function registers (SFR).  You can manipulate the values of the bits in
-these registers in your C programs by concatenating the register NAME 
-with the FIELD name in the format 
-<font face=courier>NAMEbits.FIELD = value;</font>, the expression 
+function registers (SFR). You can manipulate the values of the bits in
+these registers in your C programs by concatenating the register NAME
+with the FIELD name in the format
+<font face=courier>NAMEbits.FIELD = value;</font>, the expression
 "bits" needs to be appended to the register NAME and the "." separates the
-NAME and FIELD.  Let's look at a practical example;  open the Microchips 
-PIC18(L)F2X/4XK22 Data Sheet to page 166.  Let's say that you wanted to 
-enable timer 1 by setting the TMR1ON field of the T1CON register.  In 
+NAME and FIELD. Let's look at a practical example;  open the Microchips
+PIC18(L)F2X/4XK22 Data Sheet to page 166. Let's say that you wanted to
+enable timer 1 by setting the TMR1ON field of the T1CON register. In
 your C code you would add the line
 <font face=courier>T1CONbits.TMR1ON = 1;</font>
 
@@ -149,33 +149,33 @@ your C code you would add the line
 <ol start=5>
 <li>To enable Timer 1 to run off Fosc/4 mode using a 1:1 prescaler, how
 do we need to configure the following T1CON bits?
-<ul>	<li>T1CONbits.TMR1ON = 
-	<li>T1CONbits.TMR1CS = 
-	<li>T1CONbits.T1CKPS = 
+<ul>	<li>T1CONbits.TMR1ON =
+	<li>T1CONbits.TMR1CS =
+	<li>T1CONbits.T1CKPS =
 </ul>
 
 </ol>
 
 <h2>Firmware Organization</h2>
-A microcontroller by itself is not terribly interesting, being not much more 
-than a slow-running processor.  Microcontrollers derive their power from 
-the subsystems they contain and the external devices these subsystems can 
-control.  In order to be able to interface to as many different external 
+A microcontroller by itself is not terribly interesting, being not much more
+than a slow-running processor. Microcontrollers derive their power from
+the subsystems they contain and the external devices these subsystems can
+control. In order to be able to interface to as many different external
 devices as possible, the computer engineers who design microcontollers make
-the subsystems as flexible as possible.  This means that there are potentially
-a great number of alternative configurations for each subsystem.  When 
-developing an embedded application that interfaces microcontroller subsystem 
+the subsystems as flexible as possible. This means that there are potentially
+a great number of alternative configurations for each subsystem. When
+developing an embedded application that interfaces microcontroller subsystem
 to an external device, one of the first tasks you must complete is configuring
-the subsystem.  <br><br>
+the subsystem. <br><br>
 
 In my experience, subsystem configuration is a necessary task that can
 turn into a time consuming and potentially-frustrating challenge.
-Thankfully, the folks at Microchips 
+Thankfully, the folks at Microchips
 developed the MPLAB Code Configurator (MCC) to address this challenge.
 Paraphrasing the text in the MPLAB® Code Configurator User’s Guide,
-MCC is a plug-in tool in MPLAB X which generates drivers (software) for 
-controlling and driving subsystems based on the settings and selections 
-made in the Graphical User Interface. The generated drivers can be used 
+MCC is a plug-in tool in MPLAB X which generates drivers (software) for
+controlling and driving subsystems based on the settings and selections
+made in the Graphical User Interface. The generated drivers can be used
 in your program.
 
 <h3>Create new project</h3>
@@ -185,14 +185,14 @@ and launch MCC as described in the steps below.
 <ul>
 <li>Launch MPLab X
 <li>Close any open project: File &rarr; Close All Projects
-<li>Create a new inLab04 project as you did in Lab 2.  Make sure, at 
+<li>Create a new inLab04 project as you did in Lab 2. Make sure, at
 step 2 (Select Device), to choose PICKit 3 or 4.
 <li>Click  Tools &rarr; Embedded &rarr; MPLab Code Configurator
 <li>If the MPLab Code Configurator is not listed then you will need
 to install the Code Configurator as follows:
 <ul>	<li>Tools &rarr; Plugins
 	<li>In the Plugins pop-up select the "Available Plugins" tab
-	<li>Check the "MPLab Code Configurator" check box 
+	<li>Check the "MPLab Code Configurator" check box
 	<li>Click Install
 </ul>
 </ul>
@@ -202,7 +202,7 @@ to install the Code Configurator as follows:
 <h3>Configure the PIC with MCC</h3>
 You should use MCC for the remainder of the term for all future projects.
 Every project in this class will require you to configure the oscillator
-and I/O pins.  In addition to these two subsystems, you will also configure
+and I/O pins. In addition to these two subsystems, you will also configure
 the timer subsystem in the steps below.
 
 <ul>
@@ -214,20 +214,20 @@ Management tab (left side of the screen). Then, in the Clock Control tab
 </ul>
 The current System Clock should be 64000000.
 
-<li>Click on "Pins" in Project Resources. In the Pins Grid View tab 
+<li>Click on "Pins" in Project Resources. In the Pins Grid View tab
 (bottom of the screen)
 click on the open lock in the PortB 5 column and in the output row.
 The blue background color should switch to green, meaning that RB5
 is now an output. The open lock immediately below should change its
 background color to orange meaning that RB5 is not an input.
 <li>Open the Pins tab (right side of the screen).
-Click on the Custom Name text box in the RB5 row and change 
+Click on the Custom Name text box in the RB5 row and change
 the name of RB5 to "SPEAKER_PIN"
 <li>Make pin RA6 an output called "TEST_PIN"
 
 <li>In the Device Resources section of the Resource Management tab, scroll down
 and expand the "Timer" list. Double click TMR1. A TMR1 tab will open on the
-right side of the screen.  In this tab, make sure the following items
+right side of the screen. In this tab, make sure the following items
 are selected (leave the other defaults alone),
 <ul>	<li>Timer Enable:	&check;
 	<li>Clock Source:	FOSC/4
@@ -246,25 +246,25 @@ and expand the "UART" list. Double click UART. In the UART tab,
 </ul>
 
 <li>Click on the "Generate" button in the Project Resources section of the
-Resource Management tab.  If you select the Output &rarr; MPLAB Code 
-Configurator tab, you can keep an eye on what files MCC is generating and 
-updating.  Note that anytime that you make a change to the configuration
-using MCC, you need to save and re-generate the supporting files exported 
+Resource Management tab. If you select the Output &rarr; MPLAB Code
+Configurator tab, you can keep an eye on what files MCC is generating and
+updating. Note that anytime that you make a change to the configuration
+using MCC, you need to save and re-generate the supporting files exported
 into your project.
 
-<li>Click the project tab in the project manager area.  Expand the 
-"Source File" folder.  
+<li>Click the project tab in the project manager area. Expand the
+"Source File" folder.
 <li>Double click the file main.c to open it in the editor window.
-<li>Replace the contents of main.c with 
+<li>Replace the contents of main.c with
 	<a href="./code/inlab04Classic.c">inlab04Classic.c</a>
 	<a href="./code/inlab04Melody.c">inlab04Melody.c</a>
 </ul>
 
 Before downloading and running the inlab04.c program, take a moment to
 look at the structure of the files created by MCC and the utility functions
-and definitions contained in them.  In the project manager window expand 
+and definitions contained in them. In the project manager window expand
 Header and Source Files &rarr; MCC Generated Files.
-Double click and open all the files in these folder.  Use the contents of 
+Double click and open all the files in these folder. Use the contents of
 the files to answer the following questions.
 
 <!-- TODO: Check if functions changed -->
@@ -276,50 +276,46 @@ loop in main?
 <br>
 
 When the TMR1 interrupt occurs, the INTERRUPT_InterruptManager function
-(you can find it in the MCC Generated File interrupt_manager.c)
-is invoked by the PIC.  Find the INTERRUPT_InterruptManager function and 
-name the function that it calls.  Call this the daughter function
-of INTERRUPT_InterruptManager.  
+(you can find it in the MCC Generated File interrupt.c)
+is invoked by the PIC. Find the INTERRUPT_InterruptManager function and
+name the function that it calls. Call this the daughter function
+of INTERRUPT_InterruptManager.
 
-To find the granddaughter function of the INTERRUPT_InterruptManager 
+To find the granddaughter function of the INTERRUPT_InterruptManager
 function look at the code associated with the daughter function of the
-INTERRUPT_InterruptManager function.  <i>When you are looking
+INTERRUPT_InterruptManager function. <i>When you are looking
 for a MCC function, the first word of the function is the name of its
 MCC Generated File.</i>
 
 This code in the daughter function looks like it calls
-TMR1_InterruptHandler(), but this "function" is really a function pointer -
-note that the TMR1_InterruptHandler variable is true.  A function pointer 
-is variable that can be assigned to a function.  In our case the 
-TMR1_SetInterruptHandler function performs this assignment by taking in
-as an argument, the function you would like to serve as the interrupt 
-service routine for TMR1.  The TMR1_SetInterruptHandler function is 
-called in two separate placed.
-<li>Write out the two calls to TMR1_SetInterruptHandler and in 
-what functions each call occured.
+TMR1_OverflowCallback(), but this "function" is really a function pointer.
+A function pointer is variable that can be assigned to a function.
+In our case the TMR1_OverflowCallbackRegister function performs this
+assignment by taking in as an argument, the function you would like to
+serve as the interrupt service routine for TMR1.
+<li>In what two functions is the TMR1_OverflowCallback function pointer changed?
 
-<li>The second call to TMR1_SetInterruptHandler will be the one used 
-by your program.  What ISR will your program use to service the 
-TMR1 interrupt?
+<li>After TMR1_OverflowCallbackRegister is called in your program, which
+function (also in your program) will TMR1_OverflowCallback point to?
 
-<li> 
+<li>
 When answering the following questions, focus on the interrupt handler
-not calls to the WriteTimer function.
+not calls to the CounterSet function.
 <ul>
 <li>What is the daughter function of INTERRUPT_InterruptManager?
-<li>What is the granddaughter function of INTERRUPT_InterruptManager? 
+<li>What is the granddaughter function of INTERRUPT_InterruptManager?
 </ul>
 </li>
 
-<li>What does the daughter function do to TMR1IF and to the value
-of TMR1?  
+<li>What does the granddaughter function do to TMR1IF and to the value
+of TMR1?
 <li>Where is the variable timer1ReloadVal given a value?  What is
-this value?  Note the initial value is set by MCC in the Timer Period 
+this value?  Note the initial value is set by MCC in the Timer Period
 field in the TMR1 Easy Setup window.
 </li>
 </ol>
 
-Look at the myTMR1ISRr function (defined in main.c) to 
+Look at the myTMR1ISR function (defined in main.c) to
 answer the following questions.
 
 <ol start=12>
@@ -327,20 +323,20 @@ answer the following questions.
 Ignore variable declarations.
 
 <li> A flag is a variable (usually typed uint8_t) that equals either true
-or false.  What three flags are checked in this function?  Briefly explain
+or false. What three flags are checked in this function?  Briefly explain
 what each flag does.
 
-<li>What behavior would you expect if you removed the incNote=false; 
-statement from the function.  Hint, consider what would happen if
+<li>What behavior would you expect if you removed the incNote=false;
+statement from the function. Hint, consider what would happen if
 playNote was true (a note is being played) and the user typed "i"
-in at the terminal.  Heck, give it a try (by commenting out the 
+in at the terminal. Heck, give it a try (by commenting out the
 statement) if you want to check your answer.
 </ol>
 
 
 <h2>Firmware Operation</h2>
 Your next step will be to download, run and observe the behavior of
-the inlab04.c program.  MCC does not require you to change the process
+the inlab04.c program. MCC does not require you to change the process
 you used in lab02; so the following steps should be familiar.
 
 <ul>
@@ -349,8 +345,8 @@ you used in lab02; so the following steps should be familiar.
 <li>Connect the PICKit 3 or 4 to the development board so that the triangle
 on the PICKit 3 or 4 and the development board align,
 <li>In the toolbar click on the Clean and Build Project icon (hammer and
-broom).  If you get an error, it most likely a result of naming the
-buttons differently than I described above.  Either fix the name of the
+broom). If you get an error, it most likely a result of naming the
+buttons differently than I described above. Either fix the name of the
 pins in the code configurator (and re-generate) or modify the names of
 the pins in the inLab04 code,
 <li>In the toolbar click on the Run Project icon (green arrow pointing right),
@@ -358,7 +354,7 @@ the pins in the inLab04 code,
 MPLab pop-up and then click OK,
 <li>Three things will now happen that should alert you that the download
 is in progress:
-<ul>    <li>Text will scroll by in the PICKit 3 or 4 tab of the console 
+<ul>    <li>Text will scroll by in the PICKit 3 or 4 tab of the console
 ending with
         <font face="courier">Programming/Verify complete</font>,
         <li>The lower right corner of the MPLab X window you should see
@@ -369,25 +365,25 @@ ending with
 <li>Add a jumper between LPFout and AMPin.
 <li>Add a jumper between the 5V header next to the USB onnector.
 <li>Determine which COM port the PC has assigned to your development board.
-<li>Launch PuTTY. 
-<ul>	<li>Connection type = Serial 
+<li>Launch PuTTY.
+<ul>	<li>Connection type = Serial
 	<li>Serial line  COMx - where "x": is the numeric code assigned
 	to your development board.
 	<li>Click Open
 </ul>
-<li>Type "?" to see the menu of options.  Play around and make some music.
+<li>Type "?" to see the menu of options. Play around and make some music.
 Interrupts allow you to hear the notes being played while still allowing
-you to interact with the terminal.  Neat (and very useful) trick.
+you to interact with the terminal. Neat (and very useful) trick.
 </ul>
 
 
 <h3>Observe output</h3>
 One of the primary reasons electrical engineers use oscilloscopes is to
 observe phenomena that are too fast and too small to be observed directly
-with something like a digital multimeter.  In the following steps, you 
+with something like a digital multimeter. In the following steps, you
 will use the oscilloscope to observe the signal generated on TEST_PIN while
-your program is inside the ISR.  Make sure that a note is <u>not</u> playing 
-when you capture this waveform.  To do this setup your oscilloscope as follows:
+your program is inside the ISR. Make sure that a note is <u>not</u> playing
+when you capture this waveform. To do this setup your oscilloscope as follows:
 <br><br>
 
 
@@ -408,51 +404,51 @@ Make sure to:
 	<li>Clear all menus off the bottom of the screen<br>
 	[&uarr;Back]
 	<li>Screen shot the screen on USB:<br>
-	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr; 
+	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr;
 	<u>24-bit Bit... (*.bmp)</u>
 	[Save] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
 	<li>If the image looks dim, try pressing the Run/Stop button
-	to snap a picture of the waveform.  When the Run/Stop button is
+	to snap a picture of the waveform. When the Run/Stop button is
 	illuminated red, the waveform is frozen and should look brighter.
-	Make sure to press Run/Stop so that its illuminated green to 
+	Make sure to press Run/Stop so that its illuminated green to
 	enable the oscilloscope to capture new waveforms.
 </ul>
 
 <ol start=15>
-<li>Include the screenshot from the waveform save on your oscilloscope.  Use
+<li>Include the screenshot from the waveform save on your oscilloscope. Use
 a thumb drive to capture the image and paste it into your lab report - credit
-will not be given to cell phone pictures.  Please do not submit them.
+will not be given to cell phone pictures. Please do not submit them.
 
 <li>Using the time per division information on the oscilloscope screen and
-the time high duration the waveform (described in divisions), show your 
-calculation for the time high duration of the waveform on RA6 using an 
+the time high duration the waveform (described in divisions), show your
+calculation for the time high duration of the waveform on RA6 using an
 approach like:
 <pre>
 Oscilloscope set to 10us/division
 The duration of the RA6 pulse is 0.6 divisions
 
-	 10us       
+	 10us
 	-------- *  0.6 divisions = 6us
-	division 
+	division
 </pre>
 
-<li>Using the horizontal scale adjust and horizontal position adjust, 
-zoom in on the positive edge (from 0V to 3.3V) of the signal being 
+<li>Using the horizontal scale adjust and horizontal position adjust,
+zoom in on the positive edge (from 0V to 3.3V) of the signal being
 generated by the TEST_PIN to determine the rise time of the signal.
 The rise time is defined as the time to transition from 10% of the
 final value (0.33V) to 90% of the final value (2.97V). You may find
 increasing the vertical scale also helps.
 Be careful if you decide to use the oscilloscope’s built in rise time
-measurement instead of the cursors. You’ll want to make sure that 
-you’re set up to do a 10% to 90% rise time.  You need to include an
+measurement instead of the cursors. You’ll want to make sure that
+you’re set up to do a 10% to 90% rise time. You need to include an
 oscilloscope screen shot that shows information necessary to backup
 your answer.
 
-<li>Using the rise time from the previous problem, determine the slew 
-rate of the PIC output.  The slew rate of a signal transition is the 
-change in voltage divided by the time that change takes.  Slew rate
-has units of Volts per microsecond.  In our case, this is the change in 
-voltage divided by the rise time.  Make sure you state your answer
+<li>Using the rise time from the previous problem, determine the slew
+rate of the PIC output. The slew rate of a signal transition is the
+change in voltage divided by the time that change takes. Slew rate
+has units of Volts per microsecond. In our case, this is the change in
+voltage divided by the rise time. Make sure you state your answer
 in volts per microsecond.
 </ol>
 
@@ -461,56 +457,56 @@ in volts per microsecond.
 
 <h2>Firmware Experiments</h2>
 Keep the oscilloscope connected to TEST_PIN while answering the
-following questions.  You may need to make adjustments to the 
+following questions. You may need to make adjustments to the
 horizontal scale and position in order to see and measure the
 values asked for.
 
 <ol start=19>
 <li>Compare the time spent inside the ISR when the PIC is and is not playing
 a note.
-<li>The TMR1_WriteTimer function is largely responsible for this increased 
-execution time.  How long does it takes the PIC to execute this line 
+<li>The TMR1_CounterSet function is largely responsible for this increased
+execution time. How long does it takes the PIC to execute this line
 of code?
 <li>When the playNote flag is true, the if/then associated with this flag
-is executed and TMR1 gets initialized to the half period of the note 
-being played.  However, then the playNote flag is false, TMR1 is not 
-initialized by the ISR.  Use the MCC generated code and the oscilloscope
-to determine the initial count value of TMR1 when playNote == false?  
-Hint: Zoom out and look at the time between positive pulses on the 
+is executed and TMR1 gets initialized to the half period of the note
+being played. However, then the playNote flag is false, TMR1 is not
+initialized by the ISR. Use the MCC generated code and the oscilloscope
+to determine the initial count value of TMR1 when playNote == false?
+Hint: Zoom out and look at the time between positive pulses on the
 oscilloscope. Does that number look familiar?
 </ol>
 
 One principle of embedded programming is to minimize the time spent
-inside an ISR.   The purpose of this principle is to ensure that the
+inside an ISR.  The purpose of this principle is to ensure that the
 ISR completes its execution before it is invoked again.
 Printing characters to the terminal is always a time consuming operation;
-at 9600 Baud (Baud has units of bits per second) it takes 833&micro;s to 
+at 9600 Baud (Baud has units of bits per second) it takes 833&micro;s to
 print a single character.
 
 <ol start=22>
-<li>Using the Baud rate information above, how long should it take to 
-print the string inside the ISR associated with the doSomethingBad 
-flag?  Make sure to include the carriage return and line feed (each as a 
-single character) in your calculation.  Show your work.
+<li>Using the Baud rate information above, how long should it take to
+print the string inside the ISR associated with the doSomethingBad
+flag?  Make sure to include the carriage return and line feed (each as a
+single character) in your calculation. Show your work.
 <li>Use the "t" function to measure the actual time it takes to print
 this string.
 <li>Press the "b" key to set the doSomethingBad flag true. What happened?
-Note: You will have to short out the reset pads of your development 
-board to break out of this bad behavior.  The reset pads are labeled 
-"RST" and are near the programming pins of your board (AKA: near the 
-white triangle).  
-<li>Explain what happened.  Your answer should comment on the relative
+Note: You will have to short out the reset pads of your development
+board to break out of this bad behavior. The reset pads are labeled
+"RST" and are near the programming pins of your board (AKA: near the
+white triangle).
+<li>Explain what happened. Your answer should comment on the relative
 time required to print the message and the interrupt frequency.
 </ol>
 
 When writing embedded program, one of my most common errors is to forget
 to include:
 <pre>
-    INTERRUPT_GlobalInterruptEnable();      // ISR not working? - you probably 
+    INTERRUPT_GlobalInterruptEnable();      // ISR not working? - you probably
     INTERRUPT_PeripheralInterruptEnable();  // forgot to add these 2 lines
 </pre>
 
-You can find these two lines at the top of main.  
+You can find these two lines at the top of main.
 <ol start=26>
 <li>Commenting out these two lines, compile and download the resulting code.
 What functionality works and what functionality of your program no longer
