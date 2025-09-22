@@ -156,12 +156,13 @@ Settings and Advanced Settings areas of the Clock Control Window
 	<li>Internal Clock: 16MHz_HFINTOSC
 	<li>Software PLL Enabled: &check;
 </ul>
-The Current System clock (at the top) should be 64000000.
+The current System Clock (at the top) should be 64000000.
 If the system clock says 16000000, you have created your project incorrectly.
 Check that the Software PLL Enabled button is enabled first, then go back and
 re-create your project, as this will cause issues in the future.
 
-<li>In the Pin Grid View tab of the console window (bottom of the screen)
+<li>Click on "Pins" in Project Resources. In the Pins Grid View tab 
+(bottom of the screen)
 click on the open lock in the Port A, 2 column and in the GPIO input row.
 The blue background color should switch to a green closed lock, meaning that
 RA2 is now locked as an input. The blue open lock one row below (in the output
@@ -170,9 +171,8 @@ row) should have change color to orange meaning that RA2 is not an output,
 click on the open lock in the PortA 3 column and in the GPIO input row,
 <li>In the Pin Grid View tab tab of the console window
 click on the open lock in the PortB 5 column and in the GPIO output row,
-<li>In the Project Resources section of the Resource Management tab, click
-on "Pins". A Pins tab should open from the toolbar on the right. If it does not,
-click on "Pins" on the right side of your screen to open the menu.
+<li>Open the Pins tab (right side of the screen). If it is not open,
+click on "Pins" in Project Resources.
 Click on the Custom Name text box in the RA2 row and change
 the name of RA2 from "IO_RA2" to "TOP_BUTTON",
 <li>Change the name of RA3 to "BOTTOM_BUTTON",

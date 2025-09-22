@@ -197,7 +197,7 @@ to install the Code Configurator as follows:
 </ul>
 </ul>
 
-<!-- TODO: Update for new UI -->
+
 
 <h3>Configure the PIC with MCC</h3>
 You should use MCC for the remainder of the term for all future projects.
@@ -206,58 +206,47 @@ and I/O pins.  In addition to these two subsystems, you will also configure
 the timer subsystem in the steps below.
 
 <ul>
-<li>In the INTERNAL OSCILLATOR area of the System Module window
-<ul>	<li>Oscillator Select:	Internal oscillator block
-	<li>System Clock Select: FOSC
+<li>Click on "Clock Control" in the Project Resources section of the Resource
+Management tab (left side of the screen). Then, in the Clock Control tab
+<ul>	<li>System Clock Select: FOSC
 	<li>Internal Clock: 16MHz_HFINTOSC
-	<li>Software PLL Enabled: Check
+	<li>Software PLL Enabled: &check;
 </ul>
-The Current System clock should be 64MHz (4x PLL)
+The current System Clock should be 64000000.
 
-<li>In the Pin Manager: Grid [MCC] tab of the console window
+<li>Click on "Pins" in Project Resources. In the Pins Grid View tab 
+(bottom of the screen)
 click on the open lock in the PortB 5 column and in the output row.
 The blue background color should switch to green, meaning that RB5
 is now an output. The open lock immediately below should change its
 background color to orange meaning that RB5 is not an input.
-<li>In the Project Resources area of the project window, click 
-"Pin Module".  The editor window will change from the System Module to
-Pin Module. Click on the Custom Name text box in the RB5 row and change 
+<li>Open the Pins tab (right side of the screen).
+Click on the Custom Name text box in the RB5 row and change 
 the name of RB5 to "SPEAKER_PIN"
 <li>Make pin RA6 an output called "TEST_PIN"
 
-<li>In the Device Resources area of the project window, expand the Timer
-option. Double click TMR1.
-<li>In the Device Resources area of the project manager window, expand
-the "Timer" selection and double click on TMR1.  The Easy Setup tab of the
-editor window should change to a TMR1 view.  Make sure the following items
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR1. A TMR1 tab will open on the
+right side of the screen.  In this tab, make sure the following items
 are selected (leave the other defaults alone),
-<ul>	<li>Enable Timer:	&check;
+<ul>	<li>Timer Enable:	&check;
 	<li>Clock Source:	FOSC/4
 	<li>Prescaler:		1:1
-	<li>Enable Timer Interrupt:	&check;
+	<li>TMR Interrupt Enable:	&check;
 </ul>
 
-<li>In the Device Resources area of the project window, expand the EUSART
- option. Double click EUSART1.
-<li>In the Project Resources area of the project window click on EUSART1.
-<ul>	<li>Enable EUSART:	&check;
-	<li>Enable Transmit:	&check;
-	<li>Enable Wake-up:	&square;
-	<li>Auto-Baud Detection:	&square;
-	<li>Enable Address Detect:	&square;
-	<li>Baud Rate:		9600
-	<li>Transmission Bits:	8-bit
-	<li>Reception Bits:	8-bit
-	<li>Clock Polarity:	async_noninverted_sync_fallingedge
-	<li>Enable Receive:	&check;
-	<li>Enable EUSART Interuupts:	&square;
-	<li>Redirect STDIO to USART	&check;
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "UART" list. Double click UART. In the UART tab,
+<ul>	<li>UART PLIB Selector:	EUSART1
+	<li>Requested Baudrate:		9600
+	<li>Data Size:	8
+	<li>Flow Control Mode:	None
+	<li>Redirect Printf to UART:	&check;
+	<li>Interrupt Driven:	&square;
 </ul>
 
-<li>File &rarr; Save All, or click on the Save All (disk icon) in the toolbar.
-Keep the default name "myConfig.mc3",
-<li>Click on the "Generate" button in the Project Resources area of the
-project manager window.  If you select the Output &rarr; MPLAB Code 
+<li>Click on the "Generate" button in the Project Resources section of the
+Resource Management tab.  If you select the Output &rarr; MPLAB Code 
 Configurator tab, you can keep an eye on what files MCC is generating and 
 updating.  Note that anytime that you make a change to the configuration
 using MCC, you need to save and re-generate the supporting files exported 
