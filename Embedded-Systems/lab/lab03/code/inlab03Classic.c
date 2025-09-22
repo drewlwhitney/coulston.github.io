@@ -1,8 +1,8 @@
 //*****************************************************************
 // Name:    Dr. Chris Coulston
-// Date:    Spring 2019
+// Date:    Fall 2020
 // Lab:     03
-// Purp:    Music box
+// Purp: Play Hot Cross Buns (B5, A5, G4)
 //
 // Assisted: The entire EENG 383 class
 // Assisted by: Technical documents
@@ -22,54 +22,79 @@
 #pragma warning disable 520     
 #pragma warning disable 1498
 
-#define B5      8
-#define A5      6 
-#define G4      4 
+#define N       4       // Number of notes
+void microSecondDelay(uint16_t us);
+void milliSecondDelay(uint16_t ms);
 
-#define WHO     62500
-#define HAL     31250
-#define QUA     15625
-#define EIG     7813
-#define REST    1953        // Thirty second note is used for intra-note rest
-
-
-#define NUM_OCTAVES 2       // Number of stored notes
-#define SONG_LENGTH 17
 //*****************************************************************
 
 //*****************************************************************
+
 void main(void) {
-    
-    // The scales are running on a 1:1 prescaled timer 1
-    uint16_t    scale[NUM_OCTAVES*12] = {12864,12144,11472,10816,10208,9632,9088,8592,8112,7648,7232,6816,6432,6080,5728,5408,5104,4816,4560,4288,4048,3824,3616,3408};      
-    uint16_t    notes[SONG_LENGTH] = {B5, A5, G4, B5, A5, G4, G4, G4, G4, G4, A5, A5, A5, A5, B5, A5, G4}; 
-    uint16_t    duration[SONG_LENGTH] = {QUA, QUA, HAL, QUA, QUA, HAL, EIG, EIG, EIG, EIG, EIG, EIG, EIG, EIG, QUA, QUA, HAL};
-    uint8_t i;
-    
+
+    uint16_t halfPeriodDelay[N] = {507, 568, 638, 16}; // microseconds
+    uint16_t halfPeriodTimer[N] = {8112, 9088, 10208, 256}; // 1:1 timer counts
+    uint8_t i = 0;
+
     SYSTEM_Initialize();
-        
-    while(1) {
-  
-        if (TOP_BUTTON_GetValue() == 0) {        
-            while (TOP_BUTTON_GetValue() == 0);   
-            for (i=0; i<SONG_LENGTH; i++) {
-                TMR0_WriteTimer(0xFFFF - duration[i]);
-                INTCONbits.T0IF = 0;
-                while (TMR0_HasOverflowOccured() == false) {                
-                    // Toggle the LED at 1Hz while the button is not being pressed  
-                    TMR1_WriteTimer(0xFFFF - scale[notes[i]]);
-                    PIR1bits.TMR1IF = 0;
-                    while(TMR1_HasOverflowOccured() == false); 
-                    SPEAKER_PIN_Toggle();                
-                } // end that note      
-                SPEAKER_PIN_SetLow();
-                TMR0_WriteTimer(0xF000);
-                INTCONbits.T0IF = 0;
-                while(TMR0_HasOverflowOccured() == false);                 
-            } // end song            
-        } // if button has been pressed
-        SPEAKER_PIN_SetLow();
+
+    for (;;) {
+
+        if (TOP_BUTTON_GetValue() == 0) {
+            while (TOP_BUTTON_GetValue() == 0) {
+                microSecondDelay(halfPeriodDelay[i]);
+                SPEAKER_PIN_Toggle();
+            } // end pressed button            
+            i = i + 1;
+            if (i == N) i = 0;
+        } // end pressed button   
+
+        if (BOTTOM_BUTTON_GetValue() == 0) {
+            while (BOTTOM_BUTTON_GetValue() == 0) {
+                TMR1_WriteTimer(0x10000 - halfPeriodTimer[i]);
+                PIR1bits.TMR1IF = 0;
+                while (TMR1_HasOverflowOccured() == false);
+                SPEAKER_PIN_Toggle();
+            } // end pressed button            
+            i = i + 1;
+            if (i == N) i = 0;
+        } // end pressed button   
+
+
     } // end infinite loop    
 } // end main
 
 
+
+//*****************************************************************
+// Call microseconds(1000) a number of times
+//*****************************************************************
+
+void milliSecondDelay(uint16_t ms) {
+
+    uint16_t i;
+
+    for (i = 0; i < ms; i++) microSecondDelay(1000);
+
+} // end millSecond
+
+
+//*****************************************************************
+// Create a delay of 1uS and loop a number of times
+//*****************************************************************
+
+void microSecondDelay(uint16_t us) {
+
+    uint16_t i;
+
+    for (i = 0; i < us; i++) {
+        asm("NOP"); // 1
+        asm("NOP"); // 2
+        asm("NOP"); // 3
+        asm("NOP"); // 4
+        asm("NOP"); // 5
+        asm("NOP"); // 6
+
+        i = i;
+    } // end for     
+} // end microSecond()
