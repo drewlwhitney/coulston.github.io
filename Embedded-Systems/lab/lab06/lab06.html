@@ -42,87 +42,91 @@ Some self guided <a href="./inlab06.html">activities.</a>
 <h2>Lab 6 assignment</h2>
 Thanks for Alex for putting together this
 <a href="./Lab6FlowChart.pdf">flowchart</a> of the software organiaztion
-required for this lab.  This PDF also contains a few hints in addition
+required for this lab. This PDF also contains a few hints in addition
 to the flowchart.
 
 <h3>Software</h3>
-There are two main components to this week's lab.  First, modify the
+There are two main components to this week's lab. First, modify the
 transmit function of the inLab code to transmit a NULL terminated
-string of character.  Second, convert the EUSART2 receive function to
+string of character. Second, convert the EUSART2 receive function to
 operate off an interrupt and store a string of characters in a global
 array of characters.
 <br><Br>
 
 <b>EUSART2</b><br>
 Start by modifying the EUSART2 configuration in MCC and checking
-"Enable EUSART Interrupts".  Do not redirect EUSART2 to STDIO because
+"Enable EUSART Interrupts". Do not redirect EUSART2 to STDIO because
 that is EUSART1's job (because EUSART1 is connected to the FT230 chip
-which creates the virtual COM port on your PC).  Make sure to regenerate 
-the MCC files.  Back in main, make sure to include the following code
-after your call to 
+which creates the virtual COM port on your PC). Make sure to regenerate
+the MCC files. Back in main, make sure to include the following code
+after your call to
 <font face="courier">SYSTEM_Initialize();</font>.
 <pre>
-    EUSART2_SetRxInterruptHandler(myEUSART2ISR);
-    INTERRUPT_GlobalInterruptEnable();
-    INTERRUPT_PeripheralInterruptEnable();
+	INTCONbits.RBIE = 0;
+	EPWM2_LoadDutyValue(LED_OFF);
+	PIE3bits.RC2IE = 0;
+	EUSART2_RxCompleteCallbackRegister(myEUSART2ISR);
+	PIE3bits.RC2IE = 1;
+	INTERRUPT_GlobalInterruptEnable();
+	INTERRUPT_PeripheralInterruptEnable();
 </pre>
-Now you need to write the myEUSART2 interrupt service routine.  This 
+Now you need to write the myEUSART2 interrupt service routine. This
 function will check the incoming character from EUSART2 and append it
-to a global array of characters called IRrecieveBuffer.  The last
+to a global array of characters called IRrecieveBuffer. The last
 two characters of this array are the NULL character, '\0', followed
-by a checksum.  After the EUSART2 ISR receives the checksum,
-the EUSART2 ISR should set a global flag, receiveNewMessage, to 
-true.  This will alert main that a new message has arrived.  The 
-following global variables and function declarations should be at 
+by a checksum. After the EUSART2 ISR receives the checksum,
+the EUSART2 ISR should set a global flag, receiveNewMessage, to
+true. This will alert main that a new message has arrived. The
+following global variables and function declarations should be at
 the top of your program.
 
 <pre>
-void myEUSART2ISR(void);
-char IRrecieveBuffer[MAX_BUFFER_SIZE];
-uint8_t receiveBusy = false;
-uint8_t receiveNewMessage = false;
+	void myEUSART2ISR(void);
+	char IRrecieveBuffer[MAX_BUFFER_SIZE];
+	uint8_t receiveBusy = false;
+	uint8_t receiveNewMessage = false;
 </pre>
 <br><Br>
 
 
 <b>Checksum</b>
 An 8-bit checksum for a string is the sum of the characters in the
-string modulo 256.  By "modulo 256", I mean that is the sum were to
-get to 256, the sum rolls over to 0.  You can calculate a sum modulo
-256 as follows.  If the sum is less than 256, leave it alone.  If the
+string modulo 256. By "modulo 256", I mean that is the sum were to
+get to 256, the sum rolls over to 0. You can calculate a sum modulo
+256 as follows. If the sum is less than 256, leave it alone. If the
 sum is greater than 255, subtract sets of 256 until the sum is less
-than 256.  This means that an 8-bit checksum will always
-be in the range [0-255].  The nice thing about addition of uint8_t
+than 256. This means that an 8-bit checksum will always
+be in the range [0-255]. The nice thing about addition of uint8_t
 datayped variables in the PIC microcontroller, is that any carry out
-from the MSB during addition is thrown-away.  This makes addition of
+from the MSB during addition is thrown-away. This makes addition of
 uint8_t variables modulo 256 by default without requiring any additional
 work on your part.
 <br><br>
 
 For example, the sum of the characters in the null terminated string
-"abc\0" is 97 + 98 + 99 + 0 = 294.  However, if you computed this sum
+"abc\0" is 97 + 98 + 99 + 0 = 294. However, if you computed this sum
 in a uint8_t typed variable, then 97 + 98 + 99 + 0 = 294 - 256 = 38.
 <br><br>
 
 <b>Transmit</b><br>
 The transmit function will be handled using the same procedure used
-in the inLab.  However, you will move the code from main into a 
-function transmitCharacterOverIR.  In order to be compatible with 
-lab 7, make the array containing the transmitted string, 
-IRtransmitBuffer, global.  The following declarations should be at
+in the inLab. However, you will move the code from main into a
+function transmitCharacterOverIR. In order to be compatible with
+lab 7, make the array containing the transmitted string,
+IRtransmitBuffer, global. The following declarations should be at
 the top of your program.
 
 <pre>
-char IRtransmitBuffer[MAX_BUFFER_SIZE];
-void transmitCharacterOverIR(char letter, uint16_t baudRate);
+	char IRtransmitBuffer[MAX_BUFFER_SIZE];
+	void transmitCharacterOverIR(char letter, uint16_t baudRate);
 </pre>
 
 In order to provide some level of fault detection in our communication
-protocol, you will append an 8-bit checksum to the end of the 
+protocol, you will append an 8-bit checksum to the end of the
 transmitted string (but after the NULL character).
- A checksum for a string is the numerical sum of 
-the individual characters.  For example, for the string "abc" the 
-checksum is 97+98+99 = 294.  But since this sum is being computed
+ A checksum for a string is the numerical sum of
+the individual characters. For example, for the string "abc" the
+checksum is 97+98+99 = 294. But since this sum is being computed
 in an 8-bit variable, the check sum would actually be 294-256=38.
 For a more complex message like "This is a test" the checksum is 245.
 Note the terminating NULL character at the end of the string does not
@@ -130,10 +134,10 @@ contribute to the checksum because its ASCII value is 0.
 <br><Br>
 
 <b>User Interface</b><br>
-At start-up your program should present a splash screen.  The splash screen 
-should also contain connection instruction for the development board (where 
-to install jumper wires). When you press "?" you should be greeted with the 
-following menu.  Note that the "true" or "false" of receiveNewMessage should
+At start-up your program should present a splash screen. The splash screen
+should also contain connection instruction for the development board (where
+to install jumper wires). When you press "?" you should be greeted with the
+following menu. Note that the "true" or "false" of receiveNewMessage should
 be printed along with the current Baud rate - you can take this code from
 the inLab.
 
@@ -167,15 +171,15 @@ Reset the processor so that we can see that splash screen.
 
 <li><b>b</b><br>
 Uses the inLab code to set the Baud rate to one of five preset
-speeds.  This should configure both the receiving and transmitting
+speeds. This should configure both the receiving and transmitting
 data rates.
 
 <li><b>r</b><Br>
 Reset EUSART2 by clearing RCSTA2bits.CREN then immediately setting
-it.  When everything is working well, this function should not be
+it. When everything is working well, this function should not be
 needed, but it's nice to have in case you transmit some
-corrupt data that puts EUSART into an error state.  After resetting
-EUSART2, print a message stating that "EUSART2 was just reset", or 
+corrupt data that puts EUSART into an error state. After resetting
+EUSART2, print a message stating that "EUSART2 was just reset", or
 something similar.
 
 <li><b>m</b><Br>
@@ -187,55 +191,64 @@ Enter a message, hit return when done.
 
 As each character is read in by EUSART1, you should:
 <ol>	<li>Stored it into the IRtransmitBuffer,
-	<li>Echo it out to EUSART1 so the user can see what character 
-	they just entered, and 
+	<li>Echo it out to EUSART1 so the user can see what character
+	they just entered, and
 	<li>Add the character to the checksum (which should be a
 	uint8_t datatype).
 </ol>
 
-The loop reading in characters terminates when the user hits Enter, 
-'\r', or the length of the message reaches MAX_BUFFER_SIZE-2 characters.  
+The loop reading in characters terminates when the user hits Enter,
+'\r', or the length of the message reaches MAX_BUFFER_SIZE-2 characters.
 The NULL character, '\0', is placed just at the end of the characters
 followed by the 8-bit checksum.
 <br><br>
 
 After the message is entered, your program should echo out the string
-one more time and print out the checksum using a format that looks 
+one more time and print out the checksum using a format that looks
 something like:
 
 <pre>
 Enter message, hit return when done.
 >This is a test
 Created
-    Message: This is a test
-    Checksum: 245
+	Message: This is a test
+	Checksum: 245
 </pre>
 
-Hint: The <pre>EUSART1_Read()</pre> function waits for the PIR1bits.RC1IF
-flag to equal 0 before starting before reading RCREG1.  I found that I
-needed to <pre>while (EUSART1_DataReady);</pre> before performing the 
-first EUSART1_Read.  Seem unintuitive and I'll come back here to post
-a better explaination when I figure this out.
+Hint: In MCC Melody, the <pre>EUSART1_Read()</pre> function does not
+wait for any non-error flags before returning RCREG1. This can cause
+issues when iterating across multiple reads. Because of this, you have
+to manually buffer your reads by checking the flag by hand. Here is a
+small code snippet for the 'm' case as an example:
+<pre>
+	// setup before starting to read in case 'm'
+	while (EUSART1_IsRxReady()); // waiting for 'm' to clear
+	for (i = 0; i < MAX_BUFFER_SIZE - 1; i++) {
+		while (!EUSART1_IsRxReady()); // waiting until character is recieved
+		cmd = EUSART1_Read();
+		// leave loop if recieve '\r'
+		// append cmd to buffer, add to checksum, print cmd
+</pre>
 
 <li><b>S</b><br>
 Uses the transmitCharacterOverIR function to transmit all the characters
-of the IRtransmitBuffer over IR.  Make sure that you transmit the NULL
-and checksum characters.  After transmitting all the characters, tell the 
-user what has just happened with a message something like: 
+of the IRtransmitBuffer over IR. Make sure that you transmit the NULL
+and checksum characters. After transmitting all the characters, tell the
+user what has just happened with a message something like:
 <pre>
 Transmitted
-    Message: This is a test
-    Checksum: 245
+	Message: This is a test
+	Checksum: 245
 </pre>
 
 <li><b>R</b><br>
-Print the contents of IRrecieveBuffer to the terminal when receiveNewMessage 
-is true and then set receiveNewMessage to false.  If receiveNewMessage is
+Print the contents of IRrecieveBuffer to the terminal when receiveNewMessage
+is true and then set receiveNewMessage to false. If receiveNewMessage is
 true then produce output something similar to the following.
 <pre>
 Received
-    Message: This is a test
-    Checksum: 245
+	Message: This is a test
+	Checksum: 245
 </pre>
 
 If receiveNewMessage is false, then tell the user that this is the case
@@ -250,7 +263,7 @@ No message, receiveNewMessage = false
 <h3>Turn-in</h3>
 You may work with a single partner (or alone) to complete this lab.
 Submit your main.c file on Canvas using the instructions posted
-there.  You should take note of the Rubric that will be used to evaluate
+there. You should take note of the Rubric that will be used to evaluate
 your assignment. Please form a group before submitting using the
 instructions posted on Canvas. You will demonstrate your code at the
 beginning of lab.

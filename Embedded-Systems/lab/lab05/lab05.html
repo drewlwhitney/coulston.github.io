@@ -40,42 +40,42 @@ Lab 5 - Color Cube
 Some self guided <a href="./inlab05.html">activities.</a>
 
 <h2>Lab 5 assignment</h2>
-Build firmware to smoothly and continuously change the colors on the LEDs 
+Build firmware to smoothly and continuously change the colors on the LEDs
 according to the 6-color tour shown below.
 
 <br><img src="./img/sixColorCube.bmp"><br><br>
 
 <h2>Software</h2>
-Write an ISR to generate a color tour.  A color tour is a 
+Write an ISR to generate a color tour. A color tour is a
 gradual change in color along the purple edges in the image above.
 Each edge traverse should take about 0.25 seconds, meaning the entire
-color tour should take about 1.5 seconds.  Each point on the color
+color tour should take about 1.5 seconds. Each point on the color
 tour has a red, green and blue (RGB) component which, when mixed together,
-determines the color of the LED.  A particular combination of RGB 
-values is called a color coordinate.  For example, the vertex labeled
+determines the color of the LED. A particular combination of RGB
+values is called a color coordinate. For example, the vertex labeled
 "fuchsia" has color coordinate (0, 255, 0).
 <br>
 
-The transition from one vertex to another will consist of 256 
-distinct steps and take a total of 0.256 seconds.  Each invocation
-of the TMR ISR should move one step.  Thus a total of 256 ISR invocations
-are required to traverse an edge of the color tour.  Each invocation of
-the ISR should will make an incremental update to the color coordinate 
+The transition from one vertex to another will consist of 256
+distinct steps and take a total of 0.256 seconds. Each invocation
+of the TMR ISR should move one step. Thus a total of 256 ISR invocations
+are required to traverse an edge of the color tour. Each invocation of
+the ISR should will make an incremental update to the color coordinate
 displayed on the RGB LED.
 <br><Br>
 
 The color coordinates in the color tour represent the duty cycle of the
 PWM channel controlling the color in the order (red, green, blue).
-For example, at the vertex labeled "fuchsia (0,255,0)", the duty cycle 
+For example, at the vertex labeled "fuchsia (0,255,0)", the duty cycle
 of the red, green, blue LEDs are 0, 255, 0.
-Remember that the PWM duty cycles are 8-bit values (0 to 255) and that 
-our LEDs are active low so a duty cycle of 255 turns the LED off and 
-a duty cycle of 0 turns the LED on fully.  So the fuchsia vertex has
+Remember that the PWM duty cycles are 8-bit values (0 to 255) and that
+our LEDs are active low so a duty cycle of 255 turns the LED off and
+a duty cycle of 0 turns the LED on fully. So the fuchsia vertex has
 maximal red and blue color and no green.
 <br><Br>
 
 If the color tour moved from the fuchsia vertex (with color coordinate
-(0,255,0)) to the blue vertex with color coordinate (255, 255, 0).  In
+(0,255,0)) to the blue vertex with color coordinate (255, 255, 0). In
 this case, each invocation of the ISR will subtract 1 from the duty
 cycle of the red LED while leaving the duty cycle of the green and blue
 LEDs alone.
@@ -86,11 +86,11 @@ sort of light diffuser so that you aren't blinded by the LED output.
 Another eye saving technique is to turn-off all the LEDs at start-up.
 <br><br>
 
-At start-up your program should present a splash screen - this would 
-be a great place for some 
-<a href="http://www.glassgiant.com/ascii/">ASCII art</a>.   The splash
+At start-up your program should present a splash screen - this would
+be a great place for some
+<a href="http://www.glassgiant.com/ascii/">ASCII art</a>.  The splash
 screen should also contain connection instruction for the development board
-(where to install jumper wires).  When you press "?" you should be 
+(where to install jumper wires). When you press "?" you should be
 greeted with the following menu.
 
 <pre>
@@ -114,10 +114,10 @@ a: All LEDs off
 
 <ul>
 <li><b>Status</b><br>
-Display the current 8-bit duty cycle on the three channels.  The register
+Display the current 8-bit duty cycle on the three channels. The register
 CCPR1L contains the least significant 8-bits of the duty cycle and prints
-out nicely.  Print the values in hex with a leading "0x" added.  On start-up
-your program should turn off all the LEDs - this will save your eyes the 
+out nicely. Print the values in hex with a leading "0x" added. On start-up
+your program should turn off all the LEDs - this will save your eyes the
 shock of bright LEDs.
 <br><br>
 
@@ -135,11 +135,11 @@ Reset the processor so that we can see that splash screen.
 
 <li><b>R/r</b><br>
 Upper-case "R" should increase the duty cycle of the PWM channel associated
-with the red LED.  Remember that since we have active low LEDs, this will 
-actually make the LED appear dimmer.  Lower-case "r" should decrease the
-duty cycle of the PWM channel associate with the red LED.  These changes 
-to the duty cycle value should saturate at 255 and 0.  This means that 
-you should not allow the user to increase the duty cycle past 255 or 
+with the red LED. Remember that since we have active low LEDs, this will
+actually make the LED appear dimmer. Lower-case "r" should decrease the
+duty cycle of the PWM channel associate with the red LED. These changes
+to the duty cycle value should saturate at 255 and 0. This means that
+you should not allow the user to increase the duty cycle past 255 or
 decrease the duty cycle below 0.
 
 <li><b>G/g</b><br>
@@ -151,22 +151,22 @@ Same for the blue PWM channel.
 <br><br>
 
 <li><b>C</b><br>
-Start a color tour.  To do this, main should set a global variable
-colorTour to true.  The TMR ISR will then use this flag to step
+Start a color tour. To do this, main should set a global variable
+colorTour to true. The TMR ISR will then use this flag to step
 through the color tour as follows.
 <Br><br>
 
-Store the duty cycles of the vertices of the tour in three arrays initRed, 
-initGreen, initBlue (see below).  Store the changes in the duty cycles 
+Store the duty cycles of the vertices of the tour in three arrays initRed,
+initGreen, initBlue (see below). Store the changes in the duty cycles
 at each ISR invocation in three arrays deltaRed, deltaGreen, deltaBlue
-(see below).  In the code given below, element 0 in the init
-arrays represents the yellow vertex (0, 0, 255).  Element 1 in the init
-array represents the red vertex (0, 255, 255).  In order to move from the
+(see below). In the code given below, element 0 in the init
+arrays represents the yellow vertex (0, 0, 255). Element 1 in the init
+array represents the red vertex (0, 255, 255). In order to move from the
 yellow vertex to the red vertex, each ISR invocation needs to increment the
-green duty cycle by 1 and leave the red and blue duty cycles alone.  
+green duty cycle by 1 and leave the red and blue duty cycles alone.
 After 255 ISR invocations, the green duty cycle would change from 0 to 255
-landing us at the red vertex.  At this point you would be on the edge 
-from the red vertex to the fuchsia vertex.  While moving down this edge
+landing us at the red vertex. At this point you would be on the edge
+from the red vertex to the fuchsia vertex. While moving down this edge
 you will need to decrement the blue duty cycle during each ISR invocation.
 This is why the delta[1] value is -1 (represented as 0xFFFF in hex).
 
@@ -183,19 +183,19 @@ uint16_t initBlu[NUM_COLOR] = {0xFF, 0xFF, 0x00, 0x00, &hellip;
 The ISR will need to maintain the values of the current edge of
 the color tour, which step it is on along that edge, and the current
 red, green, and blue PWM duty cycles in persistent local variables.
-When the ISR gets to the end of a tour, it should start the tour 
-from the start.  
+When the ISR gets to the end of a tour, it should start the tour
+from the start.
 
-<li><b>c</b><br> The lower-case c stops the color tour by 
-setting the colorTour global variable to false.  You can leave the 
+<li><b>c</b><br> The lower-case c stops the color tour by
+setting the colorTour global variable to false. You can leave the
 colors as you found them or turn off all the PWM channels, your
 choice.
 
 <li><b>+/-</b><br> Allow the user, in main, to increase or decrease
 the interrupt frequency of the ISR in 0.2 milliseconds intervals
-using the plus or minus keys.  Do not allow the user to decrease the 
-interrupt frequency lower than 0.2 millisecond.  The program should 
-start-up with an interrupt frequency set so that each edge of the 
+using the plus or minus keys. Do not allow the user to decrease the
+interrupt frequency lower than 0.2 millisecond. The program should
+start-up with an interrupt frequency set so that each edge of the
 color tour takes about 0.256 seconds.
 
 <li><b>a</b><br>
@@ -219,24 +219,24 @@ Check out the attached link and let me know what you think.
 	<td>Three color tour shown in purple.</td></tr>
 </table>
 As a bonus add compiler directives that allow your code to be compiled
-as either a 6-color tour or a 3-color tour by <u>switching a single 
-define value</u>, NUM_COLOR between 6 and 3.  In other words if your 
+as either a 6-color tour or a 3-color tour by <u>switching a single
+define value</u>, NUM_COLOR between 6 and 3. In other words if your
 code is compiled with:
 <pre>
 	#define NUM_COLOR	6
 </pre>
-then the "c" command (see below) will generate a 6-color tour.  On the other
+then the "c" command (see below) will generate a 6-color tour. On the other
 hand, if your code is compiled with:
 <pre>
 	#define NUM_COLOR	3
 </pre>
-then the "c" command will generate a 3-color tour.  To accomplish this 
-you will need to use the compiler directives #if, #elif, #end to switch 
+then the "c" command will generate a 3-color tour. To accomplish this
+you will need to use the compiler directives #if, #elif, #end to switch
 which  delta&lt;COLOR&gt;, init&lt;COLOR&gt; arrays is used
-as the color tour.  The #if and #elif directives should
-use the value of NUM_COLOR in their conditionals.  The
+as the color tour. The #if and #elif directives should
+use the value of NUM_COLOR in their conditionals. The
 #if to #end statements should only include the array
-declarations, there should be no code in this region.  All the loops that
+declarations, there should be no code in this region. All the loops that
 iterate through the colors in the tour should use NUM_COLOR instead of
 constants values (like 3 or 6).
 
@@ -244,7 +244,7 @@ constants values (like 3 or 6).
 <h2>Turn-in</h2>
 You may work with a single partner (or alone) to complete this lab.
 Submit your main.c file on Canvas using the instructions posted
-there.  You should take note of the Rubric that will be used to evaluate
+there. You should take note of the Rubric that will be used to evaluate
 your assignment. Please form a group before submitting using the
 instructions posted on Canvas. You will demonstrate your code at the
 beginning of lab.

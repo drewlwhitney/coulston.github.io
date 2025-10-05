@@ -39,60 +39,60 @@ The objective of this lab is to familiarize you with the serial packets
 sent from an IR remote control unit.
 
 <h2>Note</h2>
-The gesture recognition hardware present in some cell-phones will 
+The gesture recognition hardware present in some cell-phones will
 emit bursts of IR radiation, appearing as spurious IR data packets in
-our environment.  This can be very frustrating to achieving the objectives
-of your and your neighbors lab.  So please take a moment to put your cell 
+our environment. This can be very frustrating to achieving the objectives
+of your and your neighbors lab. So please take a moment to put your cell
 phone in an enclosed space like a backpack or pocket during the duration
 of the lab.
 
 <h2>External Hardware</h2>
-We will be working with the remote control decoder to understand the 
+We will be working with the remote control decoder to understand the
 messages coming from a remote control unit and converting them into
-binary sequences.  In order to do this you must first be familiar with 
+binary sequences. In order to do this you must first be familiar with
 
 <h3>Remote control decoder</h3>
-To start, you you must be familiar with the operation of the Vishay 
-Infrared Receiver 
+To start, you you must be familiar with the operation of the Vishay
+Infrared Receiver
 <br><img src="./img/TSOP34.jpg"><br><br>
 
 <ol>
-<li>Go to the Bill of Materials spreadsheet linked in the in-lab activities 
-associated with Lab 01.  Use the DigiKey part number for the 38kHz 
-remote control decoder to find the part on Digikey website.  What is the
+<li>Go to the Bill of Materials spreadsheet linked in the in-lab activities
+associated with Lab 01. Use the DigiKey part number for the 38kHz
+remote control decoder to find the part on Digikey website. What is the
 manufacture part number? Download the technical documents at the Datasheets
 link.
 <li>Using the technical documents and the model number of our remote control
 decoder, what is the carrier frequency of our part?
-<li>What wavelength of light(nm) is the remote control decoder most 
+<li>What wavelength of light(nm) is the remote control decoder most
 sensitive to?  What figure did you consult to determine this answer?
-<li>Look at the development board layout, what I/O pin on the PIC is the 
+<li>Look at the development board layout, what I/O pin on the PIC is the
 V<sub>out</sub> pin from the IR decoder connected to?
 </ol>
 
 
 <h3>IR LED</h3>
 In order to communicate to an remote control decoder like the one we have
-on our development board, we need a LED that transmits photons at the 
+on our development board, we need a LED that transmits photons at the
 wavelength
-corresponding to the maximum relative spectral sensitivity given in the 
-remote control decoders technical documents.  In the Bill of Materials 
+corresponding to the maximum relative spectral sensitivity given in the
+remote control decoders technical documents. In the Bill of Materials
 used in the previous question, find the Digikey part number for the "IR LED"
 and get the technical documents.
 <ol start=5>
-<li>What is the peak emitted wavelength of this LED?  Hint, you can find this 
+<li>What is the peak emitted wavelength of this LED?  Hint, you can find this
 in the graph showing "Relative Spectral Emission".
-<li>What is the Relative Radiant Intensity of light emitted by the LED 
+<li>What is the Relative Radiant Intensity of light emitted by the LED
 when viewed 10&deg; off center?  Note, both sides of the Radiation
-Characteristics graph show the same information, they just present it 
+Characteristics graph show the same information, they just present it
 in different ways.
 <li>We will be running this IR LED at 10% duty cycle at 38kHz at room
-temperature.  Use this information to determine the following values 
+temperature. Use this information to determine the following values
 in the "Permissible Pulse Handling Capability" graph:
 <ul>	<li>T (state your answer in &micro;s)
 	<li>t<sub>p</sub> (state your answer in (&micro;s)
 	<li>D (state your answer as a decimal, NOT as a percentage)
-	<li>I<sub>F</sub> (provide a bound, like "greater than", on the 
+	<li>I<sub>F</sub> (provide a bound, like "greater than", on the
 	answer because our value is off the graph).
 </ul>
 </ol>
@@ -101,30 +101,30 @@ in the "Permissible Pulse Handling Capability" graph:
 <h2>Internal Subsystem</h2>
 In order to build an IR communication system our PIC microcontroller
 will need to control the IR LED using a PWM waveform that turns on and off
-at 38kHz.  The data sent out by the IR LED will be received by the IR 
-decoder module that will convert it into a sequence of 0 and 1's.  These
-bits will be sent to EUSART2 which will convert these bits into bytes.  
+at 38kHz. The data sent out by the IR LED will be received by the IR
+decoder module that will convert it into a sequence of 0 and 1's. These
+bits will be sent to EUSART2 which will convert these bits into bytes.
 Let's look a little closer at each of these subsystems to better understand
 their capabilities and how they will be configured in our program.
 <br><br>
 
 <b>PWM</b><br>
-Today's code uses a CCP subsystem in PWM mode to pulse the IR LED at 
-38kHz.  The CCP subsystem uses TMR2 to establish the period of the PWM 
-waveform.   Your code will change the duty cycle of the PWM waveform
+Today's code uses a CCP subsystem in PWM mode to pulse the IR LED at
+38kHz. The CCP subsystem uses TMR2 to establish the period of the PWM
+waveform.  Your code will change the duty cycle of the PWM waveform
 using a MCC call.
 
 <ol start=8>
 
 <li>Look at the schematic of the development board posted on the
-class home page.  What pin of the PIC drives the network of electrical
-components associated with the LED labeled "INFRARED"?  What CCP 
+class home page. What pin of the PIC drives the network of electrical
+components associated with the LED labeled "INFRARED"?  What CCP
 CCP subsystem is associated with this pin?
 
 <li>Complete the following table by computing the maximum period of
-TMR2 with the given prescaler.  Remember that "maximum period" means
-the amount of time TMR2 would need to count from 0 all the way back 
-to 0.  You may want to consult Chapter 13 of the PIC18(L)F2X/4XK22 
+TMR2 with the given prescaler. Remember that "maximum period" means
+the amount of time TMR2 would need to count from 0 all the way back
+to 0. You may want to consult Chapter 13 of the PIC18(L)F2X/4XK22
 Data Sheet if you have questions about how TMR2 operates.
 
 
@@ -135,11 +135,11 @@ Data Sheet if you have questions about how TMR2 operates.
 <tr><td>1:16		<td>&nbsp;
 </table>
 
-<li>Compute the period of a 38kHz waveform.  What is the smallest
-TMR2 prescaler that has a maximum period greater than 38kHz? 
+<li>Compute the period of a 38kHz waveform. What is the smallest
+TMR2 prescaler that has a maximum period greater than 38kHz?
 
 <li>Look through the inLab06 code (linked below) and identify the MCC
-function which sets the duty cycle of the CCP subsystem associated 
+function which sets the duty cycle of the CCP subsystem associated
 with the IR LED.
 </ol>
 
@@ -154,32 +154,32 @@ question.
 to?
 
 <li>Open up the PIC18(L)F2X/4XK22 Data Sheet and go to page 6 (you may
-have a handout of this page from an in-class handout) and list the 
+have a handout of this page from an in-class handout) and list the
 pins of the PIC associated with EUSART2 and their names (find this in the
 EUSART column).
 </ol>
 
-Since the IR decoder pin is not connected to the EUSART2 RX pin, in 
+Since the IR decoder pin is not connected to the EUSART2 RX pin, in
 order to have the IR decoder serve as an input device to the EUSART2
 module, you will need to connect the IR decoder pin to the EUSART2 RX
-pin using a jumper wire that came with your development board.  The
+pin using a jumper wire that came with your development board. The
 first set of experiments that you will perform with today's example
 code will not require this jumper wire, the later experiments will.
 <br><Br>
 
 In order to read the bits coming in from the IR decoder you must tell
-the PIC EUSART2 subsystem how long each bit is.  The Baud rate is the
-number of bits per second sent/received.  For example, a Baud rate
-of 1200 means that 1200 bits per second are sent/received.  In this
-case, each bit takes 1/1200 of a second or 833 &micro;s.  Since 
+the PIC EUSART2 subsystem how long each bit is. The Baud rate is the
+number of bits per second sent/received. For example, a Baud rate
+of 1200 means that 1200 bits per second are sent/received. In this
+case, each bit takes 1/1200 of a second or 833 &micro;s. Since
 today's program both sends and receives bits at the same Baud rate,
 we will need to know how to configure the EUSART2 subsystem to change
-Baud rate and will need to know how many 1:1 prescaled TMR1 counts 
+Baud rate and will need to know how many 1:1 prescaled TMR1 counts
 correspond to each of these Baud rates.
 
 In order to set the Baud rate of the EUSART2 subsystem, the
-EUSART2 module divides down the main oscillator, F<sub>osc</sub> by a 
-value contained in the Baud Rate Generator (BRG).  In order to switch 
+EUSART2 module divides down the main oscillator, F<sub>osc</sub> by a
+value contained in the Baud Rate Generator (BRG). In order to switch
 between Baud rates, as you will do in this assignment, you will
 need to update the values in the SPBRGH2:SPBRG2 register pair.
 
@@ -195,27 +195,27 @@ The Baud rate of EUSART2 is given by the following formula:
 Where F<sub>osc</sub> is the clock speed of the main oscillator
 (you set this using the MCC) and SPBRGH2:SPBRG2 is a 16-bit
 value (formed from two 8-bit registers), that divides down the main
-oscillator.  You can change these two registers at run
-time to change the Baud rate.  We will want to change the Baud rate
+oscillator. You can change these two registers at run
+time to change the Baud rate. We will want to change the Baud rate
 to experiment and see what the fastest rate we can transmit information.
 In order to do this, you will need to complete the following table.
-To get the SPBRGH2:SPBRG2 values, solve the equation above for 
+To get the SPBRGH2:SPBRG2 values, solve the equation above for
 SPBRGH2:SPBRG2 and then plug in values to determine a decimal
-value.  Convert this decimal value into hexadecimal then assign the least 2 
-significant hex digits to SPBRG2 and the two most significant hex digits 
+value. Convert this decimal value into hexadecimal then assign the least 2
+significant hex digits to SPBRG2 and the two most significant hex digits
 to SPBRGH2 (pad with 0 if there are not enough digits).
 <br><br>
 
 For example, with a target Baud rate of 1200 bits per second and the default
-oscillator speed, SPBRGH2:SPBRG2 = 13,332.  Converting this to hex yields
-SPBRGH2:SPBRG2 = 0x3414.  Assigning the lower two hex digits to 
+oscillator speed, SPBRGH2:SPBRG2 = 13,332. Converting this to hex yields
+SPBRGH2:SPBRG2 = 0x3414. Assigning the lower two hex digits to
 SPBRG2 = 0x14 and the upper two hex digits SPBRGH2 = 0x34.
 <br><Br>
 
 In the "Bit Period (us)" column, put the duration of one bit period at
-the Baud rate given in that row.  In the "Bit Period (1:1 prescaled TMR1
-counts) column, convert microseconds into 1:1 prescaled TMR1 counts.  
-The reason for this will be made clear when you examine the code in 
+the Baud rate given in that row. In the "Bit Period (1:1 prescaled TMR1
+counts) column, convert microseconds into 1:1 prescaled TMR1 counts.
+The reason for this will be made clear when you examine the code in
 later questions.
 
 
@@ -231,9 +231,9 @@ later questions.
 </table>
 </li>
 
-The PWM subsystem needs to generate a 38kHz waveform with a 0% or 10% 
-duty cycle through pin RC1.  Our program will manipulate pin RC1 using
-Pulse Width Modulation (PWM) through the ECCP2 subsystem. 
+The PWM subsystem needs to generate a 38kHz waveform with a 0% or 10%
+duty cycle through pin RC1. Our program will manipulate pin RC1 using
+Pulse Width Modulation (PWM) through the ECCP2 subsystem.
 </ol>
 
 <h2>Firmware Organization</h2>
@@ -241,9 +241,9 @@ Pulse Width Modulation (PWM) through the ECCP2 subsystem.
 <ul>
 <li>Launch MPLab X
 <li>Close any open project: File &rarr; Close All Projects
-<li>Create a new inLab06 project as you did in Lab 5.  Make sure, at 
-step 2 (Select Device), to choose PICKit 3, PICKit 4 or SNAP.
-<li>Click  Tools &rarr; Embedded &rarr; MPLab Code Configurator
+<li>Create a new inLab05 project as you did in Lab 4. Make sure, at
+step 2 (Select Device), to choose PICKit 3.
+<li>Click Tools &rarr; Embedded &rarr; MPLab Code Configurator
 <li>If the MPLab Code Configurator is not listed then you will need
 to install the Code Configurator as follows:
 <ul>	<li>Tools &rarr; Plugins,
@@ -257,111 +257,101 @@ to install the Code Configurator as follows:
 	<li>When MPLab launches, open the MPLab Code Configurator.
 </ul>
 <li>In the Save MCC Configuration File pop-up, keep defaults and click Save,
-
-<li>In the INTERNAL OSCILLATOR area of the System Module window
-<ul>	<li>Oscillator Select:	Internal oscillator block
-	<li>System Clock Select: FOSC
+<li>Click on "Clock Control" in the Project Resources section of the Resource
+Management tab (left side of the screen). Then, in the Clock Control tab
+<ul>	<li>System Clock Select: FOSC
 	<li>Internal Clock: 16MHz_HFINTOSC
 	<li>Software PLL Enabled: &check;
 </ul>
-The Current System clock should be 64MHz (4x PLL)
+The current System Clock should be 64000000.
 
-<li>In the Device Resources area of the project window, expand the Timer
-option.  Double click TMR1.
-<li>In the Device Resources area of the project window, expand the Timer
-option.  Double click TMR2.
-<li>In the Device Resources area of the project window, expand the EUSART
-option.  Double click EUSART1 [PIC10/PIC12/PIC16/PIC18 MCUs by Microchip
-Technology Inc.]
-<li>In the Device Resources area of the project window, expand the EUSART
-option.  Double click EUSART2 [PIC10/PIC12/PIC16/PIC18 MCUs by Microchip
-Technology Inc.]
-<li>In the Device Resources area of the project window, expand the ECCP
-option.  Double click ECCP2
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR1.
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR2.
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "UART" list. Double click UART.
+<ul>	<li>In the UART(None) menu that pops up, select the following:
+	<li>UART PLIB Selector:	EUSART1</ul>
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "UART" list. Double click UART.
+<ul>	<li>This time it will select EUSART2 for you.</ul>
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "ECCP" list. Double click ECCP2.
 
-
-<li>In the Project Resources area of the project window click on TMR1.
-<ul>	<li>Enable Timer:	&check;
-	<li>Prescaler:		1:1
+<li>In the Project Resources section of the the Resource Management tab, expand
+the Drivers &rarr; Timer options if not already expanded, and click on TMR1.
+<ul>	<li>Timer Enable:	&check;
 	<li>Clock Source:	FOSC/4
+	<li>Prescaler:		1:1
 </ul>
 
-<li>In the Project Resources area of the project window click on TMR2.
-<ul>	<li>Enable Timer:	&check;
-	<li>Postscaler:		1:1
+<li>In the Project Resources section of the the Resource Management tab,
+click on TMR2.
+<ul>	<li>Timer Enable:	&check;
 	<li>Prescaler:		1:4
-	<li>Timer Period:	26 us
+	<li>Postscaler:		1:1
+	<li>Requested Period:	26 us
 </ul>
 
-<li>In the Project Resources area of the project window click on EUSART1.
-Note &square; means to leave the box unchecked. A &check; means to check
-the associated box.
-<ul>	<li>Enable EUSART:	&check;
-	<li>Enable Transmit:	&check;
-	<li>Enable Wake-up:	&square;
-	<li>Auto-Baud Detection:	&square;
-	<li>Enable Address Detect:	&square;
-	<li>Baud Rate:		9600
-	<li>Transmission Bits:	8-bit
-	<li>Reception Bits:	8-bit
-	<li>Clock Polarity:	async_noninverted_sync_fallingedge
-	<li>Enable Receive:	&check;
-	<li>Enable EUSART Interrupts:	&square;
-	<li>Redirect STDIO to USART	&check;
+<li>In the Project Resources section of the the Resource Management tab, expand
+the UART option and click on UART1. Note &square; means to leave the box
+unchecked. A &check; means to check the associated box.
+<ul>	<li>Requested Baudrate:		9600
+	<li>Data Size:	8
+	<li>Flow Control Mode:	None
+	<li>Redirect Printf to UART:	&check;
+	<li>Interrupt Driven:	&square;
 </ul>
 
-<li>In the Project Resources area of the project window click on EUSART2.
-Note &square; means to leave the box unchecked. A &check; means to check
-the associated box.
-<ul>	<li>Enable EUSART:	&check;
-	<li>Enable Transmit:	&check;
-	<li>Enable Wake-up:	&square;
-	<li>Auto-Baud Detection:	&square;
-	<li>Enable Address Detect:	&square;
-	<li>Baud Rate:		1200
-	<li>Transmission Bits:	8-bit
-	<li>Reception Bits:	8-bit
-	<li>Clock Polarity:	async_noninverted_sync_fallingedge
-	<li>Enable Receive:	&check;
-	<li>Enable EUSART Interrupts:	&square;
-	<li>Redirect STDIO to USART	&square;
+<li>In the Project Resources section of the the Resource Management tab,
+click on UART2.
+<ul>	<li>Requested Baudrate:		1200
+	<li>Data Size:	8
+	<li>Flow Control Mode:	None
+	<li>Redirect Printf to UART:	&square;
+	<li>Interrupt Driven:	&square;
 </ul>
 
-<li>In the Project Resources area of the project window click on ECCP2.
-<ul>	<li>ECCP mode:			Enhanced PWM
-	<li>Capture Timer Select:	Timer2
-	<li>PWM Duty Cycle:		0.0%
-	<li>Enhanced PWM mode:		single
+<li>In the Project Resources section of the the Resource Management tab, expand
+the ECCP option and click on ECCP2.
+<ul>	<li>ECCP mode:	Enhanced PWM
+	<li>TMR Dependency Selector:	TMR2
+	<li>Select Timer:	Timer 2
+	<li>PWM Duty Cycle (%):	0
+	<li>Enhanced PWM Output Mode:	single
 </ul>
 
-<li>In the Project Resources area of the project window, click "Pin Module".
-The editor window will change from the System Module to Pin Module. Click
-on the Pin Manager tab in the console area. Click on Port C bit 0 in the GPIO 
-input row. The blue open lock should change to a green closed lock.  This
-pin does not need a name, we just need to make sure that RC0 does not 
-interfere with the incoming IR data.
+<li>Click on "Pins" in Project Resources. In the Pin Grid View tab
+(bottom of the screen) click on the open lock in the PortC bit 0
+column and the input row. The blue open lock should change to a green
+closed lock. This pin does not need a name, we just need to make sure
+that RC0 does not interfere with the incoming IR data.
 
 <li>Click File &rarr; Save All
 <li>Leave the configuration file name as "MyConfig.mc3"
 <li>Click on the "Generate" button in the Project Resources area of the
-project manager window. Remember that anytime that you make a change to 
-the configuration you must re-generate the supporting files by clicking 
+project manager window. Remember that anytime that you make a change to
+the configuration you must re-generate the supporting files by clicking
 on the generate button,
-<li>Click on the Project tab in the project manager window,
-expand the Source Files folder and double click main.c to open 
-it in the editor window,
-<li>Replace the contents of main.c with 
-<a href="./code/inlab06.c">inlab06.c</a>,
+<li>Click on the Project tab, expand the Source Files folder and double
+click main.c to open it in the editor window,
+<li>Replace the contents of main.c with
+	<ul>
+	<li> <a href="./code/inlab06Classic.c">inlab05Classic.c</a></li>
+	<li> <a href="./code/inlab06Melody.c">inlab05Melody.c</a></li>
+	</ul>
+</ul>
 <li>Compile and download the code to the PIC,
 </ul>
 
 Before you can start working with the application you need to
 <ul>	<li>Install the jumper over the 5V header that is adjacent to
 	the USB connector,
-	<li>Install the IR_TX jumper that is at the top of the 
+	<li>Install the IR_TX jumper that is at the top of the
 	development board,
 	<li>Unplug the programmer (PICKit3, PICKit4 or SNAP) and,
-	<li>Connect a jumper wire between RC0 and RB7.  
+	<li>Connect a jumper wire between RC0 and RB7.
 </ul>
 After this, press the '?' key to produce the following menu.
 <br><br>
@@ -383,11 +373,11 @@ r: reset EUSART2
 </pre>
 <dl>
 <dt>b</dt>
-<dd>Is the number of bits per second that the IR transmitter will send 
-characters and the number of bits per second the EUSART2 will expect 
-characters to arrive.  You have to choose one of the preset speeds.
-Note that the SPBRGH2:SPBRG2 values in the code given to you are all the 
-same.  A latter question will have you correct this deficiency using
+<dd>Is the number of bits per second that the IR transmitter will send
+characters and the number of bits per second the EUSART2 will expect
+characters to arrive. You have to choose one of the preset speeds.
+Note that the SPBRGH2:SPBRG2 values in the code given to you are all the
+same. A latter question will have you correct this deficiency using
 values you computed in an an earlier question.
 </dd>
 
@@ -395,51 +385,51 @@ values you computed in an an earlier question.
 <dd>Sends out one pulse of 38kHz for the number of 1:1 prescaled TMR1
 counts given in the bitPeriod array at the current baudRateSelected.
 The delay created by this duration corresponds to the Baud rate of
-the EUSART2 module. 
+the EUSART2 module.
 </dd>
 
 <dt>S</dt>
-<dd>Transmits the letter given using the IR LED.  The letter value
+<dd>Transmits the letter given using the IR LED. The letter value
 is auto incremented so that a different letter is sent the next time
 "S" is pressed.
 </dd>
 
 <dt>R</dt>
 <dd>Checks the PIR3bits.RC2IF flag to check if the EUSART2 module
-has received a character on the RB7 pin.  If there is a character,
-then print it out using the RCREG2.  Note, I am intentionally not
-using the EUSART2_Read(void) function because this function  will 
-cause problems when called from an ISR because the ISR clears the 
-flag PIR3bits.RC2IF then the EUSART2_Read(void) wait (in an 
-infinite loop) for this flag to be set.   I wasted an hour tracking 
-this bug down.  Hence, I'd like you avoid this function from the start.
+has received a character on the RB7 pin. If there is a character,
+then print it out using the RCREG2. Note, I am intentionally not
+using the EUSART2_Read(void) function because this function  will
+cause problems when called from an ISR because the ISR clears the
+flag PIR3bits.RC2IF then the EUSART2_Read(void) wait (in an
+infinite loop) for this flag to be set.  I wasted an hour tracking
+this bug down. Hence, I'd like you avoid this function from the start.
 </dd>
 
 <dt>r</dt>
-<dd>Its possible that the EUSART2 subsystem will get in an undefined 
-configuration.  If this happens, then use this reset function to restart
+<dd>Its possible that the EUSART2 subsystem will get in an undefined
+configuration. If this happens, then use this reset function to restart
 EUSART2 and put it into a know configuration.
 </dd>
 </dl>
 
 <h2>Firmware Experiments</h2>
-The IR LED on our PIC draws a tremendous amount of current and, as a 
-consequence, generates a very bright pulse of light.  However, since
-that light is infrared, we cannot see it.  But don't be fooled, it's
-very bright.  Let's do some basic experiments to see just how much 
+The IR LED on our PIC draws a tremendous amount of current and, as a
+consequence, generates a very bright pulse of light. However, since
+that light is infrared, we cannot see it. But don't be fooled, it's
+very bright. Let's do some basic experiments to see just how much
 current flows through the IR LED and how the light from the IR LED
-interacts with the IR decoder. 
+interacts with the IR decoder.
 
-In order to answer some of the following questions, please refer to 
+In order to answer some of the following questions, please refer to
 this annotate version of the IR LED driver circuit that you can
 find in the development board schematic.
 
 <br><img src="./img/IRcurrent.bmp"><br><br>
 
 In this transistor circuit the IR LED and resistor currents are almost
-the same.  In other words we will assume that I<sub>LED</sub> = I<sub>r</sub>.
-Hence, the resistor current is a good proxy for the LED current.  We 
-can infer the resistor current by measuring the voltage drop across 
+the same. In other words we will assume that I<sub>LED</sub> = I<sub>r</sub>.
+Hence, the resistor current is a good proxy for the LED current. We
+can infer the resistor current by measuring the voltage drop across
 the resistor and then use Ohm's law to determine the current (because
 we know the resistance of R10 is 2.2&ohm;).
 <br><Br>
@@ -462,29 +452,29 @@ as follows:
 </table>
 
 You will want to remove the probe tip gripper and reveal the sharp tip of
-the oscilloscope probe to do this.  You can remove the Ch1 ground clip
+the oscilloscope probe to do this. You can remove the Ch1 ground clip
 to make manipulation of the probe tip easier.
 
 <ol start=15>
 <li>Measure the voltage on the high-side of the 2.2&ohm; resistor R10
 using the oscilloscope by probing the left side of resistor R10 as
-shown in the image below.  Use the 'p' function in PuTTy to produce 
+shown in the image below. Use the 'p' function in PuTTy to produce
 the IR pulses.
 <br><img src="./img/probeResistor.bmp"><br><br>
 
 <li>From this oscilloscope screen shot, what is the voltage drop
 across resistor when the PWM waveform is at logic 1?  You measured this
-voltage at the "Probe here" location in the image above.  Use Ohm's law 
-to compute how much current flows through the IR LED during this brief 
+voltage at the "Probe here" location in the image above. Use Ohm's law
+to compute how much current flows through the IR LED during this brief
 interval?  Round your answer to 2 significant figures.
 
 <li>If you accidentally placed a steady logic 1 on RC1 (with the
-IR_TX jumper installed), the huge current drawn by the IR LED will 
-cause the Vcc voltage to drop.  Let's test this by applying a steady
-logic 1 to the IR amplifier 
+IR_TX jumper installed), the huge current drawn by the IR LED will
+cause the Vcc voltage to drop. Let's test this by applying a steady
+logic 1 to the IR amplifier
 <ul>	<li>Remove the IR_TX jumper
 	<li>Place one end of a jumper wire to the Vcc pin,
-	<li>Briefly place the other end of this jumper wire to the 
+	<li>Briefly place the other end of this jumper wire to the
 	<u>right</u> pin of the IR_TX jumper,
 	<li>Record, as your answer to this question, what you observed
 	happen to the green Power-On LED.
@@ -498,7 +488,7 @@ The IR radiation being emitted by the IR LED is very bright indeed.
 So bright, in fact, that it has no problem bouncing around the walls
 of the lab and entering the into the IR decoder connected to pin RC0.
 To see this, let's use the 'p' function to emit a burst or IR pulses
-and look at the effect they have on the IR decoder output.  Configure
+and look at the effect they have on the IR decoder output. Configure
 your oscilloscope as follows:
 <br><br>
 
@@ -520,7 +510,7 @@ your oscilloscope as follows:
 <ol start=18>
 
 <li>Replace the "grabber" to the Ch1 oscilloscope probe and connect Ch1
-to pin RC0.  Capture a screen shot of the 'p' function output as your
+to pin RC0. Capture a screen shot of the 'p' function output as your
 answer to this question.
 
 
@@ -531,25 +521,25 @@ for the output of the IR decoder (shown on RC0) to return to logic 1?
 </ol>
 
 This ability to detect your own radiated IR pulses will allow you to
-complete the lab by yourself using a single development board.  Of
+complete the lab by yourself using a single development board. Of
 course, you can run this code on two different development boards and
-transfer data from one to another.   You are welcome to experiment with
+transfer data from one to another.  You are welcome to experiment with
 this idea, but may I suggest finishing answering the questions in this
 in-lab first.
 <br><Br>
 
 
-We will be using a non-standard data format for our IR data 
-packets - ASCII.  When you press the 'S' key to transmit a character,
-the IR LED will blink at 38KHz.  When the IR decoder "sees" this,
+We will be using a non-standard data format for our IR data
+packets - ASCII. When you press the 'S' key to transmit a character,
+the IR LED will blink at 38KHz. When the IR decoder "sees" this,
 it's output will go to logic 0.a  The 'S' function times the IR LED
 blinking so that the IR decoder output generates an acceptable looking
-serial ASCII character. 
-Before using an oscilloscope to examine the signals, I'd like you to 
+serial ASCII character.
+Before using an oscilloscope to examine the signals, I'd like you to
 look at the code first and predict what you should see on the oscilloscope
 (and then use an oscilloscope to check your assumptions).
 Open up the inLab06 code and find the code associated with the 'S'
-key.  Use this section of code to answer the following questions.
+key. Use this section of code to answer the following questions.
 <br><Br>
 
 <ol start=20>
@@ -557,32 +547,32 @@ key.  Use this section of code to answer the following questions.
 Each bit of the the variable "letter" is held for some duration of
 time using a TMR1 delay loop.
 Using the default value for the baudRateSelected variable and the
-configuration for TMR1, what is the length of the delay for the code 
+configuration for TMR1, what is the length of the delay for the code
 snippet?  What Baud rate does this correspond to?
 <pre>
-	TMR1_WriteTimer(0x10000 - bitPeriod[baudRateSelected]);
+	TMR1_CounterSet(0x10000 - bitPeriod[baudRateSelected]);
 	PIR1bits.TMR1IF = 0;
-	while (TMR1_HasOverflowed() == false);
+	while (TMR1_HasOverflowOccured() == false);
 </pre>
 </li>
 
 The instruction EPWM2_LoadDutyValue(LED_ON); makes the IR LED to oscillate
-at 38kHz causing the IR decoder to output a logic 0. The instruction 
+at 38kHz causing the IR decoder to output a logic 0. The instruction
 EPWM2_LoadDutyValue(LED_OFF); stops the IR LED from emitting IR radiation
 causing the IR decoder to output logic 1.
 
-<li>Let the variable "letter" equal ASCII '5'.  Use the code in the "S" 
-function to trace out the activity that this IR LED would cause on the 
-output of the IR decoder.  Note, the S function transmits 10-bits of data - 
-make sure to include all of them in your answer.  The space between a pair of 
+<li>Let the variable "letter" equal ASCII '5'. Use the code in the "S"
+function to trace out the activity that this IR LED would cause on the
+output of the IR decoder. Note, the S function transmits 10-bits of data -
+make sure to include all of them in your answer. The space between a pair of
 vertical dotted lines denotes 1 bitPeriod, the duration of which you found
-in the previous problem.  Label the time axis at each of the vertical lines
+in the previous problem. Label the time axis at each of the vertical lines
 with the the time in milliseconds (to 2 significant digits).
 <br><img src="./img/bitSequence.bmp">
 </ol>
 
 
-Let's capture an IR packet and include it in your lab report.  To
+Let's capture an IR packet and include it in your lab report. To
 do this configure your oscilloscope as follows:
 
 <table class="table table-striped table-bordered table-condensed">
@@ -605,7 +595,7 @@ into an ASCII character using the following oscilloscope setup.
 Make sure to:
 <ul>	<li>Align Ch 1 on the second lowest reticule,
 	<li>Align the horizontal position at the second left-most reticule,
-	<li>Align Ch 1 on the second lowest reticule on the upper half 
+	<li>Align Ch 1 on the second lowest reticule on the upper half
 	of the oscilloscope screen.
 	<li>Convert serial stream<br>
 	[Serial] &rarr; <u>Mode</u> &rarr; UART/RS232<br>
@@ -618,19 +608,19 @@ Make sure to:
 	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>Polarity</u> &rarr; Idle high<br>
 	[Serial] &rarr; <u>Bus Config</u> &rarr; <u>Bit Order</u> &rarr; LSB<br>
 	[Serial] &rarr; <u>settings</u> &rarr; <u>Base</u> &rarr; ASCII<br>
-		
+
 	<li>Clear all menus off the bottom of the screen<br>
 	[&uarr;Back]
 	<li>Screen shot the screen on USB:<br>
-	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr; 
+	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr;
 	<u>24-bit Bit... (*.bmp)</u>
 	[Save] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
 </ul>
 
-Press the "S" and You should see the flicker of 
-bits being sent and then a short time later they will go away.  In order to 
-get the bits to stay on the screen you need to switch the oscilloscope 
-trigger from auto to normal mode. [Mode/Coupling] &rarr; Mode &rarr; Normal 
+Press the "S" and You should see the flicker of
+bits being sent and then a short time later they will go away. In order to
+get the bits to stay on the screen you need to switch the oscilloscope
+trigger from auto to normal mode. [Mode/Coupling] &rarr; Mode &rarr; Normal
 <br><br>
 
 
@@ -640,73 +630,73 @@ trigger from auto to normal mode. [Mode/Coupling] &rarr; Mode &rarr; Normal
 
 <li>In main.c, find the code under "case 'b':"  and set the
 correct values for the SPBRGH2:SPBRGH registers using the values
-you found in a previous inLab question.  Cut and paste your code for
+you found in a previous inLab question. Cut and paste your code for
 "case '0':" through "case '4':" as your answer to this question.
 
-<li>In main.c, find the values for the bitPeriod array at the 
-top of main.  Set the correct values for the delays using the values
-you found in a previous inLab question.  Cut and paste your code 
+<li>In main.c, find the values for the bitPeriod array at the
+top of main. Set the correct values for the delays using the values
+you found in a previous inLab question. Cut and paste your code
 the correct initialized values as your answer to this question.
 </ol>
 
 Now that you have verified that you are able to transmit a nice
-ASCII character, its time to have the PIC interpret them.  In order
+ASCII character, its time to have the PIC interpret them. In order
 to do this you will need to place a jumper wire between RC0 and RB7.
 <u>Only place the jumper wire between RC0 and RB7 after you have
-unplugged the programmer (PICKit 3, PICKIT4, or SNAP)</u>.  Any 
-time you need to reprogram the PIC, you will need to remove this 
-jumper wire as the output from the IR decoder attached to RB7 (via RC0) 
+unplugged the programmer (PICKit 3, PICKIT4, or SNAP)</u>. Any
+time you need to reprogram the PIC, you will need to remove this
+jumper wire as the output from the IR decoder attached to RB7 (via RC0)
 will interfere with the programmer that uses RB7 as the PGD pin
 to the PIC.
 <br><br>
 
 <ol start=25>
 
-<li>Experiment with the Baud rate using the "b" function.  What is the
+<li>Experiment with the Baud rate using the "b" function. What is the
 fastest, reliable, Baud rate?
 
-<li>Explain what device is limiting the Baud rate, and how you 
-figured this out.  Hint, discuss the relationship between the 
-IR pulses on RC1 and the incoming data on RC0 that you investigated 
+<li>Explain what device is limiting the Baud rate, and how you
+figured this out. Hint, discuss the relationship between the
+IR pulses on RC1 and the incoming data on RC0 that you investigated
 in questions 18 and 19.
 </ol>
 
 The following is paraphrased from page 264 of the PIC18....
 <pre>
-When all bits of the character have been shifted in, they are immediately transferred to a two character First-In-First-Out (FIFO) memory. The FIFO buffering allows reception of two complete characters and the start of a third character before software must start servicing the EUSART receiver.  Access to the received data is via the RCREG2 register.
+When all bits of the character have been shifted in, they are immediately transferred to a two character First-In-First-Out (FIFO) memory. The FIFO buffering allows reception of two complete characters and the start of a third character before software must start servicing the EUSART receiver. Access to the received data is via the RCREG2 register.
 </pre>
 
 This means that when you read RCREG2, you may not be reading the
 most recent character received, but rather something older.
 To prevent this causing problems, I read the RCREG2 twice at
-the beginning of main.  
+the beginning of main.
 
 <ol start=27>
 <li>Where in main, at start-up, is the contents of RCREG2 register
-cleared?  State your answer in terms of code line numbers.  Hint,
+cleared?  State your answer in terms of code line numbers. Hint,
 I clear the register twice in order to make sure the FIFO is empty.
 
 In this weeks lab you will write an ISR to service EUSART2 interrupt.
 In order to understand how data is collected, how interrupt flag
-is set and how that interrupt flag is cleared, you will need to 
-read and understand the material in section 16.1.2 of the 
-PIC18(L)F2X/4XK22 Data Sheet posted on the class web page. 
+is set and how that interrupt flag is cleared, you will need to
+read and understand the material in section 16.1.2 of the
+PIC18(L)F2X/4XK22 Data Sheet posted on the class web page.
 
 <li>Use the content of the data sheet to help answer the following question.
-In particular the introduction to section 16.1.2, section 16.1.2.2 and 
+In particular the introduction to section 16.1.2, section 16.1.2.2 and
 sections 16.1.2.4.
 <ul>	<li>What does FIFO stand for?
 	<li>How many complete characters can be stored in the FIFO?
 	<li>What register would you read to remove characters from the
 	EUSART2 FIFO?
-	<li>Assume that the RSR received the character 'a' and then 
-	latter receive the character 'b'.  What character would you
+	<li>Assume that the RSR received the character 'a' and then
+	latter receive the character 'b'. What character would you
 	expect when you read the register in the previous question?
 	What character would you get on the second read?  Hint, think
 	about the meaning of FIFO.
 	<li>What flag is set when a character is received?  Include the
 	name of the register and name of the field.
-	<li>When will this flag be set?  Hint, section 16.1.2.4.  
+	<li>When will this flag be set?  Hint, section 16.1.2.4.
 	<li>Can your program clear this flag by writing 0 to it?
 	<li>How does your program clear this flag?
 <ul>

@@ -68,19 +68,19 @@ copy over to a new project (say for your lab03), then:
 <li>Have a 32<sup>nd</sup> rest between notes,
 <li>Use Timer 1 with a 1:1: prescaler to generate the note frequencies,
 <li>Store at least two octaves worth of notes (half periods of timer 1)
-	in an array called <font face="courier">scale</font>.  For example,
+	in an array called <font face="courier">scale</font>. For example,
 	my code has the following (partial) declaration:<br>
 <font face="courier">uint16_t scale[NUM_OCTAVES*12] = {12864,12144,11472,10816,10208,9632,&hellip;</font><br>
 	Note, I used a #define to set NUM_OCTAVES to 2,
 <li>Use Timer 0 with a 1:256 prescaler to generate the note durations,
 <li>Store your song in two arrays, one for notes and one for duration,
 <ul>	<li>The array storing the notes of the song should have the index
-	of the scale of each note.  For example, my code which plays Hot
+	of the scale of each note. For example, my code which plays Hot
 	Crossed Buns, has the following (partial) declaration:<br>
 <font face="courier">uint16_t notes[SONG_LENGTH] = {B5, A5, G4, B5, A5,&hellip;</font><br>
 	The symbols in the notes array "B5", "A5", etc. are #defined
 	to indicies in the scale
-	array which contains the half period of that note.  For example,
+	array which contains the half period of that note. For example,
 	since the half period of a G4 note is 10208 timer 1 counts (which
 	is index 4 in the scale array defined above), my code contains the
 	following #define at the top of the program:<Br>
@@ -90,9 +90,9 @@ copy over to a new project (say for your lab03), then:
 <font face="courier">uint16_t    duration[SONG_LENGTH] = {QUA, QUA, HAL, QUA,&hellip;</font><br>
 	The symbols in the duration array, "QUA", "HAL" are #define to
 	the number of 1:256
-	prescaled timer 0 counts each duration required.  For example, a quarter
+	prescaled timer 0 counts each duration required. For example, a quarter
 	note is 0.25 seconds long, corresponding to 15625 counts on a 1:256
-	prescaled timer 0.  So my code contains the following define:<br>
+	prescaled timer 0. So my code contains the following define:<br>
 	<font face="courier">#define QUA     15625</font>
 	</ul>
 	<li>Set the speaker pin to logic 0 when you are not playing a note,
@@ -114,7 +114,7 @@ at least 2 different note durations.
 <h2>Turn-in</h2>
 You may work with a single partner (or alone) to complete this lab.
 Submit your main.c file on Canvas using the instructions posted
-there.  You should take note of the Rubric that will be used to evaluate
+there. You should take note of the Rubric that will be used to evaluate
 your assignment. Please form a group before submitting using the
 instructions posted on Canvas. You will demonstrate your code at the
 beginning of lab.
