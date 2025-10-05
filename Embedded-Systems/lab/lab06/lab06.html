@@ -224,7 +224,7 @@ small code snippet for the 'm' case as an example:
 	// setup before starting to read in case 'm'
 	while (EUSART1_IsRxReady()); // waiting for 'm' to clear
 	for (i = 0; i < MAX_BUFFER_SIZE - 1; i++) {
-		while (!EUSART1_IsRxReady()); // waiting until character is recieved
+		while (!EUSART1_IsRxReady()); // waiting until character is received
 		cmd = EUSART1_Read();
 		// leave loop if recieve '\r'
 		// append cmd to buffer, add to checksum, print cmd
