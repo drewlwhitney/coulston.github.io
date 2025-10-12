@@ -43,17 +43,17 @@ in a sampled system.
 For this lesson, you will be using the microphone on the development board.
 Attached to this microphone is a 1<sup>st</sup> order low pass filter
 acting as an antialias filter in front of the RA5 (analog) input to
-the PIC 18F26K22.  Let's start by investigating the microphone and 
+the PIC 18F26K22. Let's start by investigating the microphone and
 filter.
 
 <h3>Electric Mic</h3>
-Access the Bill of Materials for the development board from an earlier lab, 
+Access the Bill of Materials for the development board from an earlier lab,
 find the DigiKey part number for the Electric mic and download its
 technical documents from Digikey.
 
 <ol>
 <li>In your own words, describe the Frequency Response graph on
-page 2 of the technical documents.  You may want to 
+page 2 of the technical documents. You may want to
 consult the Wiki on<a href="http://en.wikipedia.org/wiki/Frequency_response">
 Frequency Response</a>.
 
@@ -63,33 +63,33 @@ Frequency Response</a>.
 
 
 <h3>OPA344</h3>
-In this section you will examine the low pass filter stage of the 
-microphone subsystem.  The following figure is taken from the schematic
+In this section you will examine the low pass filter stage of the
+microphone subsystem. The following figure is taken from the schematic
 and annotates sections of the filter for further discussion.
 
 <br><img width=600 src="./img/micFrontEnd.bmp"><br><br>
 
-Our op-amp is setup as a 
+Our op-amp is setup as a
 <a href="http://en.wikipedia.org/wiki/Low-pass_filter#Active_electronic_realization">Low Pass Filter</a>.
-This op-amp configuration combines gain with a low pass filter.  The gain 
-is required to order to boost the small signal coming from the microphone 
-into a measurable signal.  The low pass filter helps reduce unwanted alias 
+This op-amp configuration combines gain with a low pass filter. The gain
+is required to order to boost the small signal coming from the microphone
+into a measurable signal. The low pass filter helps reduce unwanted alias
 from folding down into the signal of interest.
 
 <ol start=3>
-<li>Use the link above to find the equations associated with our 
-low pass filter.  Calculate the gain of our LPF?
+<li>Use the link above to find the equations associated with our
+low pass filter. Calculate the gain of our LPF?
 <li>Calculate the corner frequency, f_c, in Hz of our LPF.
-<li>You apply a 1v peak-to-peak sine wave with frequency of 33khz, 
+<li>You apply a 1v peak-to-peak sine wave with frequency of 33khz,
 calculate the amplitude of the output from the LPF.
 </ol>
 
 <h2>Internal Subsystem</h2>
 The PIC has an analog to digital converter (ADC) subsystem which takes
-an analog input between 0 and 3.3v and converts the analog voltage 
-into number, called the converted value between 0 and 1023. The conversion 
-from voltage to number is ratiometric, meaning that the output is directly 
-proportional to the input.  For example, a 1V input to the ADC will 
+an analog input between 0 and 3.3v and converts the analog voltage
+into number, called the converted value between 0 and 1023. The conversion
+from voltage to number is ratiometric, meaning that the output is directly
+proportional to the input. For example, a 1V input to the ADC will
 produce a 10-bit output called x in the derivation below.
 <pre>
    3.3v   1 v
@@ -98,22 +98,22 @@ produce a 10-bit output called x in the derivation below.
 </pre>
 
 For practical reasons we will keep only 8 of the 10 bits available from
-the ADC output.  At first glance the hardware organization in the PIC,
-shown in the image below, may look pretty intimidating.  However, its
+the ADC output. At first glance the hardware organization in the PIC,
+shown in the image below, may look pretty intimidating. However, its
 not too bad if you split the hardware into four submodules.
 <ol>	<li>The left dashed box with lots of "AN" inputs is a multiplexer.
 	The multiplexer chooses one of its inputs (based on the CHS<4:0>
 	values) and sends it to the output.
 	<li>The module labeled 10-Bit ADC is the actual analog to digital
 	converter.
-	<li>The 10-bit converted value output from the ADC is sent to a 
-	pair of 8-bit registers called ADRESH:ADRESL.  Since 10-bits does
-	not fit perfectly inside a 16-bit register (there are 6 unused bits), 
+	<li>The 10-bit converted value output from the ADC is sent to a
+	pair of 8-bit registers called ADRESH:ADRESL. Since 10-bits does
+	not fit perfectly inside a 16-bit register (there are 6 unused bits),
 	the 10-bit value will either be pushed left or right inside the
-	16-bit register.  This is called the converted values justification.
-	<li>The fourth sub-module is the pair of dashed boxes with 
-	PVCFG&lt;1:0&gt; and NVCFG&lt;1:0&gt; as input.  This pair of 
-	multiplexers selects the positive/negative reference voltages used 
+	16-bit register. This is called the converted values justification.
+	<li>The fourth sub-module is the pair of dashed boxes with
+	PVCFG&lt;1:0&gt; and NVCFG&lt;1:0&gt; as input. This pair of
+	multiplexers selects the positive/negative reference voltages used
 	by the ADC.
 </ol>
 
@@ -126,15 +126,15 @@ in the following question.
 
 <ol start=6>
 <li>Complete the table below by looking up the relationship between the
-ADC channels and the I/O pins using the pin summary on page 6 of the 
-PIC18(L)F2X/4XK22 Data Sheet posted on the class web page.  Use the
+ADC channels and the I/O pins using the pin summary on page 6 of the
+PIC18(L)F2X/4XK22 Data Sheet posted on the class web page. Use the
 schematic and layout, posted on the class web page, to determine if
-there are any devices attached to each of the I/O pins.  Provide the
-identity of the device or write "Free" if there is no device.  An easy 
+there are any devices attached to each of the I/O pins. Provide the
+identity of the device or write "Free" if there is no device. An easy
 way to determine this is to look at the pin-header array surrounding
 the PIC on the development board
- layout.  If there is no wire (red/blue trace) leaving 
-the header, then that I/O pin is not connected to any device and is free. 
+ layout. If there is no wire (red/blue trace) leaving
+the header, then that I/O pin is not connected to any device and is free.
 If an ADC channel does not have an associated pin, write "None" in the
 I/O pin column and "N/A" in the Attached Device column.
 
@@ -168,107 +168,108 @@ I/O pin column and "N/A" in the Attached Device column.
 Build a project using the following MCC configuration:
 
 <ul>
-<li>Launch MCC Tools &rarr; Embedded &rarr; MPLab  Code Configurator
-<li>In the INTERNAL OSCILLATOR area of the System Module window
-<ul>	<li>Oscillator Select:	Internal oscillator block
-	<li>System Clock Select: FOSC
+<li>Build a project using the following MCC configuration:
+
+<li>Click on "Clock Control" in the Project Resources section of the Resource
+Management tab (left side of the screen). Then, in the Clock Control tab
+<ul>	<li>System Clock Select: FOSC
 	<li>Internal Clock: 16MHz_HFINTOSC
-	<li>Software PLL Enabled: Check
+	<li>Software PLL Enabled: &check;
 </ul>
-The Current System clock should be 64MHz (4x PLL)
+The current System Clock should be 64000000.
 
-<li>In the Device Resources area of the project window, expand the ADC
-options twice.  Double click "ADC [PIC10 &hellip; by Microchip Technology",
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR0.
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "UART" list. Double click UART.
+<ul>	<li>In the UART(None) menu that pops up, set the following:
+	<li>UART PLIB Selector:	EUSART1</ul>
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "ADC" list. Double click ADC.
 
-<li>In the Pin Manager: Grid [MCC] tab of the console window click on
-the blue open lock in the Port A 6 column of the "output" subrow in
-the "Pin Module" group of rows.  This space will change to a green 
-closed lock.
+<li>In the Project Resources section of the the Resource Management tab, expand
+the Drivers &rarr; Timer options if not already expanded, and click on TMR0.
+<ul>	<li>Timer Enable:	&check;
+	<li>Timer Mode:	16-bit
+	<li>Clock Source:	FOSC/4
+	<li>Prescaler Assignment:	not_assigned
+	<li>Requested Period:	100&micro;s
+	<li>TMR Interrupt Enable:	&check;
+	<li>Generate TMR ISR:	&check;
+</ul>
+<!--
+	Normally there would be a section here about setting TMR0H and TMR0L to 0x0,
+	but this does not appear to be an option in Melody. I have not had any
+	issues on my own without doing this.
+-->
 
-<li>In the Pin Manager: Grid [MCC] tab of the console window click on
-the blue open lock in the Port A 5 column of the "ANx input" subrow 
-in the "ADC" group of rows.  This space will change to a green closed 
-lock.
+<li>In the Project Resources section of the the Resource Management tab, expand
+the UART option and click on UART1.
+<ul>	<li>Requested Baudrate:		9600
+	<li>Data Size:	8
+	<li>Flow Control Mode:	None
+	<li>Redirect Printf to UART:	&check;
+	<li>Interrupt Driven:	&square;
+</ul>
 
-<li>In the Project Resources area of the project window, click "Pin Module".
-The editor window will change from the System Module to Pin Module. Click 
-on the Custom Name text box in the RA6 row and change the name to 
-"TEST_PIN".
-
-<li>In the "Pin Module" window, change the name of the RA5 pin to 
-"MIC_PIN".
-
-<li>In the Device Resources area of the project window, expand the EUSART
-option twice.  Double click "EUSART1 [PIC10 &hellip; by Microchip Technology",
-
-<li>In the Project Resources area of the project window, expand the 
-Peripherals option if not already expanded, and click on ADC
-<ul>	<li>Enable ADC:		&check;
-	<li>Clock Source:	FOSC/64
-	<li>Acquisition Time:	8
+<li>In the Project Resources section of the the Resource Management tab, expand
+the ADC option and click on ADC.
+<ul>	<li>CCP Dependency Selector:	CCP5
+<ul>	<li>You can validate this step by checking that CCP5 was added as a
+driver to the project.</ul>
+	<li>Enable ADC:	&check;
 	<li>Result Alignment:	left
 	<li>Positive Reference:	VDD
 	<li>Negative Reference:	VSS
-</ul>
-Now click on the Register tab to the right of the Easy Setup tab that
-you are currently editing in.  In the ADCON0 area, change the setting
-for CHS to AN4.
-
-
-<li>In the Project Resources area of the project window, expand the 
-Peripherals option if not already expanded, and click on TMR0.
-<ul>	<li>Enable Timer:	&check;
-	<li>Enable Prescaler:	&square;
-	<li>Timer mode:		16-bit
-	<li>Clock Source:	FOSC/4
-	<li>Enable Timer Interrupt:	&check;
-	<li>Requested Period:	100&micro;s
+	<li>Positive Input Channel:	AN4
+	<li>Acquisition Time:	8
+	<li>Auto Conversion Trigger:	CCP5
+	<li>Conversion Clock Select:	FOSC/64
+	<li>ADI Interrupt Enable:	&square;
 </ul>
 
-<li>Still in the TMR0 configuration, click on the "Registers" tab
-<ul>	<li>Change the "TMR0H" text box to 0x0
-	<li>Change the "TMR0L" text box to 0x0
-	<li>Do not try and modify the Requested Period value in the "Easy Setup" tab.
-</ul>
+<li>Click on "Pins" in Project Resources. In the Pin Grid View tab
+(bottom of the screen) click on the blue open lock in the Port A 6
+column of the "output" subrow in the "Pins" group of rows.
+This space will change to a green closed lock.
 
-<li>In the Project Resources area of the project window click on EUSART1.
-<ul>	<li>Enable EUSART:	&check;
-	<li>Enable Transmit:	&check;
-	<li>Enable Wake-up:	&square;
-	<li>Auto-Baud Detection:	&square;
-	<li>Enable Address Detect:	&square;
-	<li>Baud Rate:		9600
-	<li>Transmission Bits:	8-bit
-	<li>Reception Bits:	8-bit
-	<li>Clock Polarity:	async_noninverted_sync_fallingedge
-	<li>Enable Continuous Receive:	&check;
-	<li>Enable EUSART Interrupts:	&square;
-	<li>Redirect STDIO to USART	&check;
-</ul>
+<li>In the Pin Grid View tab click on the blue open lock in the Port
+A 5 column of the "ANx input" subrow in the "ADC" group of rows.
+This space will change to a green closed lock.
+
+<li>Open the Pins tab (right side of the screen).
+Click on the Custom Name text box in the RA6 row and change
+the name of RA6 to "TEST_PIN"
+
+<li>In the Pins tab, change the name of the RA5 pin to "MIC_PIN"
 
 <li>Click on the "Generate" button in the Project Resources area of the
-project manager window.  If you get a MCC pop-up asking you to confirm
-that the configuration has warnings, click Yes.  The warning is about 
+project manager window. If you get a MCC pop-up asking you to confirm
+that the configuration has warnings, click Yes. The warning is about
 configuring CCP5 so that whenever its associated flag is set the ADC
-module performs a conversion.  In the MCC Save Configuration File, keep the 
-defaults and Save.  Anytime that you make a change to the configuration
+module performs a conversion. In the MCC Save Configuration File, keep the
+defaults and Save. Anytime that you make a change to the configuration
 you must re-generate the supporting files by clicking on the generate
 button,
 <li>Click on the Project tab in the project manager window,
-expand the Source Files folder and double click main.c to open 
+expand the Source Files folder and double click main.c to open
 it in the editor window.
-<li>Replace the contents of main.c with 
-<a href="./code/inlab08.c">inlab08.c</a>,
+<li>Replace the contents of main.c with
+	<ul>
+	<li> <a href="./code/inlab08Classic.c">inlab08Classic.c</a></li>
+	<li> <a href="./code/inlab08Melody.c">inlab08Melody.c</a></li>
+	</ul>
+</ul>
 <li>Compile and download the code to the PIC,
-<li>Launch PuTTY and connect to the virtual communication port 
+<li>Launch PuTTY and connect to the virtual communication port
 associated with your development board.
 </ul>
 
 
 <ol start=7>
 <li>Look at the code in the ISR and the configuration of the timer
-subsystem to determine how frequently thes microphone is being sampled.  
-Show the dimensional analysis used to derrive the answer.  You could
+subsystem to determine how frequently thes microphone is being sampled.
+Show the dimensional analysis used to derrive the answer. You could
 also connect the oscillope to RA6 (TEST_PIN) to verify your answer.
 </ol>
 
@@ -288,18 +289,18 @@ Capture a waveform of a whistle  using the following procedure:
 </table>
 
 Now whistle near the microphone and you should see a sine-wave
-that goes away when you stop whistling.  In order to hold the whistle on
-the display of the oscilloscope, you need to switch the oscilloscope 
+that goes away when you stop whistling. In order to hold the whistle on
+the display of the oscilloscope, you need to switch the oscilloscope
 trigger from auto to normal mode using
 [Mode/Coupling] &rarr; <u>Mode</u> &rarr; Normal </font><br>
 
 If the lab is noisy, the oscilloscope may retrigger on some background
-noise.  In order to prevent this try using the "Single" button in the upper 
-right of the oscilloscope.  This will cause the oscilloscope to trigger
-once and not record any more information until another run control 
-button is pressed.  Thus you can confidently view the waveform without
-having a loud noise in the room retrigger the scope and ruin your 
-whistle waveform.  Make sure to return the oscilloscope back to 
+noise. In order to prevent this try using the "Single" button in the upper
+right of the oscilloscope. This will cause the oscilloscope to trigger
+once and not record any more information until another run control
+button is pressed. Thus you can confidently view the waveform without
+having a loud noise in the room retrigger the scope and ruin your
+whistle waveform. Make sure to return the oscilloscope back to
 Run mode in order to restart signal acquisition.
 <br><br>
 
@@ -316,20 +317,20 @@ Make sure to:
 	<li>Clear all menus off the bottom of the screen<br>
 	[&uarr;Back]
 	<li>Screen shot the screen on USB:<br>
-	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr; 
+	[Save] &rarr; <u>Save</u> &rarr; <u>Format</u> &rarr;
 	<u>24-bit Bit... (*.bmp)</u>
 	[Save] &rarr; <u>Save</u> &rarr; <u>Press to Save</u>
 </ul>
 
 <ol start=8>
 <li>Capture a whistle waveform, store it on a thumb drive and include
-it in your report.  
+it in your report.
 
-<li>Capture a finger snap waveform.  It should look like a damped
-sinusoid.  Include it in your report.
+<li>Capture a finger snap waveform. It should look like a damped
+sinusoid. Include it in your report.
 
-<li>Whistle three more times in different pitches and record the 
-frequency you measure on the oscilloscope.  Do not whistle directly 
+<li>Whistle three more times in different pitches and record the
+frequency you measure on the oscilloscope. Do not whistle directly
 into the microphone as the volume will saturate the output.
 
 <table class="table table-striped table-bordered table-condensed">
@@ -345,11 +346,11 @@ into the microphone as the volume will saturate the output.
 Download <a href="./inlab08.xlsx">inlab08.xlsx</a> excel spreadsheet.
 
 
-You are going to use a function generator to provide an input 
-signal to an analog to digital channel on your PIC.  Be careful 
+You are going to use a function generator to provide an input
+signal to an analog to digital channel on your PIC. Be careful
 otherwise you might damage your PIC. To start, you will want
-to make sure that the sine wave that you will be feeding into the 
-PIC oscillates between 0V to 3.3V.  The following image and 
+to make sure that the sine wave that you will be feeding into the
+PIC oscillates between 0V to 3.3V. The following image and
 instructions will walk you through this process.
 <br><img src="./img/functionGeneratorSetup02.jpg"><br><br>
 
@@ -376,7 +377,7 @@ Press the output1 key if it is not already illuminated.
 
 </font><li><font color=blue>
 Connect a proper oscilloscope probe to the channel 1 input of
-the oscilloscope.  Adjust the vertical scale to 1V/div and the
+the oscilloscope. Adjust the vertical scale to 1V/div and the
 horizontal scale to 500us, make sure that channel 1 is DC coupled,
 and that the trigger level is around 1.65V,
 </font><li><font color=blue>
@@ -408,83 +409,83 @@ please call for verification,
 
 You are now going to use the function generator to send sin waves with
 varying frequencies into the PIC's ADC and have them converted to 8-bit
-values at a fixed sampling rate of 10kHz using today's program. You will 
+values at a fixed sampling rate of 10kHz using today's program. You will
 then plot the sampled
-values in excel.  You will then look at this excel plot and infer the
+values in excel. You will then look at this excel plot and infer the
 observed frequency of the plotted data - this will be challenging in many
 of the cases do your best and note the trends in the data as you infer
-the observed frequency.  At low frequencies, the input and observed 
-frequencies will be the same, but at higher frequencies this relationship 
+the observed frequency. At low frequencies, the input and observed
+frequencies will be the same, but at higher frequencies this relationship
 will break down, you will discover and observe how this happens.
 <br><br>
 
 Start by connecting the development board to the PC through the USB port, run
 PuTTY on the PC and interact the terminal application to make sure that
-everything is operating correctly.  Next connect the function generator, 
+everything is operating correctly. Next connect the function generator,
 development board, and oscilloscope
-together as shown in the picture below.  <u>Make sure that the PC connected 
+together as shown in the picture below. <u>Make sure that the PC connected
 to the development board (and running PuTTY), the oscilloscope and the function
 generator are plugged into the same power strip at the rear of the bench!</u>
-Preferably in adjacent outlets.  Both the oscilloscope and function
+Preferably in adjacent outlets. Both the oscilloscope and function
 generator ground (black) clips need to be connected to the development board
 ground - use the ground loops on the development board for an easy setup.
-You will need to connect the signal line from the function generator 
+You will need to connect the signal line from the function generator
 (red clip) to an free ADC I/O pin that you determined in an earlier question.
-You can do this by cutting the end off one of your jumper wires, strip 
+You can do this by cutting the end off one of your jumper wires, strip
 1cm of insulation off and then tin the resulting stranded end of the wire.
 In the image below, this is the red wire connected
 to a I/O pin header on the development board and whose tinned end is connected
-to both the function generator signal and the oscilloscope probe.  When
+to both the function generator signal and the oscilloscope probe. When
 you first make the connection between the function generator signal line
-and the development board, keep an eye on the power LED; if it goes out when 
+and the development board, keep an eye on the power LED; if it goes out when
 you make the connection, then you have a incorrect connection.
 <!--
 ground-loop formed by the instrumentation caused by using different
-power outlets.  Try the following to resolve a ground-loop problem
+power outlets. Try the following to resolve a ground-loop problem
 is this is encountered.
-<ul>	<li>Use the benchtop digital multimeter to measure the voltage 
+<ul>	<li>Use the benchtop digital multimeter to measure the voltage
 	between the oscilloscope ground clip and the function generator
-	ground clip.  The reading should be in millivolts.
+	ground clip. The reading should be in millivolts.
 	<li>Use the benchtop digital multimeter to measure the resistance
 	between the oscilloscope ground clip and the function generator
-	ground clip.  The reading should be in milliohms.
+	ground clip. The reading should be in milliohms.
 	<li>If the readings are not within these guidelines, move around
-	the power plugs on the power strip (in adjacent outlets) and 
+	the power plugs on the power strip (in adjacent outlets) and
 	try again.
 </ul>
 -->
 
 Once you have this done, you are now ready to do some experimentation.
 Start by setting an input frequency using the function generator keypad
-and verify the frequency with the oscilloscopes.  The
-following figures shows my bench setup with an input frequency equal 
+and verify the frequency with the oscilloscopes. The
+following figures shows my bench setup with an input frequency equal
 to 2kHz.
 <br><img src="./img/rawScope02.jpg"><br><br>
 
 Use the terminal application to switch the sampled channel to the ANx
-pin that you have connected the function generator.  Then gather 16
+pin that you have connected the function generator. Then gather 16
 samples from the ADC using the "s" command as shown below.
 <br><img src="./img/rawPuTTY.bmp"><br><br>
 
-Cut and paste these samples into the "Magnitude" row (row 2) of the 
-"rawData" tab of the excel spreadsheet.  If all the data appears in a
+Cut and paste these samples into the "Magnitude" row (row 2) of the
+"rawData" tab of the excel spreadsheet. If all the data appears in a
 single cell do the following:
 <ul>	<li>Select the cell with the data (B2),
 	<li>Data &rarr; Text to Columns,
-	<li>In the Convert Text to Columns Wizard select the 
+	<li>In the Convert Text to Columns Wizard select the
 		"Delimited" radio button. Select Next,
-	<li>In the Delimiters area, select "Space".  Select Finish,
+	<li>In the Delimiters area, select "Space". Select Finish,
 	<li>In the pop-up select OK to replace existing content.
 </ul>
-	
-From this, determine the 
-observed period of the waveform plotted and enter it into the cell 
-below "Period" (cell A8).  Copy the value from the cell below "observed
-Frequency" (cell B8).  You will paste this in the alias tab.
+
+From this, determine the
+observed period of the waveform plotted and enter it into the cell
+below "Period" (cell A8). Copy the value from the cell below "observed
+Frequency" (cell B8). You will paste this in the alias tab.
 
 <br><img src="./img/rawData.bmp"><br><br>
 
-In the "alias" tab of the excel spreadsheet, paste the observed 
+In the "alias" tab of the excel spreadsheet, paste the observed
 frequency into the row corresponding to the input frequency (cell D4).
 In order to paste the value of the copied cell and not the formula,
 right-click on cell D4 and select the Paste Option corresponding to the
@@ -492,7 +493,7 @@ right-click on cell D4 and select the Paste Option corresponding to the
 <br><img src="./img/rawPlot.bmp"><br><br>
 
 Do this for all the Input Frequencies listed in the alias tab to complete
-the graph of Input vs. Input Frequency.  
+the graph of Input vs. Input Frequency.
 
 <ol start=11>
 <li>Copy and paste your Input vs. Observed Frequency graph for your
