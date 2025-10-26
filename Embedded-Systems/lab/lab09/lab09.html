@@ -43,15 +43,15 @@ Some self guided <a href="./inlab09.html">activities.</a><br>
 <h2>Lab 9 assignment</h2>
 Create an embedded application that writes audio data to the SD Card
 that, in the next lab, will be played back through the speaker.
-The general architecture of the lab is shown below.  You will use an
+The general architecture of the lab is shown below. You will use an
 ISR to collect microphone samples and store them in one of two buffers,
-the blue buffer in the figure below.  While samples are being stored
+the blue buffer in the figure below. While samples are being stored
 in the blueBuffer, the redBuffer is being sent out to the SD Card
-over the SPI but through the SDCARD_WriteBlock interface function 
-supplied in this inLab.  Once blueBuffer is full and the redBuffer has
-been sent, their roles are swapped.  The blueBuffer is then sent to 
+over the SPI but through the SDCARD_WriteBlock interface function
+supplied in this inLab. Once blueBuffer is full and the redBuffer has
+been sent, their roles are swapped. The blueBuffer is then sent to
 the SD Card and, while this is being done,  new microphone samples are
-sent to the redBuffer.  This is called double buffering and an 
+sent to the redBuffer. This is called double buffering and an
 important technique in signal processing.
 
 <br><img src="./img/system.bmp"><br><Br>
@@ -84,7 +84,7 @@ s: spool memory to a csv file
 
 <ul>
 <li><b>?</b><br>
-Prints out the ever useful help menu.  
+Prints out the ever useful help menu.
 <br><br>
 
 <li><b>Z</b><br>
@@ -105,20 +105,20 @@ just as was done in the inLab code - just cut-and-paste.
 <br><br>
 
 <li><b>a/A</b><br>
-decrement or increment the address used to read the memory.  This is
+decrement or increment the address used to read the memory. This is
 also a cut-and-paste from the inlab code.
 <br><br>
 
 
 <li><b>1</b><br>
 In order to test next weeks program, it will be very helpful to have
-a known waveform stored in the SD Card.  Let's do future you a favor
-and take care of this now.  Copy the following sine wave 
-over and over again in the SD Card.  You need to copy the wave
-"smoothly" across block boundaries.  In other words, when your code runs
-out of room in one block at sin[index], the first value stored in the 
-next block should be sin[index+1], NOT sin[0].  Continue storing sine
-waves until the user presses any key.  After a keypress, tell the user
+a known waveform stored in the SD Card. Let's do future you a favor
+and take care of this now. Copy the following sine wave
+over and over again in the SD Card. You need to copy the wave
+"smoothly" across block boundaries. In other words, when your code runs
+out of room in one block at sin[index], the first value stored in the
+next block should be sin[index+1], NOT sin[0]. Continue storing sine
+waves until the user presses any key. After a keypress, tell the user
 how many blocks have been stored.
 
 <pre>
@@ -128,33 +128,32 @@ const uint8_t   sin[SINE_WAVE_ARRAY_LENGTH] = {128,	159,	187,	213,	233,	248,	255
 To test this function, store at least 2 blocks worth of sine waves, then
 use the 's' function
 and spool out at least 2 blocks worth of data to verify that the sin
-wave smoothly crosses the block boundry.  In other words, the sine wave
+wave smoothly crosses the block boundry. In other words, the sine wave
 should have no discontinuity when crossing the block boundry.
 <br><br>
 
 
-You need to insert a delay beteen consectutive block writes for the 
-"1" function.  I did this by placing a TMR1 delay loop after the 
-each call to SDCARD_WriteBlock.  I configured TMR1 to run with a 1:8
+You need to insert a delay beteen consectutive block writes for the
+"1" function. I did this by placing a TMR1 delay loop after the
+each call to SDCARD_WriteBlock. I configured TMR1 to run with a 1:8
 prescaler.
 
 <pre>
-
 for (blockCount = 0; blockCount &lt; MAX_NUM_BLOCKS; blockCount++) {
 
-  \\for loop to fill the redBuffer with 512 sin wave samples
+  // for loop to fill the redBuffer with 512 sin wave samples
 
-  SDCARD_WriteBlock(loopSDcardAddress, redBuffer)
+  SDCARD_WriteBlock(loopSDcardAddress, redBuffer);
   while ((status = SDCARD_PollWriteComplete()) == WRITE_NOT_COMPLETE);
-                        
+
   // Slow down the write sequence to insure that blocks are written
-  TMR1_WriteTimer(0x0000);
+  TMR1_CounterSet(0x0000);
   PIR1bits.TMR1IF = 0;
   while (PIR1bits.TMR1IF == 0);
 } // end for blockCount
 </pre>
 
-Note, do NOT do this in the "W" function.  The aquisition of the samples
+Note, do NOT do this in the "W" function. The aquisition of the samples
 takes 51.2 ms which is more than enough time between SDCARD_WriteBlock
 calls.
 
@@ -163,55 +162,55 @@ calls.
 
 
 <li><b>+/-</b><br>
-Change SAMPLE_RATE from a #define to a global variable sampleRate. 
+Change SAMPLE_RATE from a #define to a global variable sampleRate.
 Initialize the sampleRate to generate an interrupt every 100&micro;s.
 Allow the '+' function the increase the sampleRate by 10&micro;s and
-the '-' function the decrease the sampleRate by 10&micro;s.  Do not
-allow the sampleRate to go below 20&micro;s. 
+the '-' function the decrease the sampleRate by 10&micro;s. Do not
+allow the sampleRate to go below 20&micro;s.
 
 <br><br>
 <li><b>W</b><br>
 This will record the microphone values converted through the ADC into the
-SD Card at the sampling rate (default to 100 us).  When the user types 
+SD Card at the sampling rate (default to 100 us). When the user types
 'W' in the terminal window, prompt with user with
 <font face="courier">Press any key to start recording audio and
-press  any key to stop recording.</font>.  
+press  any key to stop recording.</font>.
 This will allow the user to get all set-up without having to pay attention
-to which key they press in order to start the audio recording.  
+to which key they press in order to start the audio recording.
 <br><br>
 
 Your program must use double buffering so that it can acquire new samples
-while storing old samples.  To do this you will use the TMR0 ISR to 
+while storing old samples. To do this you will use the TMR0 ISR to
 collected converted values from the ADC and start a new conversion.
 In addition, the TMR0
 ISR is responsible for moving the sampled value into either the red
-or blue buffer (both global variables because of their size), and set 
-flags true to indicate when either buffer is full.  Main should be 
+or blue buffer (both global variables because of their size), and set
+flags true to indicate when either buffer is full. Main should be
 monitoring these flags and writing the red or blue buffer to the SD
-Card when either is full.  While main is doing this, the ISR should be
+Card when either is full. While main is doing this, the ISR should be
 storing microphone samples to the other buffer.
 <br><Br>
 
-You should record "This is a test, one, two, three, four".  Then
-spool the audio message the 's' function.  Then plot this waveform 
+You should record "This is a test, one, two, three, four". Then
+spool the audio message the 's' function. Then plot this waveform
 using the Excel Instructions below.
 <br><br>
 
-Consider trying our 
+Consider trying our
 <a href="https://cse.unl.edu/~jfalkinburg/husker-scope/app/page/FunctionGenerator">Husker Scope</a>
 to record clean audio waveforms with predictable shapes.
 
 
 <li><b>s</b><br>
 In computing the term spooling is generally taken to mean outputting
-a lot of raw data.  I want you to provide the capability to spool blocks
-of the SD Card to the terminal.  Before you start 
+a lot of raw data. I want you to provide the capability to spool blocks
+of the SD Card to the terminal. Before you start
 spooling, you will configure PuTTY to store anything that appears on
-the terminal into a file.  You will then spool blocks of the SD CArd
-to the terminal.  Finally you will instruct PuTTY to close
-the file.  You will then open the file in Excel and plot the audio
-data.  I have found spooling to be slow, it may be worth increasing the
-Baud rate for this assignment - if you do, don't forget to configure 
+the terminal into a file. You will then spool blocks of the SD CArd
+to the terminal. Finally you will instruct PuTTY to close
+the file. You will then open the file in Excel and plot the audio
+data. I have found spooling to be slow, it may be worth increasing the
+Baud rate for this assignment - if you do, don't forget to configure
 PuTTy to the same Baud rate.
 <br><br>
 
@@ -230,20 +229,20 @@ Press any key to start
 </pre>
 
 Your program should then read consecutive blocks of the SD Card and
-print the ADC values, one per row, out to the terminal.  After 
+print the ADC values, one per row, out to the terminal. After
 each block is printed to the terminal, check if a key has been pressed,
 if not continue to read that block,  print all 512-bytes and then check
-again for a keypress.  You can check for a keypress using the 
-<font face="courier">EUSART1_DataReady function</font> - you should clear 
+again for a keypress. You can check for a keypress using the
+<font face="courier">EUSART1_DataReady function</font> - you should clear
 the associated flag
 using a void EUSART1 read using a statement like:
 <font face="courier">(void) EUSART1_Read();</font>
 <br><br>
 
-Continue until a key is pressed or the last 
-byte of the last block has been printed to the terminal.  At this
-point you should present the user with some instructions to close 
-the log file.  They should look something like:
+Continue until a key is pressed or the last
+byte of the last block has been printed to the terminal. At this
+point you should present the user with some instructions to close
+the log file. They should look something like:
 <pre>
 117
 116
@@ -278,7 +277,7 @@ In order to plot the spooled data, follow these instructions.
 	<li>Delete any non-data lines at the top of column A by
 	selecting the row numbers, right mouse and select delete,
 	<li>Go to the bottom of the A column by clicking on any
-	cell in the A column and then pressing the "End" key 
+	cell in the A column and then pressing the "End" key
 	and then pressing the down-arrow key,
 	<li>Delete any non-data rows at the bottom of column A,
 	<li>Go back to the top of column A by clicking on any
@@ -286,8 +285,8 @@ In order to plot the spooled data, follow these instructions.
 	pressing the up-arrow key,
 	<li>Select column A by clicking on the A,
 	<li>Add a X-Y scatter plot Insert &rarr; Charts &rarr; X-Y scatter
-	&rarr; Scatter with Straight Lines, 
-	<li>Change the title of the plot with that you said, by clicking 
+	&rarr; Scatter with Straight Lines,
+	<li>Change the title of the plot with that you said, by clicking
 	on "title" and typing,
 	<li>Stretch the graph horizontally by grabbing the right edge
 	and mousing right.
@@ -303,7 +302,7 @@ get something that looks like the following.
 <h3>Turn-in</h3>
 You may work with a single partner (or alone) to complete this lab.
 Submit your main.c file on Canvas using the instructions posted
-there.  You should take note of the Rubric that will be used to evaluate
+there. You should take note of the Rubric that will be used to evaluate
 your assignment. Please form a group before submitting using the
 instructions posted on Canvas. You will demonstrate your code at the
 beginning of lab.

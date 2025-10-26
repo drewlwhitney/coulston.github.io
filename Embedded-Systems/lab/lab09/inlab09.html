@@ -35,31 +35,31 @@ Working in teams of two, read through the following lab activity and perform all
 Include the names of both team members at the top of your solutions. Use complete English sentences when answering questions. If the answer to a question is a table or other piece of art (like an oscilloscope trace or a figure), then include a sentence explaining the piece of art. Only include your answers, do not include the question-text unless it is absolutely needed.
 
 <h2>Objective</h2>
-To familiarize you with the SD Card and its SPI interface.  To use
+To familiarize you with the SD Card and its SPI interface. To use
 the test and measurement equipment to measure the time required to
 complete read/write operations to the SD Card.
 
 <h2>External Hardware</h2>
 Kingston Technology is a large technology company that manufactures
-mainly storage products.  Their
+mainly storage products. Their
 <a href="https://www.kingston.com/datasheets/SDCIT-specsheet-64gb_en.pdf">
 microSDXC memory card Flash Storage Media</a> document provides one of
 the best overviews of micro SD Cards and the associated SPI interface
-that I have found on the Internet.  Download this PDF and use it to
+that I have found on the Internet. Download this PDF and use it to
 help you answer the following questions.
 
 <ol>
 <li>Use Figure 1 from the Kingston PDF and the schematic of the development
 board to answer the following question.
 <ul>	<li>The SD Card pin# column refers to Figure 1 of the Kingston
-	PDF.  The SPI Mode Name referrers to the SPI Mode Name column
+	PDF. The SPI Mode Name referrers to the SPI Mode Name column
 	from Table 2 of the Kingston PDF.
 	<li>The PIC pin column referrers to PIC pin (shown on the
 	development board schematic) attached to the SD Card Holder
 	pin in that row. If the pin in this row is not connected
 	to the SD card holder, write "Not connected".
 	<li>The PIC MCCP column refers to the MSSP function of the
-	PIC pin in that row.  You can get the MSSP function by looking
+	PIC pin in that row. You can get the MSSP function by looking
 	in Table 2 of
 	the PIC18(L)F2X/4XK22 Data Sheet posted on the class web page.
 </ul>
@@ -77,7 +77,7 @@ board to answer the following question.
 </table>
 
 <li>How many Bytes of memory does our 128MByte SD Card hold, represented
-as a decimal number?  The "Mega" in MB means 2<sup>20</sup>.  How many bits
+as a decimal number?  The "Mega" in MB means 2<sup>20</sup>. How many bits
 of address does the SD Card need to give each Byte a unique address?
 
 </ol>
@@ -85,8 +85,8 @@ of address does the SD Card need to give each Byte a unique address?
 
 <h2>Firmware Organization</h2>
 Let's start by creating, configuring and including all the code that
-you will need for this week's lab.  To do this, complete the following
-steps.  Note, this week's lab has two .c files and a .h file, so pay
+you will need for this week's lab. To do this, complete the following
+steps. Note, this week's lab has two .c files and a .h file, so pay
 close attention to the instructions at the end.
 
 <ul>
@@ -205,7 +205,7 @@ it in the editor window.
 <li>In the Project navigation pane, select the Projects tab.
 <ul>	<li>Right mouse click on "Header Files" folder
 	<li>Select "Add Existing Item&hellip;"
-	<li>In the Select Item pop-up navigate and select sdCard.h.  Since
+	<li>In the Select Item pop-up navigate and select sdCard.h. Since
 	you have two files called "sdCard", be careful which you select.
 	<li>Add sdCard.c to the "Source Files" folder in the Project tab
 	using the same process.
@@ -219,7 +219,7 @@ associated with your development board.
 Experiment with the code as you read through the following text.<br><br>
 
 The firmware provided in today's lab allows you to perform
-some basic operations.  Let's look at these by first pressing
+some basic operations. Let's look at these by first pressing
 "?" to get the menu.
 
 <pre>
@@ -243,10 +243,10 @@ w: write a block of 512 bytes to SD card
 <ul>
 <li><b>i</b><br>
 Before you use the SD card, you must first initialize it to operate in
-SPI mode.  Try hitting the "i" key now.  The firmware you programmed
+SPI mode. Try hitting the "i" key now. The firmware you programmed
 will call the
 <font face="courier">SDCARD_Initialize(true);</font> function which
-establishes that the PIC wants to talk to the SD Card using SPI.  You
+establishes that the PIC wants to talk to the SD Card using SPI. You
 will get three pieces of feeback from this function; CMD0, CMD1 and
 the block length command. When everything is working normally, you
 should get the following response.
@@ -258,31 +258,31 @@ Block Length Response: 0
 </pre>
 
 If you do not get this sequence (or if your PIC hangs), then you should
-make sure that your SD card is inserted.  Then reset the PIC and try
-several more times.  If this does not work, make sure that your
-firmware is configured correctly.  Then try an SD card that works in
+make sure that your SD card is inserted. Then reset the PIC and try
+several more times. If this does not work, make sure that your
+firmware is configured correctly. Then try an SD card that works in
 another computer.
 
 <li><b>a/A</b><br>
 The example program allows you to read/write blocks of 512 bytes
-to/from the SD card respectively.  These 512 byte blocks are located
+to/from the SD card respectively. These 512 byte blocks are located
 at some starting address inside the SD card. The SD card address currently
 used as the starting address for these blocks is printed at the top of the
-menu as: <font face="courier">SD card address:  0000:0000</font>.  The
+menu as: <font face="courier">SD card address:  0000:0000</font>. The
 'A' command increase the current SD card address by 512, and the 'a' command
-decrease the current SD card address by 512.  Be careful when decrementing
+decrease the current SD card address by 512. Be careful when decrementing
 the address that you do not underflow to a really high address.
 
 <li><b>w</b><br>
 Writes a block of 512 bytes to the SD card starting at the current
-SD card address.  The 512 bytes written are two sets of decreasing
+SD card address. The 512 bytes written are two sets of decreasing
 values from 0xFF to 0x00.
 
 <li><b>r</b><br>
 Reads a block of 512 bytes to the SD card at the current SD card address.
 The values in this 512 byte block are printed out in 32 rows of 16 bytes
-each.  Each byte is printed out in two different formats in raw hex and
-in ASCII.  For example, when I read a block that has just been written,
+each. Each byte is printed out in two different formats in raw hex and
+in ASCII. For example, when I read a block that has just been written,
 I get the following three rows.
 
 <pre>
@@ -292,11 +292,11 @@ I get the following three rows.
 </pre>
 
 You should consult an online ASCII table to verify some to these
-characters.  Note unprintable ASCII character my be displayed
+characters. Note unprintable ASCII character my be displayed
 as '▒' or as '.'.
 
 <li><b>t</b><br>
-Sends one character over SPI.  This function will not be used in
+Sends one character over SPI. This function will not be used in
 today's lab.
 </ul>
 
@@ -307,7 +307,7 @@ write your program for this week's lab.
 
 
 <ol start=3>
-<li>Look for the call to SDCARD_Initialize in main.  What two
+<li>Look for the call to SDCARD_Initialize in main. What two
 functions are called just prior?  It's important that you call
 these two function prior to calling SDCARD_Initialize.
 
@@ -317,7 +317,7 @@ things that this function does?
 
 <li>Look in main and find the name of the function that prints
 out the contents of the SD card buffer when you use the "r"
-function.  What is the name of this function and what is the data
+function. What is the name of this function and what is the data
 type of the argument that main passes to this function (sdCardBuffer)?
 
 <li>For this lab, you will write out a function to spool the
@@ -349,7 +349,7 @@ print out a block and the entire 128MB SD Card contents.
 <ul>	<li>How many character per line are printed out
         if a line
 	contains a single byte value (represented as a decimal value)
-	terminated with a carriage return and line feed.  Make a
+	terminated with a carriage return and line feed. Make a
 	reasonable assumption - only a single answer will be accepted.
 	<li>How many total characters are printed out to display
 	an entire block of 512 bytes, one decimal value per row?
@@ -363,7 +363,7 @@ print out a block and the entire 128MB SD Card contents.
 </ul>
 
 <li>I made the sdCardBuffer array a global variable even though
-    its only used in main.  Let's explore why using section 5.5.2 of the
+    its only used in main. Let's explore why using section 5.5.2 of the
     XC8 Compiler User's Guide posted on the class web page.
 <ul>	<li>What is the difference between an auto and non-auto
 	variable?  You should probably search the Internet for help
@@ -371,13 +371,13 @@ print out a block and the entire 128MB SD Card contents.
 
 	<li>What is the size of a memory bank in the PIC?  Look at
 	section 5.4 in the PIC18(L)F2X/4XK22 Data Sheet posted
-	on the class web page.  What is the size of the available
+	on the class web page. What is the size of the available
 	data memory on the PIC?  I found the answer to this question
 	on the first page of the data sheet.
 
 	<li>Auto variables must fit into one data bank and non-auto
 	variables can be as large as the available data memory in
-	the PIC.  Assume that your program has a declaration of a
+	the PIC. Assume that your program has a declaration of a
 	array that looks like:
 	<br>
 	<font face="courier">uint8_t array[SIZE];</font>
@@ -394,10 +394,10 @@ that read and write blocks from/to the SD card respectively.
 <h2>Firmware Experiments</h2>
 There are a variety of reasons that the timer 0 interrupt service
 routine might get delayed from running, or accumulate
-unanticipated delays while executing.  In the example code provided,
-I forced the ISR to have a big-ole-waste-of-time inside the ISR.  As
+unanticipated delays while executing. In the example code provided,
+I forced the ISR to have a big-ole-waste-of-time inside the ISR. As
 designed, the intention of the ISR was to have it called once every
-100&micro;s and set RA6 high while the CPU is in the TMR0 ISR.  To check
+100&micro;s and set RA6 high while the CPU is in the TMR0 ISR. To check
 how well this is happening, measure the frequency of ISR calls using
 an oscilloscope configured as follows.
 
@@ -419,12 +419,12 @@ Make sure to:
 
 <ol start=9>
 <li>Measure the period between consecutive interrupts using the
-ISR as configured.  Next make the following changes:
+ISR as configured. Next make the following changes:
 <ul>
 	<li>In main.c - comment out <font face="courier">TMR0_WriteTimer(0x10000 - RATE);</font>
 	<li>In main.c - remove comment <font face="courier">TMR0_WriteTimer(TMR0_ReadTimer() + (0x10000 - RATE));</font>
 </ul>
-Now measure the interrupt period again.  Put your finding in the table
+Now measure the interrupt period again. Put your finding in the table
 below.
 <table class="table table-striped table-bordered table-condensed">
 <tr><td>ISR timer adjustment		<td>Interrupt period
@@ -433,12 +433,12 @@ below.
 </table>
 
 <li>Explain in your own words what causes the second form to be so
-much more accurate.  <br><br>
+much more accurate. <br><br>
 
 <u>An important note, you MUST configure timer 0
 in MCC so that the TMR0H:TMR0L is 0 when you use the
 <font face="courier">TMR0_WriteTimer(TMR0_ReadTimer() + (0x10000 - RATE));</font>
-form to set the duration to the next timer.  This is because the timer
+form to set the duration to the next timer. This is because the timer
 is set to the Requested Period (from MCC) before your myTMR0ISR is called.</u>
 </ol>
 
