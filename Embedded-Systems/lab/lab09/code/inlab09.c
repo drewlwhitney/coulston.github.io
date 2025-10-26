@@ -5,6 +5,7 @@
 //
 // Assisted:        The entire class of EENG 383
 // Assisted by:     Microchips 18F26K22 Tech Docs 
+// Conversion to MCC Melody: Nolan Pratt (nolanpratt@mines.edu), Fall 2025
 //-
 //- Academic Integrity Statement: I certify that, while others may have
 //- assisted me in brain storming, debugging and validating this program,
@@ -17,7 +18,7 @@
 //- assignment, or course failure and a report to the Academic Dishonesty
 //- Board.
 //------------------------------------------------------------------------
-#include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/system/system.h"
 #include "sdCard.h"
 #pragma warning disable 520     // warning: (520) function "xyz" is never called  3
 #pragma warning disable 1498    // fputc.c:16:: warning: (1498) pointer (unknown)
@@ -27,7 +28,7 @@ void myTMR0ISR(void);
 
 #define BLOCK_SIZE          512
 #define RATE                1600
-#define MAX_NUM_BLOCKS      4
+#define MAX_NUM_BLOCKS      128
 
 // Large arrays need to be defined as global even though you may only need to 
 // use them in main.  This quirk will be important in the next two assignments.
@@ -40,7 +41,7 @@ uint8_t sdCardBuffer[BLOCK_SIZE];
 void main(void) {
 
     uint8_t status;
-    uint16_t i;
+    uint16_t i, blockCount;
     uint32_t sdCardAddress = 0x00000000;
     char cmd, letter;
 
@@ -50,11 +51,11 @@ void main(void) {
     CS_SetHigh();
 
     // Provide Baud rate generator time to stabilize before splash screen
-    TMR0_WriteTimer(0x0000);
+    TMR0_CounterSet(0x0000);
     INTCONbits.TMR0IF = 0;
     while (INTCONbits.TMR0IF == 0);
 
-    TMR0_SetInterruptHandler(myTMR0ISR);
+    TMR0_OverflowCallbackRegister(myTMR0ISR);
 
     INTERRUPT_GlobalInterruptEnable();
     INTERRUPT_PeripheralInterruptEnable();
@@ -62,14 +63,13 @@ void main(void) {
     printf("inLab 09\r\n");
     printf("SD card testing\r\n");
     printf("Dev'21\r\n");
-    printf("No configuration of development board\r\n> "); // print a nice command prompt    
-    
+
     SPI2_Close();
-    SPI2_Open(SPI2_DEFAULT);
-    
+    SPI2_Open(CLASSIC_FWPORT);
+
     for (;;) {
 
-        if (EUSART1_DataReady) { // wait for incoming data on USART
+        if (EUSART1_IsRxReady()) { // wait for incoming data on USART
             cmd = EUSART1_Read();
             switch (cmd) { // and do what it tells you to do
 
@@ -95,6 +95,8 @@ void main(void) {
                     printf("a/A decrease/increase read address\r\n");
                     printf("r: read a block of %d bytes from SD card\r\n", BLOCK_SIZE);
                     printf("w: write a block of %d bytes to SD card\r\n", BLOCK_SIZE);
+                    printf("--------------- WRITE CONSECTUTIVE BLOCKS ---------------\r\n");
+                    printf("0: Fill each page with identical value, increment on next page.\r\n");
                     printf("-------------------------------------------------\r\n");
                     break;
 
@@ -123,16 +125,17 @@ void main(void) {
                     //--------------------------------------------
                     // Clear the terminal
                     //--------------------------------------------                      
-                case 't':                    
+                case 't':
                     printf("    Connect oscilloscope channel 1 to PIC header pin RB1 (vertical scale 2v/div)\r\n");
                     printf("    Connect oscilloscope channel 2 to PIC header pin RB3 (vertical scale 2v/div)\r\n");
                     printf("    Trigger on channel 1\r\n");
                     printf("    Set the horizontal scale to 500ns/div\r\n");
                     printf("    Hit any key when ready\r\n");
-                    while (!EUSART1_DataReady);
+                    while (EUSART1_IsRxReady());
+                    while (!EUSART1_IsRxReady());
                     (void) EUSART1_Read();
 
-                    printf("sent: %02x  received: %02x\r\n", letter, SPI2_ExchangeByte(letter));
+                    printf("sent: %02x  received: %02x\r\n", letter, SPI2_ByteExchange(letter));
                     letter += 1;
                     break;
 
@@ -142,7 +145,7 @@ void main(void) {
                     //--------------------------------------------    
                 case 'i':
                     SPI2_Close();
-                    SPI2_Open(SPI2_DEFAULT);    // Reset the SPI channel for SD card communication
+                    SPI2_Open(CLASSIC_FWPORT); // Reset the SPI channel for SD card communication
                     SDCARD_Initialize(true);
                     break;
 
@@ -181,12 +184,14 @@ void main(void) {
                     // w: write a block of BLOCK_SIZE bytes to SD card
                     //--------------------------------------------
                 case 'w':
+                    printf("Probe RC4 to determine write period\r\n");
                     for (i = 0; i < BLOCK_SIZE; i++) sdCardBuffer[i] = 255 - i;
+
                     WRITE_TIME_PIN_SetHigh();
                     SDCARD_WriteBlock(sdCardAddress, sdCardBuffer);
                     while ((status = SDCARD_PollWriteComplete()) == WRITE_NOT_COMPLETE);
                     WRITE_TIME_PIN_SetLow();
-                    
+
                     printf("Write block of decremented 8-bit values:\r\n");
                     printf("    Address:    ");
                     printf("%04x", sdCardAddress >> 16);
@@ -200,6 +205,7 @@ void main(void) {
                     // r: read a block of BLOCK_SIZE bytes from SD card                
                     //--------------------------------------------
                 case 'r':
+                    printf("Probe RC5 to determine write period\r\n");
                     READ_TIME_PIN_SetHigh();
                     SDCARD_ReadBlock(sdCardAddress, sdCardBuffer);
                     READ_TIME_PIN_SetLow();
@@ -245,8 +251,8 @@ void myTMR0ISR(void) {
     TEST_PIN_SetHigh();
 
     for (bigOleWasteOfTime = 0; bigOleWasteOfTime < 40; bigOleWasteOfTime++);
-    TMR0_WriteTimer(0x10000 - RATE); // Less accurate    
-    // TMR0_WriteTimer(TMR0_ReadTimer() + (0x10000 - RATE));   // More accurate
+    TMR0_CounterSet(0x10000 - RATE); // Less accurate    
+    // TMR0_CounterSet(TMR0_ReadTimer() + (0x10000 - RATE));   // More accurate
 
     INTCONbits.TMR0IF = 0;
     TEST_PIN_SetLow();
