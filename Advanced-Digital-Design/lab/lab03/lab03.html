@@ -43,7 +43,10 @@ You will use a testbench to verify that your design works as a simulation.  In o
 to verify proper operation of the synthesized design, you will ask the register file
 for the value of register 0 and send the output to four comparators.  The comparators
 will compare the channel 1 converted value against the 16-bit 2's complement value
-for 1, 2, 3 and 4 volts.<br>
+for 0.66V, 1.32V, 1.98V and 2.64V.  Note these voltages break the 3.3V to 0V supplied
+by the potentiometer on the granddaughter board into 5 equal intervals allowing you to 
+have 0,1,2,3 or 4 LEDs illuminated depending on the position of the potentiometer.<br>
+
 The button process is similar to the last lab, it will look for a change in the logic
 level of one of the buttons (which I don't care).  When the button process sees a change
 in this button's logic level, it will enable the trigger status word for one clock cycle.
