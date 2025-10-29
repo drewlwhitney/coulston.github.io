@@ -185,16 +185,10 @@ defaults and Save. Anytime that you make a change to the configuration
 you must re-generate the supporting files by clicking on the generate
 button,
 
-<li><b>After generating the MCC files, comment out these two lines from
-TMR0_OverflowISR() in tmr0.c.
+<li><b>If you are using MCC Melody, once you generate the MCC files, follow the directions <a href="../../TMR_ISR_FAQ.html">here</a> to patch you MCC files to work properly.
 <font color=red> If you do not do this, your timer period will be wrong
 and you will get incorrect answers later in your lab.</font></b>
-They should be lines 144-145
 
-<pre>
-    TMR0H = (uint8_t)(tmr0PeriodCount >> 8);
-    TMR0L = (uint8_t)(tmr0PeriodCount);
-</pre>
 
 <li>Click on the Project tab in the project manager window,
 expand the Source Files folder and double click main.c to open

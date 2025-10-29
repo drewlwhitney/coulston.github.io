@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<!----- http://getbootstrap.com/css/ ----->
+    <head>
+        <title>EENG 383 - MPlab Install on MAC</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="EENG 383 - Microcomputer Architecture and Interfacing">
+        <meta name="author" content="Chris Coulston">
+        <link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css'>
+        <script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+
+</head>
+
+<body>
+        <div class = "container">
+            <div class = "navbar navbar-inverse">
+                <div class = "navbar-inner">
+                    <a class = "brand" href="./index.html">EENG 383</a>
+                    <ul class = "nav">
+                        <li><a href="./index.html">Home</a></li>
+                    </ul>
+                    </ul>
+                </div>
+            </div>
+
+
+<center>
+<h1>Why is the MCC Melody TMR ISR Different from the MCC Classic ISR?</h1>
+</center>
+
+
+<h2>Preface</h2>
+
+In Fall of 2025, Microchip updated MPLAB X to use their newer MCC Melody, replacing MCC Classic as the configurator for the PIC18F series of chips. While the lab computers use MPLAB X v5.50, which support MCC Classic, newer versions (&gt; v6.20) installed on student computers when they start the course use MCC Melody. There are some software differences in the MCC-generated code that require students using MCC Melody to patch their MCC-generated code for some questions in inLab 8 and inLab 9 to make sense.
+
+<h2>MCC Melody TMR ISR</h2>
+
+The MCC-generated ISR (which calls your myTMR0ISR), does the following:
+
+<pre>
+void TMR0_OverflowISR(void) {
+    //Reload TMR0
+    //Write to the Timer0 register
+    TMR0H = (uint8_t)(tmr0PeriodCount >> 8);
+    TMR0L = (uint8_t)(tmr0PeriodCount);
+
+    if(NULL != TMR0_OverflowCallback)
+    {
+        TMR0_OverflowCallback();
+    }
+    INTCONbits.TMR0IF = 0;
+}
+</pre>
+
+In the old MCC Classic, there was a bug that prevented the TMR0H and TMR0L registers from being reset properly, so the ISR entered TMR0_OverflowISR without writing the TMR0 count registers.
+
+Now that this code works in Melody, it sets the TMR0H and TMR0L registers before it executes your myTMR0ISR. As a result, the call to <code>TMR0_CounterGet()</code> will return the initial reset value of the timer register PLUS the duration of your ISR. When used in <code>TMR0_CounterSet(0x10000 - (1600 – TMR0_CounterGet()));</code>, it has the side effect of creating an incorrect delay until the next timer overflow interrupt.
+
+<h2>What is the error that occurs?</h2>
+
+This snippet of code shows the issue and why the timer period value is about twice what is expected.
+
+<pre>
+#include <stdio.h>
+#include <inttypes.h>
+
+// 16-bit timer max val
+#define TOP         ((uint16_t) 0xFFFF)
+// 10 us delay in period counts
+#define PER_VAL     ((uint16_t) 1600)
+// For the sake of argument, let's say the ISR takes 6 TMR counts to run
+#define ISR_TMR_LEN ((uint16_t) 6)
+
+int main(int argc, char* argv[]) {
+    const uint16_t MCCTimerLoadVal = TOP - PER_VAL;
+    const uint16_t desiredTimerLoadVal = TOP - (PER_VAL - ISR_TMR_LEN);
+    const uint16_t actualTimerLoadVal = TOP - (PER_VAL - MCCTimerLoadVal);
+    
+    printf("MCC Timer load value:     %05u (0x%04x), %04d counts from overflow\n", MCCTimerLoadVal, MCCTimerLoadVal, (int32_t) TOP-MCCTimerLoadVal); 
+    printf("Desired Timer load value: %05u (0x%04x), %04d counts from overflow\n", desiredTimerLoadVal, desiredTimerLoadVal, (int32_t) TOP-desiredTimerLoadVal);
+    printf("Actual Timer load value:  %05u (0x%04x), %04d counts from overflow\n", actualTimerLoadVal, actualTimerLoadVal, (int32_t) TOP-actualTimerLoadVal);
+
+    return 0;
+}
+</pre>
+
+The output is:
+
+<pre>
+MCC Timer load value:     63935 (0xf9bf), 1600 counts from overflow
+Desired Timer load value: 63941 (0xf9c5), 1594 counts from overflow
+Actual Timer load value:  62334 (0xf37e), 3201 counts from overflow
+</pre>
+
+<h2>How do I need to edit my inLabs so they work properly?</h2>
+
+To get correct answers in your inLab questions, you'll need to patch your MCC-generated code after you generate it. All you have to do is comment out the two lines that set TMR0H and TMR0L in the MCC-generated ISR. This should be lines 144-145 as of Fall 2025.
+
+<pre>
+void TMR0_OverflowISR(void) {
+    //Reload TMR0
+    //Write to the Timer0 register
+    // TMR0H = (uint8_t)(tmr0PeriodCount >> 8); // Comment out these two lines
+    // TMR0L = (uint8_t)(tmr0PeriodCount);      // Comment out these two lines
+
+    if(NULL != TMR0_OverflowCallback)
+    {
+        TMR0_OverflowCallback();
+    }
+    INTCONbits.TMR0IF = 0;
+}
+</pre>
+
+<h2>How should I approach my Labs?</h2>
+
+In your inLabs, you probably found that the TMR0 wasn't completely accurate for timekeeping, so you will need to adjust the value that you write to the TMR0 register in order to better tune your code. Here is how we recommend that you do this. <b>Remember, an accurate time period is necessary for the Lab 8-10 demos, so you'll need to fine tune this in your inlab code.</b>
+
+
+<h3>Approach 1</h3>
+<ol>
+    <li> In your lab code, manually #define FUDGE_FACTOR to fine-tune your TMR0 period.
+    <li> In the TMR0 ISR you implement, you can now safely do the following: <br>
+        <code>TMR0_CounterSet(0x10000 - (???? +/- FUDGE_FACTOR)); // Choose if + or - is appropriate for you</code>
+    <li> Verify the TMR0 period with an oscilloscope and tune <code>FUDGE_FACTOR</code> until it gets you the proper period for your ISR.
+</ol>
+
+<h3>Approach 2</h3>
+<ol>
+    <li>Use <code>TMR0_PeriodSet(0x10000 - ???? ± FUDGE_FACTOR)</code> at the top of <code>main()</code>, where ???? is the number of TMR0 counts needed for a delay of 100µs (hint, look at the inLab8 code).
+    <li>Do not call <code>TMR0_CounterSet()</code> at all in your ISR, as the above step already had you set the period. You must still reset the interrupt flag.
+    <li>Adjust the value <code>FUDGE_FACTOR</code> slightly until you measure a 100µs period on an oscilloscope.
+</ol>
+
+<h3>Approach 3</h3>
+<ol>
+    <li> In MCC, adjust the Requested Period for TMR0 until you measure a 100µs actual period on an oscilloscope.
+</ol>
+
+<h3>Approach 4</h3>
+<ol>
+    <li>Apply the same patch to your MCC code as described in the previous section. <b>This is not recommended since you will have to remember to do this every time you regenerate your MCC code.</b>
+</ol>
+
+Any of the approaches will work for Lab 8. However, starting in Lab 9-10, we will change the sampling period using the PuTTY menu, so Approach 3 will not work.
+
+
+
+</html>
