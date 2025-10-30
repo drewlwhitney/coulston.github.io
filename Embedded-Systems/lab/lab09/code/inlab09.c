@@ -252,7 +252,7 @@ void myTMR0ISR(void) {
 
     for (bigOleWasteOfTime = 0; bigOleWasteOfTime < 40; bigOleWasteOfTime++);
     TMR0_CounterSet(0x10000 - RATE); // Less accurate    
-    // TMR0_CounterSet(TMR0_ReadTimer() + (0x10000 - RATE));   // More accurate
+    // TMR0_CounterSet(TMR0_CounterGet() + (0x10000 - RATE));   // More accurate
 
     INTCONbits.TMR0IF = 0;
     TEST_PIN_SetLow();
