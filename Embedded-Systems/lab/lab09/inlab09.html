@@ -413,17 +413,17 @@ Make sure to:
 
 <ol start=9>
 <li>Measure the period between consecutive interrupts using the
-ISR as configured. Next make the following changes:
+ISR as configured and record it in the table. Next make the following changes:
 <ul>
-	<li>In main.c - comment out <font face="courier">TMR0_WriteTimer(0x10000 - RATE);</font>
-	<li>In main.c - remove comment <font face="courier">TMR0_WriteTimer(TMR0_ReadTimer() + (0x10000 - RATE));</font>
+	<li>In main.c - comment out <font face="courier">TMR0_CounterSet(0x10000 - RATE);</font>
+	<li>In main.c - remove comment <font face="courier">TMR0_CounterSet(TMR0_CounterGet() + (0x10000 - RATE));</font>
 </ul>
 Now measure the interrupt period again. Put your finding in the table
 below.
 <table class="table table-striped table-bordered table-condensed">
 <tr><td>ISR timer adjustment		<td>Interrupt period
-<tr><td>TMR0_WriteTimer(0x10000 - RATE);<td>&nbsp;
-<tr><td>TMR0_WriteTimer(TMR0_ReadTimer() + (0x10000 - RATE));	<td>&nbsp;
+<tr><td>TMR0_CounterSet(0x10000 - RATE);<td>&nbsp;
+<tr><td>TMR0_CounterSet(TMR0_CounterGet() + (0x10000 - RATE));	<td>&nbsp;
 </table>
 
 <li>Explain in your own words what causes the second form to be so
@@ -431,7 +431,7 @@ much more accurate. <br><br>
 
 <u>An important note, you MUST configure timer 0
 in MCC so that the TMR0H:TMR0L is 0 when you use the
-<font face="courier">TMR0_WriteTimer(TMR0_ReadTimer() + (0x10000 - RATE));</font>
+<font face="courier">TMR0_CounterSet(TMR0_CounterGet() + (0x10000 - RATE));</font>
 form to set the duration to the next timer. This is because the timer
 is set to the Requested Period (from MCC) before your myTMR0ISR is called.</u>
 </ol>
