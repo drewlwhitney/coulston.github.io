@@ -4,7 +4,7 @@
 -- Modified:	Sept 2022
 -- File:	acquireToHDMI_Datapath.vhdl
 -- HW:		Lab 3
--- Crs:		ECE 383 and EENG 498
+-- Crs:		ECE 383 and EENG 484
 --
 -- Purp: The complete datapath for the audio O'scope
 --
