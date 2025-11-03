@@ -216,11 +216,11 @@ foreground instead of sampling them in myTMR0ISR interrupt.
 Do this by:
 <ul>	<li>Replacing your record function with the following code
 	<li>Delete all the record code from your myTMR0ISR.
-	<li>Add TMR1 with a 1:1 prescaler, <u>Make sure to set
+	<li>Add TMR1 with a 1:1 prescaler. (<u>Make sure to set
 	TMR1H = 0x00 and TMR1L = 0x00 in the Register configuration
-	of TMR1 when you use MCC! This can be done in MCC melody using
-	the following instructions (substitution TMR1 for TMR0):
-	<a href="../../TMR_ISR_FAQ.html">TMR_ISR_FAQ</a></u>
+	of TMR1 when you use MCC!</u> This can be done in MCC melody using
+	the following instructions (substitute TMR1 for TMR0):
+	<a href="../../TMR_ISR_FAQ.html">TMR_ISR_FAQ</a>)
 </ul>
 
 This code will record audio onto your SD card.  Now you can focus on
