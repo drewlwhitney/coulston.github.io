@@ -73,7 +73,7 @@ s: spool memory to a csv file
 -------------------------------------------------
 +/-: Increase/Decrease the sample rate by 10 us
 P: Play from SD card to PWM -> LPF -> Audio
-W: Write microphone => SD card 
+W: Write microphone => SD card
 -------------------------------------------------
 </pre>
 
@@ -81,22 +81,22 @@ The header of the help menu should display the following status information
 about the record/playback system.
 <ul>	<li>Play length in blocks is set by the "1" or "W" functions.
 	Whenever either of these functions is run, you need to keep
-	track of the number of blocks written to the SD card in order 
+	track of the number of blocks written to the SD card in order
 	to playback the correct number of blocks.  This does not need
 	to be a global variable.
 	<li>sdCardAddress is the address used by the "r" and "+" or "-"
 	functions.  I find these functions super useful when debugging
 	what I have written into memory.  The "1", "W" and "P" functions
-	should have their own address variable and NOT change this 
+	should have their own address variable and NOT change this
 	address.
 	<li>sample rate is the TMR0 interrupt frequency. Both the
 	record and playback utilize the TMR0 ISR.  If you change the
-	sample rate between recording and playback you will change the 
+	sample rate between recording and playback you will change the
 	pitch of the sound recorded - this can be fun.  Display the
 	sample rate in microseconds by dividing the timer counts by
 	an appropriate constant.
 </ul>
-	
+
 The menu system has the following functions:
 
 <ul>
@@ -131,10 +131,10 @@ just as was done in the inLab code - just cut-and-paste
 <li><b>1</b><br>
 In order to test next weeks program, it will be very helpful to have
 a known waveform stored in the SD Card.  Let's do future you a favor
-and take care of this now.  Copy the following sine wave 
+and take care of this now.  Copy the following sine wave
 over and over again in the SD Card.  You need to copy the wave
 "smoothly" across block boundaries.  In other words, when your code runs
-out of room in one block at sin[index], the first value stored in the 
+out of room in one block at sin[index], the first value stored in the
 next block should be sin[index+1], NOT sin[0].  Continue storing sine
 waves until the user presses any key.  After a keypress, tell the user
 how many blocks have been stored.
@@ -144,20 +144,20 @@ const uint8_t   sin[SINE_WAVE_ARRAY_LENGTH] = {128,	159,	187,	213,	233,	248,	255
 </pre>
 
 <li><b>s</b><br>
-Spool block of data off the SD Card to the terminal.  Before you start 
+Spool block of data off the SD Card to the terminal.  Before you start
 spooling, you will configure PuTTY to store anything that appears on
 the terminal into a file.  You will then spool blocks of the SD Card
 to the terminal.  Finally you will instruct PuTTY to close
-the file.  
+the file.
 <br><br>
 
 
 <li><b>+/-</b><br>
-Change SAMPLE_RATE from a #define to a global variable sampleRate. 
+Change SAMPLE_RATE from a #define to a global variable sampleRate.
 Initialize the sampleRate to generate an interrupt every 100&micro;s.
 Allow the '+' function the increase the sampleRate by 10&micro;s and
 the '-' function the decrease the sampleRate by 10&micro;s.  Do not
-allow the sampleRate to go below 20&micro;s. 
+allow the sampleRate to go below 20&micro;s.
 <br><br>
 
 <li><b>P</b><br>
@@ -165,15 +165,15 @@ Play back the audio samples stored in the SD Card.  To do this main
 sets a flag that causes the TMR0 ISR to pull audio samples from either
 the red or blue buffers.  This buffer value is then used as the PWM
 duty cycle (via EPWM1_LoadDutyValue).  This PWM output on RC2 is then
-sent to the LPF (make sure the jumper is installed) whoses output 
+sent to the LPF (make sure the jumper is installed) whoses output
 is sent to the amplifier (make sure the jumper is installed).  If
 the speaker is installed, this should generate an audio output.
 <br><br>
 The ISR needs to keep track of where it is in the red or blue buffer
-and alert main (via a global variable) when the buffer is empty.  
+and alert main (via a global variable) when the buffer is empty.
 Main needs to load the red and blue buffers with data as the ISR needs
 them.  Main read the SD Card using the SDCARD_ReadBlock command provided
-to you in a previous lab.  The audio level of the voice recordings will 
+to you in a previous lab.  The audio level of the voice recordings will
 be pretty low, so make sure to listen to the recordings in a silent room.
 The audio output of the stored sinusoid is resonablly loud, so much so
 that you will want to make sure the jumper adjacent to the USB connector
@@ -184,41 +184,43 @@ PIC causing the PIC to reset.
 
 <li><b>W</b><br>
 This will record the microphone values converted through the ADC into the
-SD Card at the sampling rate (default to 100 us).  When the user types 
+SD Card at the sampling rate (default to 100 us).  When the user types
 'W' in the terminal window, prompt with user with
 <font face="courier">Press any key to start recording audio and
-press  any key to stop recording.</font>.  
+press  any key to stop recording.</font>.
 This will allow the user to get all set-up without having to pay attention
-to which key they press in order to start the audio recording.  
+to which key they press in order to start the audio recording.
 <br><br>
 
 Your program must use double buffering so that it can acquire new samples
-while storing old samples.  To do this you will use the TMR0 ISR to 
+while storing old samples.  To do this you will use the TMR0 ISR to
 collected converted values from the ADC and start a new conversion.
 In addition, the TMR0
 ISR is responsible for moving the sampled value into either the red
-or blue buffer (both global variables because of their size), and set 
-flags true to indicate when either buffer is full.  Main should be 
+or blue buffer (both global variables because of their size), and set
+flags true to indicate when either buffer is full.  Main should be
 monitoring these flags and writing the red or blue buffer to the SD
 Card when either is full.  While main is doing this, the ISR should be
 storing microphone samples to the other buffer.
 <br><Br>
 
-Consider trying 
+Consider trying
 <a href="https://cse.unl.edu/~jfalkinburg/husker-scope/app/page/FunctionGenerator">Husker Scope</a>
 to record predictable waveforms.
 
 
 <h3>If you didn't get the previous lab working?</h3>
 If you did not get the previous lab working, you can
-still complete this lab by recording your audio in the 
-foreground instead of sampling them in myTMR0ISR interrupt.  
+still complete this lab by recording your audio in the
+foreground instead of sampling them in myTMR0ISR interrupt.
 Do this by:
 <ul>	<li>Replacing your record function with the following code
 	<li>Delete all the record code from your myTMR0ISR.
 	<li>Add TMR1 with a 1:1 prescaler, <u>Make sure to set
-	TMR1H = 0x00 and TMR0L = 0x00 in the Register configuration
-	of TMR1 when you use MCC!!!</u>
+	TMR1H = 0x00 and TMR1L = 0x00 in the Register configuration
+	of TMR1 when you use MCC! This can be done in MCC melody using
+	the following instructions (substitution TMR1 for TMR0):
+	<a href="../../TMR_ISR_FAQ.html">TMR_ISR_FAQ</a></u>
 </ul>
 
 This code will record audio onto your SD card.  Now you can focus on
@@ -249,24 +251,24 @@ Then inside main use:
                     //--------------------------------------------
                 case 'R':
                     printf("Press any key to start recording of audio\r\n");
-                    while (EUSART1_DataReady == false);
+                    while (EUSART1_IsRxReady() == false);
                     (void) EUSART1_Read();
 
                     loopSDcardAddress = 0;
-                    //Added TMR1 with 1:1 prescaler and no interrupts to 
+                    //Added TMR1 with 1:1 prescaler and no interrupts to
                     // create the needed delays.
 
                     uint16_t redIndex = 0;
                     uint16_t blueIndex = 0;
                     printf("Press any key to stop recording of audio\r\n");
-                    TMR1_WriteTimer(0x0000);
-                    while (EUSART1_DataReady == false) {
+                    TMR1_CounterSet(0x0000);
+                    while (EUSART1_IsRxReady() == false) {
 
                         for (redIndex = 0; redIndex < BLOCK_SIZE; redIndex++) {
                             ADCON0bits.GO_NOT_DONE = 1;
-                            TMR1_WriteTimer(0x10000 - sampleRate + TMR1_ReadTimer());
+                            TMR1_CounterSet(0x10000 - sampleRate + TMR1_CounterGet());
                             PIR1bits.TMR1IF = 0;
-                            while (!TMR1_HasOverflowOccured());
+                            while (!TMR1_OverflowStatusGet());
                             redBuffer.buffer[redIndex] = ADRESH;
                         }
 
@@ -275,9 +277,9 @@ Then inside main use:
                         loopSDcardAddress += BLOCK_SIZE;
 
                         for (blueIndex = 0; blueIndex < BLOCK_SIZE; blueIndex++) {
-                            TMR1_WriteTimer(0x10000 - sampleRate + TMR1_ReadTimer());
+                            TMR1_CounterSet(0x10000 - sampleRate + TMR1_CounterGet());
                             PIR1bits.TMR1IF = 0;
-                            while (!TMR1_HasOverflowOccured());
+                            while (!TMR1_OverflowStatusGet());
                             blueBuffer.buffer[blueIndex] = ADRESH;
                         }
 
@@ -298,8 +300,8 @@ you will no doubt notice that the playback volume is very low.  This
 is due in part to the low corner frequency of the output low pass
 filter and the low gain of the output amplifier.  I provided you
 a means to increase the volume of the output by connecting the two
-pads on the solder jumper labeled "volume" shown in the image below.  
-To do this, grab a piece of solder, heat up a solder iron and add solder 
+pads on the solder jumper labeled "volume" shown in the image below.
+To do this, grab a piece of solder, heat up a solder iron and add solder
 to the two pads until you intentionally create a solder bridge between
 the two pads.
 
