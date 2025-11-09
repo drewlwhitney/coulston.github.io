@@ -57,70 +57,77 @@ Let's go through a familiar configuration of the PIC using the
 following steps.
 
 <ul>
-<li>In the INTERNAL OSCILLATOR area of the System Module window
-<ul>	<li>Oscillator Select:	Internal oscillator block
-	<li>System Clock Select: FOSC
+<li>Click on "Clock Control" in the Project Resources section of the Resource
+Management tab (left side of the screen). Then, in the Clock Control tab
+<ul>	<li>System Clock Select: FOSC
 	<li>Internal Clock: 16MHz_HFINTOSC
 	<li>Software PLL Enabled: &check;
 </ul>
-The Current System clock should be 64MHz (4x PLL)
+The current System Clock should be 64000000.
 
-<li>In the Device Resources area of the project window, expand the Timer
-option. Double click TMR0.
-<li>In the Device Resources area of the project window, expand the Timer
-option. Double click TMR1.
-<li>In the Device Resources area of the project window, expand the Timer
-option. Double click TMR2.
-<li>In the Device Resources area of the project window, expand the EUSART
-option. Double click EUSART1.
-<li>In the Device Resources area of the project window, expand the ECCP
-option. Double click ECCP1
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR0.
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR1.
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "Timer" list. Double click TMR2.
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "UART" list. Double click UART.
+<ul>	<li>In the UART(None) menu that pops up, set the following:
+	<li>UART PLIB Selector:	EUSART1</ul>
+<li>In the Device Resources section of the Resource Management tab, scroll down
+and expand the "ECCP" list. Double click ECCP1.
 
 
-<li>In the Project Resources area of the project window click on TMR0.
-<ul>	<li>Enable Timer:	&check;
-	<li>Enable Prescaler:	&square;
-	<li>Prescaler:		1:2	&lt;It doesn't matter&gt;
-	<li>Timer mode:		16-bit
+<li>In the Project Resources section of the the Resource Management tab, expand
+the Drivers &rarr; Timer options if not already expanded, and click on TMR0.
+<ul>	<li>Timer Enable:	&check;
+	<li>Timer Mode:	16-bit
 	<li>Clock Source:	FOSC/4
-	<li>Timer Period:	500 us
-	<li>Enable Timer Interrupt	&square;
+	<li>Prescaler Assignment:	not_assigned
+	<li>Requested Period:	500 us
+	<li>TMR Interrupt Enable:	&square;
+	<li>Generate TMR ISR:	&square;
 </ul>
 
-<li>In the Project Resources area of the project window click on TMR1.
-<ul>	<li>Enable Timer:	&check;
+<li>In the Project Resources section of the the Resource Management tab,
+click on TMR1.
+<ul>	<li>Timer Enable:	&check;
+	<li>16-Bit Read/Write Mode Enable:	&square;
 	<li>Clock Source:	FOSC/4
 	<li>Prescaler:	1:8
-	<li>Enable Synchronization:	&check;
-	<li>Timer Period:	4.096 ms
-	<li>Period count:	0xE000
+	<li>Requested Period:	4.096 ms
+	<li>Gate Enable:	&square;
+	<li>TMR Interrupt Enable:	&square;
+	<li>TMR ISR Generate:	&square;
 </ul>
 
-<li>In the Project Resources area of the project window click on EUSART1.
-<ul>	<li>Enable EUSART:	&check;
-	<li>Enable Transmit:	&check;
-	<li>Enable Wake-up:	&square;
-	<li>Auto-Baud Detection:	&square;
-	<li>Enable Address Detect:	&square;
-	<li>Baud Rate:		9600
-	<li>Transmission Bits:	8-bit
-	<li>Reception Bits:	8-bit
-	<li>Clock Polarity:	async_noninverted_sync_fallingedge
-	<li>Enable Receive:	&check;
-	<li>Enable EUSART Interrupts:	&square;
-	<li>Redirect STDIO to USART	&check;
+<li>In the Project Resources section of the the Resource Management tab,
+click on TMR2.
+<ul>	<li>Timer Enable:	&check;
+	<li>Prescaler:		1:4
+	<li>Postscaler:		1:1
+	<li>Requested Period:	16us
+	<li>TMR Interrupt Enable:	&square;
+	<li>Generate TMR ISR:	&square;
 </ul>
 
-<li>In the Project Resources area of the project window click on TMR2
-<ul>	<li>Enable Timer: &check;
-	<li>Prescaler: 1:4
-	<li>Timer Period: 16us
+<li>In the Project Resources section of the the Resource Management tab, expand
+the UART option and click on UART1.
+<ul>	<li>Requested Baudrate:		9600
+	<li>Data Size:	8
+	<li>Flow Control Mode:	None
+	<li>Redirect Printf to UART:	&check;
+	<li>Interrupt Driven:	&square;
 </ul>
 
-<li>In the Project Resources area of the project window click on ECCP1
-<ul>	<li>ECCP mode: Enhanced PWM
-	<li>Timer Select: Timer2
-	<li>Duty Cycle: 50%
+<li>In the Project Resources section of the the Resource Management tab, expand
+the ECCP option and click on ECCP1.
+<ul>	<li>ECCP mode:	Enhanced PWM
+	<li>TMR Dependency Selector:	TMR2
+	<li>Select Timer:	Timer 2
+	<li>PWM Duty Cycle (%):	50
+	<li>Enhanced PWM Output Mode:	single
 </ul>
 
 <li>Click File &rarr; Save All
@@ -133,7 +140,10 @@ on the generate button,
 expand the Source Files folder and double click main.c to open
 it in the editor window,
 <li>Replace the contents of main.c with
-<a href="./code/inlab11.c">inlab11.c</a>,
+	<ul>
+	<li> <a href="./code/inlab11Classic.c">inlab11Classic.c</a>
+	<li> <a href="./code/inlab11Melody.c">inlab11Melody.c</a>
+	</ul>
 <!--
 <li>Delete the TMR0_DefaultInterruptHandler function from tmr0.c (lines 158-161),
 <li>Comment out the following two lines (line numbers 142, 143) in tmr0.c,
@@ -143,6 +153,8 @@ it in the editor window,
 </pre>
 -->
 <li>Compile and download the code to the PIC,
+<li>Launch PuTTY and connect to the serial port associated with your
+development board.
 </ul>
 <br>
 
@@ -203,13 +215,13 @@ whole number bits that are used. Hint, look for the shift operation.
 Now we are ready to understand the main DDS loop in the code,
 reproduced for you below.
 <pre>
-00.	while (EUSART1_DataReady == false) {
+00.	while (EUSART1_IsRxReady() == false) {
 01.	    phaseAccumulator = phaseAccumulator + phaseIncrement;
 02.	    index = phaseAccumulator >> 4;
 03.	    EPWM1_LoadDutyValue(sin[index]);
-04.	    TMR0_WriteTimer(0xFFFF - RATE);
+04.	    TMR0_CounterSet(0xFFFF - RATE);
 05.	    INTCONbits.TMR0IF = 0;
-06.	    while (TMR0_HasOverflowOccured() == false);
+06.	    while (TMR0_OverflowStatusGet() == false);
 07.	}
 </pre>
 
