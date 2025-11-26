@@ -25,7 +25,22 @@
 
 <h1>Software control of custom IP hardware</h1>
 The goal of this lab is to allow you to create a hardware and software system
-that can function as a function generator and oscilloscope.  
+that can function as a function generator and oscilloscope.  <br><br>
+
+While not a requirement, I recommend creating an additional 32-bit slv_reg as 
+a "debug" register that you can access from the ARM.  In Vitis you can access
+this register to control your hardware.  For example, you could use bit 31 as
+as a programmable reset. Thus, I had the following line:<br>
+<pre>resetn_int <= S_AXI_ARESETN and slv_reg5(31);</pre><br>
+			
+In addition you could created various other functionality like:
+<ul>
+	<li>programmable HDMI reset</li>
+	<li>a programmable ch1Enb inputto scopeFace</li>
+	<li>a programmable ch2Enb input to scopeFace</li>
+	<li>a programmable bit that sets trigVolt16Sgn to all zeros</li>
+	<li>a force trigger</li>li>
+</ul>
 
 <h3>C-level Functionality</h3>
 This level of functionality will earn a 75% grade.  The requirements:
